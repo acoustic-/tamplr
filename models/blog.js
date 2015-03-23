@@ -1,9 +1,9 @@
 "use strict";
 
 module.exports = function(sequelize, DataTypes) {
-  var User = sequelize.define("User", {
-    username: DataTypes.STRING,
-    password: DataTypes.STRING
+  var Blog = sequelize.define("Blog", {
+    id: DataTypes.STRING,
+    name: DataTypes.STRING
   }, {
     classMethods: {
       associate: function(models) {
@@ -12,12 +12,10 @@ module.exports = function(sequelize, DataTypes) {
         //
         // Tyyliin
         // User.hasMany(models.BlogPost);
-          
-          User.hasMany(models.Blog, {as : 'blogs' });
-          models.Blog.belongsTo(User);
+           Blog.belongsTo(models.User);
       }
     }
   });
 
-  return User;
+  return Blog;
 };
