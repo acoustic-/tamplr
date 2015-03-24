@@ -26,7 +26,7 @@ router.post('/', function(req, res, next) {
 
 
 router.get('/:id', function(req, res, next) {
-
+ 
   // TODO
 
   var id = req.params['id'];

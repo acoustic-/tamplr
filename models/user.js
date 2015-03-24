@@ -2,8 +2,9 @@
 
 module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define("User", {
-    username: DataTypes.STRING,
-    password: DataTypes.STRING
+    username: {type:DataTypes.STRING, allowNull:false},
+    name: {type:DataTypes.STRING, allowNull:false},
+    password: {type:DataTypes.STRING, allowNull:false}
   }, {
     classMethods: {
       associate: function(models) {
@@ -16,8 +17,18 @@ module.exports = function(sequelize, DataTypes) {
           User.hasMany(models.Blog, {as : 'blogs' });
           models.Blog.belongsTo(User);
       }
+    },
+    instanceMethods: {
+        toJson: function() {
+            var res = this.values;
+            // fromat JSON response correctly
+            delete res.password;
+            delete res.id;
+            delete res.createdAt;
+            delete res.updatedAt;
+            return res;
+        }
     }
   });
-
   return User;
 };
