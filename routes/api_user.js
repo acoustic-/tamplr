@@ -6,8 +6,6 @@ var models = require('../models');
 
 router.post('/', function(req, res, next) {
 
-  // TODO
-
   var username = req.body.username;
   var name = req.body.name;
   var password = req.body.password;
@@ -38,9 +36,7 @@ router.post('/', function(req, res, next) {
 
 
 
-router.get('/:username', function(req, res, next) {
-
-  // TODO
+router.get('/:username', isLoggedIn, function(req, res, next) {
 
   var username = req.params['username'];
   var query = {where: {username: username}};
@@ -54,5 +50,15 @@ router.get('/:username', function(req, res, next) {
   });
   // router.put
 });
+
+function isLoggedIn(req, res, next) {
+
+    // if user is authenticated in the session, carry on 
+    if (req.isAuthenticated())
+        return next();
+
+    // if they aren't redirect them to the home page
+    res.redirect('/');
+}
 
 module.exports = router;

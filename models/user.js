@@ -1,10 +1,20 @@
 "use strict";
 
+var bcrypt = require('bcrypt');
+
 module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define("User", {
     username: {type:DataTypes.STRING, allowNull:false},
     name: {type:DataTypes.STRING, allowNull:false},
-    password: {type:DataTypes.STRING, allowNull:false}
+    password: {type:DataTypes.STRING, 
+              // hash the password   
+              set: function(secret) {
+                var salt = bcrypt.genSaltSync(10);
+                var hash = bcrypt.hashSync(secret, salt); //,salt
+              
+                this.setDataValue('password', hash);
+                }
+              }
   }, {
     classMethods: {
       associate: function(models) {
@@ -18,8 +28,8 @@ module.exports = function(sequelize, DataTypes) {
           models.Blog.belongsTo(User);
       }
     },
-    instanceMethods: {
-        toJson: function() {
+    instanceMethods: { //This makes sure the returned JSON is
+        toJson: function() { //               in correct form
             var res = this.values;
             // fromat JSON response correctly
             delete res.password;
@@ -27,6 +37,11 @@ module.exports = function(sequelize, DataTypes) {
             delete res.createdAt;
             delete res.updatedAt;
             return res;
+        },
+        // check id password is valid
+        validatePassword: function(password) {
+            console.log("trying sync?");
+            return bcrypt.compareSync(password, this.getDataValue('password'));
         }
     }
   });
