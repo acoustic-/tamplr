@@ -14,11 +14,12 @@ router.get('/', function(req, res, next) {
 });
 
     // process the login form
-router.post('/', passport.authenticate('local', {
-        successRedirect : '/', 
-        failureRedirect : '/login'
+router.post('/', 
+	    passport.authenticate('local', {
+        successReturnToOrRedirect : '/', 
+        failureRedirect : '/login',
+        failureFlash: true
         
 }));
-
 
 module.exports = router;

@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
-
+var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 var models = require('../models');
 
-
+//add user
 router.post('/', function(req, res, next) {
 
   var username = req.body.username;
@@ -28,15 +28,21 @@ router.post('/', function(req, res, next) {
         return res.status(201);
         },
         function(err) {
-            return res.status(500).json({error:                                 'ServerError'});
+            return res.status(500).json({error: 'ServerError'});
         });
     }
   });
 });
 
 
+//get user information
+//ensureLoggedIn('/login') == check that user is logged, if redirect to login page
+//router.get('/:username', ensureLoggedIn('/login'), function(req, res) {
+//res.render('/:username');
+//});
 
-router.get('/:username', isLoggedIn, function(req, res, next) {
+router.get('/:username', function(req, res, next) {
+
 
   var username = req.params['username'];
   var query = {where: {username: username}};
@@ -45,20 +51,26 @@ router.get('/:username', isLoggedIn, function(req, res, next) {
       return res.status(200).json(user.toJson());
     }
     else {
+
       return res.status(404).json({error: 'UserNotFound'});
     }
   });
   // router.put
 });
 
+
+
+/*
 function isLoggedIn(req, res, next) {
 
-    // if user is authenticated in the session, carry on 
+    // if user is authenticated in the session, carry on
     if (req.isAuthenticated())
         return next();
 
     // if they aren't redirect them to the home page
     res.redirect('/');
 }
+*/
+
 
 module.exports = router;

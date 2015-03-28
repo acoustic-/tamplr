@@ -1,3 +1,5 @@
+//modules
+//moduulien käyttöönotto
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -7,9 +9,12 @@ var bodyParser = require('body-parser');
 var session = require('express-session')
 var flash    = require('connect-flash');
 // required for passport
-var passport = require('passport'),       LocalStrategy = require('passport-local').Strategy
+var passport = require('passport');//,       
+LocalStrategy = require('passport-local').Strategy
+//var BasicStrategy = require('passport-http').BasicStrategy;
+var basicAuth = require('basic-auth');
 
-
+var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 
 //app.use(passport.initialize());
 //app.use(passport.session()); // persistent login sessions
@@ -35,7 +40,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(session({ secret: 'secrets?' }));
+//app.use(session({ secret: 'secrets?' }));
+app.use(session({
+  secret: 'salateksti1234',
+  resave: false,
+  saveUninitialized: false
+}));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -45,14 +56,13 @@ app.use('/login', login);
 app.use('/api/user', apiUser);
 app.use('/api/blog', apiBlog);
 app.use('/api/ht', apiHt);
-
 //require('./config/passport')(passport);
 
 //passport logic
 
 // we use only local login (username and password)
 
-require('./config/passport')(passport);
+require('./config/passport')(passport); //pass our variable passport
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -84,7 +94,5 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
-
-
 
 module.exports = app;
