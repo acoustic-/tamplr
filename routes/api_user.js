@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 var models = require('../models');
+var passport = require('passport');
+var BasicStrategy = require('passport-http').BasicStrategy;
+//var BasicStrategy = require('passport-http').BasicStrategy;
 
 //add user
 router.post('/', function(req, res, next) {
@@ -41,9 +44,7 @@ router.post('/', function(req, res, next) {
 //res.render('/:username');
 //});
 
-router.get('/:username', function(req, res, next) {
-
-
+router.get('/:username', passport.authenticate('basic', {session: false}), function(req, res, next) {
   var username = req.params['username'];
   var query = {where: {username: username}};
   models.User.findOne(query).then(function(user) {

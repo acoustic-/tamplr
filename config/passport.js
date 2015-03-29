@@ -2,8 +2,8 @@
 // all functionality that is responsible for correct response
 // to valid or invalid user authentication
 
-var LocalStrategy = require('passport-local').Strategy;
-
+//var LocalStrategy = require('passport-local').Strategy;
+var BasicStrategy = require('passport-http').BasicStrategy;
 // load user model
 var User            = require('../models/user');
 var models = require('../models');
@@ -12,6 +12,7 @@ var models = require('../models');
 module.exports = function(passport) {
     
     // validate user for the duration of sessios
+    /*
     passport.serializeUser(function(user, done) {
         console.log("serializeUser called");
         done(null, user.id);
@@ -26,11 +27,8 @@ module.exports = function(passport) {
         done(err, null);
       });
     });
-
-    passport.use(new LocalStrategy({
-        usernameField: 'username',
-        passwordField: 'password',
-    },
+    */
+    passport.use(new BasicStrategy(
         function(username, password, done) {
             models.User.findOne({where: {username: username }})
                 .success(function(user) {

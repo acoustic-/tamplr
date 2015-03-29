@@ -10,14 +10,12 @@ var session = require('express-session')
 var flash    = require('connect-flash');
 // required for passport
 var passport = require('passport');//,       
-LocalStrategy = require('passport-local').Strategy
-//var BasicStrategy = require('passport-http').BasicStrategy;
-var basicAuth = require('basic-auth');
+//LocalStrategy = require('passport-local').Strategy
+
+//var basicAuth = require('basic-auth');
 
 var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 
-//app.use(passport.initialize());
-//app.use(passport.session()); // persistent login sessions
 
 var routes = require('./routes/index');
 var apiUser = require('./routes/api_user');
@@ -41,14 +39,14 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 //app.use(session({ secret: 'secrets?' }));
-app.use(session({
+/*app.use(session({
   secret: 'salateksti1234',
   resave: false,
   saveUninitialized: false
 }));
-
+*/
 app.use(passport.initialize());
-app.use(passport.session());
+//app.use(passport.session());
 
 
 app.use('/', routes);
