@@ -5,8 +5,10 @@
 var LocalStrategy = require('passport-local').Strategy;
 
 // load user model
-
+var User            = require('../models/user');
 var models = require('../models');
+
+// expose this function to our app using module.exports
 module.exports = function(passport) {
     
     // validate user for the duration of sessios
@@ -17,17 +19,17 @@ module.exports = function(passport) {
     
     // remove user validation
     passport.deserializeUser(function(id, done) {
-        console.log("deserializeUser called");
-        models.User.find({where: {id: id}})
-        .then(function(err, user) {
-            done(err, user) 
-        }
-        )
+      models.User.find({where: {id: id}}).success(function(user){
+        done(null, user);
+      }).error(function(err){
+        console.log("error");
+        done(err, null);
+      });
     });
 
     passport.use(new LocalStrategy({
-        username: 'username',
-        password: 'password'
+        usernameField: 'username',
+        passwordField: 'password',
     },
         function(username, password, done) {
             models.User.findOne({where: {username: username }})
