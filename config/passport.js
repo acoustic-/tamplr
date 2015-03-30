@@ -2,7 +2,7 @@
 // all functionality that is responsible for correct response
 // to valid or invalid user authentication
 
-//var LocalStrategy = require('passport-local').Strategy;
+var LocalStrategy = require('passport-local').Strategy;
 var BasicStrategy = require('passport-http').BasicStrategy;
 // load user model
 var User            = require('../models/user');
@@ -42,10 +42,42 @@ module.exports = function(passport) {
                     return done(null, false, {message: 'Incorrect password.' });
                 }
                 console.log("user found");
+                
                 return done(null, user, {message: 'Authentication was correct.' });
 
             })
         }
     ));
+    
+    passport.use(new LocalStrategy({
+        usernameField: 'username',
+        passwordField: 'password'     
+    },  function(username, password, done) {
+            models.User.findOne({where: {username: username }})
+                .success(function(user) {
+                console.log(username);
+                console.log(password);
+                if (!user) {
+                    console.log("testi2");
+                    return done(null, false, { message: 'Incorrect username.' });
+                }
+                if(!user.validatePassword(password)) {
+                    return done(null, false, {message: 'Incorrect password.' });
+                }
+                console.log("user found");
+                return done(null, user, {message: 'Authentication was correct.' });
+
+            })
+        }
+    ));
+    
+    passport.serializeUser(function(user, done) {
+      done(null, user);
+    });
+
+    // Deserialisointi session-muuttujasta
+    passport.deserializeUser(function(user, done) {
+      done(null, user);
+    });
 }
 

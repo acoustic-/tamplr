@@ -24,8 +24,7 @@ module.exports = function(sequelize, DataTypes) {
         // Tyyliin
         // User.hasMany(models.BlogPost);
           
-          User.hasMany(models.Blog, {as : 'blogs' });
-          models.Blog.belongsTo(User);
+          User.belongsToMany(models.Blog, {as: 'AuthoredBlogs', through: 'BlogAuthors'});
       }
     },
     instanceMethods: { //This makes sure the returned JSON is

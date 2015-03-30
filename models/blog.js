@@ -2,8 +2,7 @@
 
 module.exports = function(sequelize, DataTypes) {
   var Blog = sequelize.define("Blog", {
-    id: DataTypes.STRING,
-    name: DataTypes.STRING
+    name: {type:DataTypes.STRING, allowNull:false}
   }, {
     classMethods: {
       associate: function(models) {
@@ -12,10 +11,21 @@ module.exports = function(sequelize, DataTypes) {
         //
         // Tyyliin
         // User.hasMany(models.BlogPost);
-           Blog.belongsTo(models.User);
+          
+          Blog.belongsToMany(models.User, {as: 'Authors', through: 'BlogAuthors'});
+          
       }
+    },
+    instanceMethods: { //This makes sure the returned JSON is
+        toJson: function() { //               in correct form
+            var res = this.values;
+            // format JSON response correctly
+            delete res.createdAt;
+            delete res.updatedAt;
+            return res;
+        }
     }
   });
-
-  return Blog;
+  
+    return Blog;
 };
