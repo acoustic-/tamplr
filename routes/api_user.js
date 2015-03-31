@@ -83,11 +83,14 @@ router.put('/:username', requiredAuthentication, function(req, res, next) {
             return res.status(404).json({error:'UserNotFound'});
         }
         if (user.id == id) { // user is modifying one's own information
-            if(name) {models.User.name = name;}
-            if(password) {models.User.password = password;}
+            console.log("modifyname: ", name);
+            console.log("modifyname: ", password);
+            if(name) {user.updateAttributes({name: name})};
+            if(password) {user.password = password;}
             return res.status(200).json(user.toJson());
         }
         else {
+            res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
             return res.status(403).json({error: 'InvalidAccessrights'});
         }
     });
@@ -131,6 +134,7 @@ function isLoggedIn(req, res, next) {
 */
 
 function requiredAuthentication(req, res, next) {
+    //console.log("beginnin auth: ", req.user.id);
     if (req.user) {
         next();
     } else {

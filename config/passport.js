@@ -3,6 +3,7 @@
 // to valid or invalid user authentication
 
 var LocalStrategy = require('passport-local').Strategy;
+var options = {realm: "tamplr"};
 var BasicStrategy = require('passport-http').BasicStrategy;
 // load user model
 var User            = require('../models/user');
