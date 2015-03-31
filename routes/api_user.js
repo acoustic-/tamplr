@@ -23,6 +23,7 @@ router.post('/', function(req, res, next) {
     // check if username previously exists
   var query = {where: {username: username}};
   models.User.findOne(query).then(function(user) {
+    console.log("user1");
     if (user) {
       return res.status(409)
       .json({error:'UserAlreadyExists'});
@@ -46,6 +47,7 @@ router.post('/', function(req, res, next) {
         };
     }
   });
+  console.log("user2");
 });
 
 
