@@ -18,7 +18,8 @@ module.exports = function(sequelize, DataTypes) {
         // User.hasMany(models.BlogPost);
           
           //BlogPost.belongsToMany(models.Blog, {as: 'AuthoredPosts'}); 
-          BlogPost.hasOne(models.User, {as: 'AuthoredPosts'}); //user has many blogpost
+          BlogPost.hasOne(models.User, {as: 'Author'}); //user has many blogpost
+          BlogPost.hasMany(models.User, {as: 'Likers', through: 'PostLikers'});
       }
     },
     instanceMethods: { //This makes sure the returned JSON is
