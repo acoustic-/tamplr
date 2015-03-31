@@ -32,6 +32,13 @@ router.post('/', function(req, res, next) {
         name: name,
         password: password
         }).then(function(user) {
+            //add default blog to user
+            models.Blog.create({
+                name: 'Default blog'
+            }).then(function(blog){
+                blog.addAuthor(user.get('id'));
+            });
+            //
             return res.status(201);
         }),
         function(err) {
@@ -125,6 +132,40 @@ router.get('/:username/blogs', requiredAuthentication, function(req, res, next) 
                                                            
 });
 
+router.put('/:id/author/:username', requiredAuthentication, function(req, res, next) {
+    var username = req.params['username'];
+    var id = req.params['id'];
+    var regId = req.user.dataValues.id;
+    
+    models.Blog.findOne({where: {id: id}})
+    .then(function(blog) {
+        if(!blog) { // user doesn't exist
+            return res.status(404).json({error:'BlogNotFound'});
+        }
+        // blog is found, is it default blog
+        models.User.findOne({where: {username:username}}).then(function(user) {
+            if(!user) {
+                return res.status(404).json({error: 'UserNotFound'});
+            }
+            blog.getAuthors().then(function(authors) {
+                for( var i = 0; i < authors.length; ++i) {
+                    if(regId == authors[i].get('id')) {
+                        // kirjautuneella käyttäjällä on kirjoitusoikeus blogiin
+                        // voidaan lisätä kirjoitusoikeus
+                        
+                        //tarkista vielä onko kyseessä oletus blogi
+                        if(blog.get('name') == "Default blog") {
+                            return res.status(403).json({error: 'DefaultBlog'});
+                        }
+                        blog.addAuthor(user.get('id'));
+                        return res.status(200);
+                    }
+                }               
+            });
+        });
+    });
+});
+          
 /*
 function isLoggedIn(req, res, next) {
 

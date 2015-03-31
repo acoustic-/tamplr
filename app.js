@@ -17,11 +17,12 @@ var passport = require('passport');//,
 var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 
 
-var routes = require('./routes/index');
-var apiUser = require('./routes/api_user');
-var apiBlog = require('./routes/api_blog');
-var apiHt = require('./routes/api_ht');
-var login = require('./routes/login');
+var routes =   require('./routes/index');
+var apiUser =  require('./routes/api_user');
+var apiBlog =  require('./routes/api_blog');
+var apiHt =    require('./routes/api_ht');
+var apiPost =  require('./routes/api_post');
+
 
 var app = express();
 
@@ -50,10 +51,10 @@ app.use(passport.initialize());
 
 
 app.use('/', routes);
-app.use('/login', login);
 app.use('/api/user', apiUser);
 app.use('/api/blog', apiBlog);
 app.use('/api/ht', apiHt);
+app.use('/api/post', apiPost);
 //require('./config/passport')(passport);
 
 //passport logic

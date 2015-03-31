@@ -50,9 +50,9 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
               {
                 //creata blog message
                 models.BlogPost.create({
-                title: titleInput,
-                text: textInput,
-                author: authors[i].get('username')
+                    title: titleInput,
+                    text: textInput,
+                    author: authors[i].get('username')
                 }).then(function(user) 
                 {
                     console.log("Blog writing done");
@@ -125,13 +125,33 @@ router.get('/:id', requiredAuthentication, function(req, res, next) {
 router.delete('/:id', requiredAuthentication, function(req, res, next) {
     var id = req.params['id'];
     var query = {where: {id:id}};
+    var regId = req.user.dataValues.id;
     models.Blog.findOne(query).then(function(blog) {
         if (blog) {
-            models.Blog.destroy(query);
+            if(blog.get('name') == "Default blog") {
+                return res.status(403).json({error: 'DefaultBlog'});
+            }
+            blog.getAuthors().then(function(authors) {
+                for(var i = 0; i < authors.length; ++i) {
+                    if(authors[i].get('id') == regId) {
+                        console.log("defined user found");
+                        //models.Blog.destroy(query).then(function() {console.log("blog deleted")});
+                        blog.destroy().then(function() {console.log("blog deleted")});
+                    }
+                }
+            });
         }
         if (!blog) {
             return res.status(404).json({error: 'BlogNotFound'});
         }
+    });
+    // joko blogi on poistettu tai ei
+    models.Blog.findOne(query).then(function(blog) {
+        if (blog) {
+            // käyttäjällä ei ollu oikeuksia blogin poistoon
+            res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+            return res.status(403).json({error: 'InvalidAccessrights'});
+        }  
     });
 });
 
