@@ -26,7 +26,22 @@ router.post('/', requiredAuthentication, function(req, res, next) {
   });
 });
 
+// blog's 10 writings
+router.get('/:id/posts', function(req, res, next) {
+ 
+  var id = req.params['id'];
+  var query = {where: {id: id}};
+  models.Blog.findOne(query).then(function(blog) {
+    if (blog) {
+      return res.json(blog.toJson());
+    }
+    else {
+      return res.status(404).json({error: 'BlogNotFound'});
+    }
+  });
+});
 
+// post 
 router.get('/:id', requiredAuthentication, function(req, res, next) {
  
   var id = req.params['id'];
@@ -40,6 +55,16 @@ router.get('/:id', requiredAuthentication, function(req, res, next) {
     }
   });
 });
+
+
+
+
+
+
+
+
+
+
 
 router.delete('/:id', requiredAuthentication, function(req, res, next) {
     var id = req.params['id'];
