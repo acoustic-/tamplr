@@ -13,7 +13,8 @@ module.exports = function(sequelize, DataTypes) {
         // User.hasMany(models.BlogPost);
           
           Blog.belongsToMany(models.User, {as: 'Authors', through: 'BlogAuthors'});
-          Blog.hasMany(models.BlogPost, {as: 'BlogsWritings'}); 
+          Blog.belongsToMany(models.User, {as: 'Followers', through: 'BlogFollowers'});
+          Blog.hasMany(models.BlogPost, {as: 'Posts'});
       }
     },
     instanceMethods: { //This makes sure the returned JSON is

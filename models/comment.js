@@ -1,11 +1,7 @@
 "use strict";
 
-var bcrypt = require('bcrypt');
-
 module.exports = function(sequelize, DataTypes) {
-  var BlogPost = sequelize.define("BlogPost", {
-    id: {type:DataTypes.INTEGER, allowNull:false},
-    title: {type:DataTypes.STRING, allowNull:false},
+  var Comment = sequelize.define("Comment", {
     text: {type:DataTypes.STRING, allowNull:false},
     author: {type:DataTypes.STRING, allowNull:false}
   }, {
@@ -18,7 +14,8 @@ module.exports = function(sequelize, DataTypes) {
         // User.hasMany(models.BlogPost);
           
           //BlogPost.belongsToMany(models.Blog, {as: 'AuthoredPosts'}); 
-          BlogPost.hasOne(models.User, {as: 'AuthoredPosts'}); //user has many blogpost
+          Comment.hasOne(models.BlogPost, {as: 'CommentOfPost'}); //comment as "postcomments" belongsto blo
+          Comment.hasOne(models.User, {as: 'Author'}); // comment has on author
       }
     },
     instanceMethods: { //This makes sure the returned JSON is
@@ -32,5 +29,5 @@ module.exports = function(sequelize, DataTypes) {
 
     }
   });
-  return BlogPost;
+  return Comment;
 };
