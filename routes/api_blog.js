@@ -30,33 +30,37 @@ router.post('/', requiredAuthentication, function(req, res, next) {
 // create a blog message
 router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
   
+
   var id = req.params['id'];
   var titleInput = req.body.title;
   var textInput = req.body.text;
-
+  userHaveAccess = 123123; //global parameter
   //id of the request user
-  var  userID = req.user.dataValues.id;
+  var userID = req.user.dataValues.id;
 
   var query = {where: {id: id}};
-  models.Blog.findOne(query).then(function(blog) 
-  {
-    if (blog) 
-    {
-        blog.getAuthors().then(function(authors)
-        {
-          for ( var i = 0; i < authors.length(); ++i )
+  console.log("tullaan!!");
+  models.Blog.findOne(query).then(function(blog) {
+    console.log("jou1");
+  if (blog) {
+    blog.getAuthors().then(function(authors) {
+          for ( var i = 0; i < authors.length; ++i )
           {
+              
               if ( authors[i].get('id') == userID ) //does user have access to this blog
               {
+                console.log("moroo22");
+                userHaveAccess = 0;
                 //creata blog message
                 models.BlogPost.create({
                 title: titleInput,
                 text: textInput,
+                id: 3,
                 author: authors[i].get('username')
-                }).then(function(user) 
+                }).then(function(post) 
                 {
                     console.log("Blog writing done");
-                    return res.status(200);
+                    return res.status(200).json(post);
                 }),
                 function(err) 
                 {
@@ -64,14 +68,14 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
                 };
               }
           }
-          return res.status(403).json({error: 'User does not have access to this blog'});
         });
     }
-    else 
-    {
-      return res.status(404).json({error: 'BlogNotFound'});
-    }
   });
+  if (userHaveAccess != 123123 )
+  {
+      return res.status(403).json({error: 'User does not have access to this blog'});
+  }
+
 });
 
 
@@ -80,13 +84,40 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
 
 
 
-/*
-// blog's 10 writings
+
+// get blogs writes
 router.get('/:id/posts', function(req, res, next) {
  
+  console.log("blogin tekstien haku");
+
   var id = req.params['id'];
   var query = {where: {id: id}};
   models.Blog.findOne(query).then(function(blog) {
+
+      blog.getPosts().then(function(posts) {
+        console.log("tassa");
+        if (posts)
+        {
+          for ( var i = 0; i < posts.length; ++i )
+              {
+                  var id = posts[i].get('id');
+                  console.log(id);
+                  var title = posts[i].get('title');
+                  console.log(title);
+                  var text = posts[i].get('text');
+                  console.log(text);
+            }
+        }
+        else
+        {
+          return res.status(404).json({error: 'BlogPostNotFound'});
+        }
+
+      });
+  });
+});
+
+/*
     if (blog) {
       return res.json(blog.toJson());
     }
