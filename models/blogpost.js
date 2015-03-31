@@ -20,6 +20,8 @@ module.exports = function(sequelize, DataTypes) {
           //BlogPost.belongsToMany(models.Blog, {as: 'AuthoredPosts'}); 
           BlogPost.hasOne(models.User, {as: 'Author'}); //user has many blogpost
           BlogPost.hasMany(models.User, {as: 'Likers', through: 'PostLikers'});
+          BlogPost.hasOne(models.Blog, {as: 'InBlog'});
+          BlogPost.hasMany(models.Comment, {as: 'Comments'});
       }
     },
     instanceMethods: { //This makes sure the returned JSON is
