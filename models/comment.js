@@ -14,8 +14,8 @@ module.exports = function(sequelize, DataTypes) {
         // User.hasMany(models.BlogPost);
           
           //BlogPost.belongsToMany(models.Blog, {as: 'AuthoredPosts'}); 
-          Comment.hasOne(models.BlogPost, {as: 'CommentOfPost'}); //comment as "postcomments" belongsto blo
-          Comment.hasOne(models.User, {as: 'Author'}); // comment has on author
+          Comment.belongsTo(models.BlogPost, {as: 'CommentOfPost'}); //comment as "postcomments" belongsto blo
+          Comment.belongsTo(models.User, {as: 'Author'}); // comment has on author
       }
     },
     instanceMethods: { //This makes sure the returned JSON is

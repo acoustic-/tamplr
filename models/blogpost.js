@@ -15,9 +15,9 @@ module.exports = function(sequelize, DataTypes) {
         // User.hasMany(models.BlogPost);
           
           //BlogPost.belongsToMany(models.Blog, {as: 'AuthoredPosts'}); 
-          BlogPost.hasOne(models.User, {as: 'Author'}); //user has many blogpost
-          BlogPost.hasMany(models.User, {as: 'Likers', through: 'PostLikers'});
-          BlogPost.hasOne(models.Blog, {as: 'InBlog'});
+          BlogPost.belongsTo(models.User, {as: 'Author'}); //user has many blogpost
+          BlogPost.belongsToMany(models.User, {as: 'Likers', through: 'PostLikers'});
+          BlogPost.belongsTo(models.Blog, {as: 'InBlog'});
           BlogPost.hasMany(models.Comment, {as: 'Comments'});
       }
     },
