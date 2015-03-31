@@ -1,4 +1,5 @@
 var express = require('express');
+var sequelize = require('sequelize');
 var router = express.Router();
 var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 var models = require('../models');
@@ -67,12 +68,12 @@ router.get('/:username', requiredAuthentication, function(req, res, next) {
 
 router.put('/:username', requiredAuthentication, function(req, res, next) {
     var username = req.params['username'];
-    var name = req.body.name;
+    var namefield = req.body.name;
     var password = req.body.password;
     var id = req.user.dataValues.id;
      
     // check if the request is in correct form
-    if (!name && !password) {
+    if (!namefield && !password) {
         return res.status(400).json({error: 'EmptyField'});
     }
     
@@ -82,12 +83,15 @@ router.put('/:username', requiredAuthentication, function(req, res, next) {
         if(!user) { // user doesn't exist
             return res.status(404).json({error:'UserNotFound'});
         }
-        if (user.id == id) { // user is modifying one's own information
-            console.log("modifyname: ", name);
-            console.log("modifyname: ", password);
-            if(name) {user.updateAttributes({name: name})};
-            if(password) {user.password = password;}
-            return res.status(200).json(user.toJson());
+        if (user.get('id') == id) { // user is modifying one's own information
+            console.log("modifyname: ", namefield);
+            console.log("modifypass: ", password);
+            
+            if(namefield) {user.updateAttributes({name: namefield}).then(function(user_) {console.log("username patch")})};
+            if(password)  {user.updateAttributes({password: password}).then(function(user_) {console.log("pssw patch")})};
+            //user.sync();
+            console.log("user patched");
+            models.User.findOne(query).then(function(user_){res.status(200).json(user_.toJson())});
         }
         else {
             res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
