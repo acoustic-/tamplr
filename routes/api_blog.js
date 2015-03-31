@@ -26,6 +26,61 @@ router.post('/', requiredAuthentication, function(req, res, next) {
   });
 });
 
+
+// create a blog message
+router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
+  
+  var id = req.params['id'];
+  var titleInput = req.body.title;
+  var textInput = req.body.text;
+
+  //id of the request user
+  var  userID = req.user.dataValues.id;
+
+  var query = {where: {id: id}};
+  models.Blog.findOne(query).then(function(blog) 
+  {
+    if (blog) 
+    {
+        blog.getAuthors().then(function(authors)
+        {
+          for ( var i = 0; i < authors.length(); ++i )
+          {
+              if ( authors[i].get('id') == userID ) //does user have access to this blog
+              {
+                //creata blog message
+                models.BlogPost.create({
+                title: titleInput,
+                text: textInput,
+                author: authors[i].get('username')
+                }).then(function(user) 
+                {
+                    console.log("Blog writing done");
+                    return res.status(200);
+                }),
+                function(err) 
+                {
+                    return res.status(500).json({error: 'ServerError'});
+                };
+              }
+          }
+          return res.status(403).json({error: 'User does not have access to this blog'});
+        });
+    }
+    else 
+    {
+      return res.status(404).json({error: 'BlogNotFound'});
+    }
+  });
+});
+
+
+
+
+
+
+
+/*
 // blog's 10 writings
 router.get('/:id/posts', function(req, res, next) {
  
@@ -40,6 +95,7 @@ router.get('/:id/posts', function(req, res, next) {
     }
   });
 });
+*/
 
 // post 
 router.get('/:id', requiredAuthentication, function(req, res, next) {

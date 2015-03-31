@@ -1,10 +1,7 @@
 "use strict";
 
-var bcrypt = require('bcrypt');
-
 module.exports = function(sequelize, DataTypes) {
   var BlogPost = sequelize.define("BlogPost", {
-    id: {type:DataTypes.INTEGER, allowNull:false},
     title: {type:DataTypes.STRING, allowNull:false},
     text: {type:DataTypes.STRING, allowNull:false},
     author: {type:DataTypes.STRING, allowNull:false}
