@@ -192,15 +192,18 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
     
 
 router.put('/:id/author/:username', requiredAuthentication, function(req, res, next) {
+    // parameters of the reguest
     var id = req.params['id'];
     var username = req.params['username'];
     
     var userId = 0;
+    // name of the registered user
     console.log("req user : ", req.user.dataValues.username);
     models.User.findOne({where: {username: username}})
         .then(function(user){
             console.log("testi11");
             console.log("user.id : ", user.id);
+            // find user of the request; in 'user'
             userId = user.id;
         console.log("onnistuiko?");
         })
@@ -211,27 +214,84 @@ router.put('/:id/author/:username', requiredAuthentication, function(req, res, n
       //user.getAuthoredBlogs().then(function(blogs) {
     console.log("päästäänkö tänne?");
     models.Blog.findOne({where: {id: id}}).then(function(blog) {
+        / 403 if blog is default blog
+        
+        if(blog.get('name') == "Default blog") {
+            return res.status(403).json({error: 'DefaultBlog'});
+        }
+        
         console.log("testiä");
         blog.getAuthors().then(function(authors){
+            // find is registered user has rights to the given blog
             console.log("lisää tekstiä");
            for(var i = 0; i < authors.length; ++i) {
                console.log(authors[i].id);
                if(authors[i].username == req.user.dataValues.username) {
                     //console.log("blog ulos");
                     //console.log(blog);
+                   // user is has author right so request can be fulfilled
                     blog.addAuthor(userId);
                     return res.status(200);
                }
             }; 
         });
-    
+        // TODO soemwhere should 403, not rights
     })
     .catch(function(err) {
         return res.status(404).json({error: 'BlogNotFound'});
-    });
-                                
-                                
-                                 
+    });                                 
+});
+
+// pretty much same as the previous one
+router.delete('/:id/author/:username', requiredAuthentication, function(req, res, next) {
+    // parameters of the reguest
+    var id = req.params['id'];
+    var username = req.params['username'];
+    
+    var userId = 0;
+    // name of the registered user
+    console.log("req user : ", req.user.dataValues.username);
+    models.User.findOne({where: {username: username}})
+        .then(function(user){
+            console.log("testi11");
+            console.log("user.id : ", user.id);
+            // find user of the request; in 'user'
+            userId = user.id;
+        console.log("onnistuiko?");
+        })
+        .catch(function(err) {
+            console.log("usern: ", username);
+            return res.status(404).json({error: 'UserNotFound'});
+        });
+      //user.getAuthoredBlogs().then(function(blogs) {
+    console.log("päästäänkö tänne?");
+    models.Blog.findOne({where: {id: id}}).then(function(blog) {
+        // 403 if blog is default blog
+        
+        if(blog.get('name') == "Default blog") {
+            return res.status(403).json({error: 'DefaultBlog'});
+        }
+        
+        console.log("testiä");
+        blog.getAuthors().then(function(authors){
+            // find is registered user has rights to the given blog
+            console.log("lisää tekstiä");
+           for(var i = 0; i < authors.length; ++i) {
+               console.log(authors[i].id);
+               if(authors[i].username == req.user.dataValues.username) {
+                    //console.log("blog ulos");
+                    //console.log(blog);
+                   // user is has author right so request can be fulfilled
+                    blog.removeAuthor(userId); // user-field?
+                    return res.status(200);
+               }
+            }; 
+        });
+        // TODO soemwhere should 403, not rights
+    })
+    .catch(function(err) {
+        return res.status(404).json({error: 'BlogNotFound'});
+    });                                 
 });
             
 function requiredAuthentication(req, res, next) {
