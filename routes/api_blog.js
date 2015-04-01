@@ -56,12 +56,14 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
 
                 title: titleInput,
                 text: textInput,
-                id: 3,
                 author: authors[i].get('username')
-                }).then(function(post) 
+                }).then(function( blogpost ) 
                 {
+                    blog.addPosts( blogpost );
+                    blogpost.setAuthor( userID );
+                    blogpost.setInBlog( id );
                     console.log("Blog writing done");
-                    return res.status(200).json(post);
+                    return res.status(200).json();
                 }),
                 function(err) 
                 {
@@ -99,15 +101,21 @@ router.get('/:id/posts', function(req, res, next) {
         console.log("tassa");
         if (posts)
         {
+          var postArr = [];
           for ( var i = 0; i < posts.length; ++i )
-              {
+          {
                   var id = posts[i].get('id');
                   console.log(id);
                   var title = posts[i].get('title');
                   console.log(title);
                   var text = posts[i].get('text');
                   console.log(text);
-            }
+                  //postArr.push("1");
+                  postArr.push( posts[i].toJson() );
+          }
+
+          return res.status(200).json(postArr,null,3 );
+
         }
         else
         {
@@ -214,7 +222,7 @@ router.put('/:id/author/:username', requiredAuthentication, function(req, res, n
       //user.getAuthoredBlogs().then(function(blogs) {
     console.log("päästäänkö tänne?");
     models.Blog.findOne({where: {id: id}}).then(function(blog) {
-        / 403 if blog is default blog
+        // 403 if blog is default blog
         
         if(blog.get('name') == "Default blog") {
             return res.status(403).json({error: 'DefaultBlog'});

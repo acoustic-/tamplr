@@ -38,9 +38,10 @@ router.post('/', function(req, res, next) {
                 name: 'Default blog'
             }).then(function(blog){
                 blog.addAuthor(user.get('id'));
+                return res.status(201);
             });
             //
-            return res.status(201);
+            
         }),
         function(err) {
             return res.status(500).json({error: 'ServerError'});
