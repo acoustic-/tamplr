@@ -88,7 +88,7 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
 
 
 
-// get blogs writes
+// get blog's 10 blog writes
 router.get('/:id/posts', function(req, res, next) {
  
   console.log("blogin tekstien haku");
@@ -96,46 +96,41 @@ router.get('/:id/posts', function(req, res, next) {
   var id = req.params['id'];
   var query = {where: {id: id}};
   models.Blog.findOne(query).then(function(blog) {
-
-      blog.getPosts().then(function(posts) {
-        console.log("tassa");
-        if (posts)
-        {
-          var postArr = [];
-          for ( var i = 0; i < posts.length; ++i )
+      if (blog)
+      {
+        blog.getPosts().then(function(posts) {
+          console.log("tassa");
+          if (posts)
           {
-                  var id = posts[i].get('id');
-                  console.log(id);
-                  var title = posts[i].get('title');
-                  console.log(title);
-                  var text = posts[i].get('text');
-                  console.log(text);
-                  //postArr.push("1");
-                  postArr.push( posts[i].toJson() );
+            var postArr = [];
+            for ( var i = 0; i < posts.length; ++i )
+            {
+                    var id = posts[i].get('id');
+                    console.log(id);
+                    var title = posts[i].get('title');
+                    console.log(title);
+                    var text = posts[i].get('text');
+                    console.log(text);
+                    //postArr.push("1");
+                    //postArr.push( posts[i].toJson() );
+                    postArr.push( JSON.parse(JSON.stringify(posts[i])) );
+            }
+            //var tulostus = JSON.stringify(postArr);
+            console.log("morjesta poytaa");
+            return res.status(200).json(postArr,null,'\t' );
           }
-
-          return res.status(200).json(postArr,null,3 );
-
-        }
-        else
-        {
-          return res.status(404).json({error: 'BlogPostNotFound'});
-        }
-
+          else
+          {
+            return res.status(404).json({error: 'BlogPostNotFound'});
+          }
       });
-  });
-});
-
-/*
-    if (blog) {
-      return res.json(blog.toJson());
     }
-    else {
+    else
+    {
       return res.status(404).json({error: 'BlogNotFound'});
     }
   });
 });
-*/
 
 // post 
 router.get('/:id', requiredAuthentication, function(req, res, next) {

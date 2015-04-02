@@ -26,6 +26,21 @@ router.post('/', requiredAuthentication, function(req, res, next) {
   });
 });*/
 
+// get one blog writing
+router.get('/:id', function(req, res, next) {
+  var id = req.params['id'];
+  var query = {where: {id: id}};
+    console.log("Haetaan blogia id:lla: ", id);
+    models.BlogPost.findOne(query).then(function(post) {
+    if (post) {
+      return res.status(200).json(post.toJson());
+    }
+    else {
+      return res.status(404).json({error: 'Blog Post does not exists'});
+    }
+  });
+});
+
 // post's 10 latest comments
 
 router.get('/:id/comments', function(req, res, next) {
