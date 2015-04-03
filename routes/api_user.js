@@ -60,7 +60,7 @@ router.post('/', function(req, res, next) {
 //});
 
 router.get('/:username', function(req, res, next) {
-  var username = req.params.get['username'];
+  var username = req.params['username'];
   var query = {where: {username: username}};
    // console.log("lalalalaa: ", req.user.id);
   models.User.findOne(query).then(function(user) {
