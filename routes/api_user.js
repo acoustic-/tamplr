@@ -12,44 +12,45 @@ var localAuth = passport.authenticate('local', {session: false});
 
 //add user
 router.post('/', function(req, res, next) {
-
   var username = req.body.username;
   var name = req.body.name;
   var password = req.body.password;
   if (!username || !password || !name ) {
     return res.status(400).json({error: 'InvalidUserName'});
   }
+  // check if user is logged in
+    //console.log("pidempi: ", req.user.dataValues.id);
+    //console.log("lyhyempi: ", req.user.id);
 
     // check if username previously exists
   var query = {where: {username: username}};
   models.User.findOne(query).then(function(user) {
-    console.log("user1");
+    
     if (user) {
       return res.status(409)
       .json({error:'UserAlreadyExists'});
     } else {
         models.User.create({
-        username: username,
-        name: name,
-        password: password
+            username: username,
+            name: name,
+            password: password
         }).then(function(user) {
             //add default blog to user
             models.Blog.create({
                 name: 'Default blog'
             }).then(function(blog){
-                blog.addAuthor(user.get('id'));
-                return res.status(201);
+                blog.addAuthor(user.get('id')).then(function(blog) {console.log("User was added as author to default blog"); });
+            }, function (err) {
+                return res.status(500).json({error: 'ServerError'});
             });
-            //
-            
-        }),
-        function(err) {
+            return res.status(201).json(user);
+        }, function (err) {
             return res.status(500).json({error: 'ServerError'});
-        };
-    }
+        });
+    };
   });
-  console.log("user2");
 });
+
 
 
 //get user information
@@ -58,18 +59,20 @@ router.post('/', function(req, res, next) {
 //res.render('/:username');
 //});
 
-router.get('/:username', requiredAuthentication, function(req, res, next) {
-  var username = req.params['username'];
+router.get('/:username', function(req, res, next) {
+  var username = req.params.get['username'];
   var query = {where: {username: username}};
-    console.log("lalalalaa: ", req.user.id);
+   // console.log("lalalalaa: ", req.user.id);
   models.User.findOne(query).then(function(user) {
     if (user) {
-      return res.status(200).json(user.toJson());
+      return res.status(200).json(user);
     }
     else {
 
       return res.status(404).json({error: 'UserNotFound'});
     }
+  }, function (err) {
+    return res.status(500).json({error: 'ServerError'});
   });
   // router.put
 });
@@ -77,13 +80,14 @@ router.get('/:username', requiredAuthentication, function(req, res, next) {
 //patch user's information
 
 router.put('/:username', requiredAuthentication, function(req, res, next) {
+    console.log("starting put..");
     var username = req.params['username'];
     var namefield = req.body.name;
     var password = req.body.password;
     var id = req.user.dataValues.id;
      
     // check if the request is in correct form
-    if (!namefield && !password) {
+    if (!namefield || !password) {
         return res.status(400).json({error: 'EmptyField'});
     }
     
@@ -98,15 +102,16 @@ router.put('/:username', requiredAuthentication, function(req, res, next) {
             console.log("modifypass: ", password);
             
             if(namefield) {user.updateAttributes({name: namefield}).then(function(user_) {console.log("username patch")})};
-            if(password)  {user.updateAttributes({password: password}).then(function(user_) {console.log("pssw patch")})};
+            if(password)  {user.updateAttributes({password: password}).then(function(user_) {console.log("passw patch")})};
             //user.sync();
             console.log("user patched");
             models.User.findOne(query).then(function(user_){res.status(200).json(user_.toJson())});
+        } else {
+           res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+           return res.status(403).json({error: 'InvalidAccessrights'}); 
         }
-        else {
-            res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
-            return res.status(403).json({error: 'InvalidAccessrights'});
-        }
+    }, function(err) {
+         return res.status(500).json({error: 'ServerError'});   
     });
     
 });
@@ -135,7 +140,7 @@ router.get('/:username/blogs', requiredAuthentication, function(req, res, next) 
                                                            
 });
 
-router.put('/:id/author/:username', requiredAuthentication, function(req, res, next) {
+router.put('/:id/author/:username', function(req, res, next) {
     var username = req.params['username'];
     var id = req.params['id'];
     var regId = req.user.dataValues.id;
@@ -145,7 +150,11 @@ router.put('/:id/author/:username', requiredAuthentication, function(req, res, n
         if(!blog) { // user doesn't exist
             return res.status(404).json({error:'BlogNotFound'});
         }
-        // blog is found, is it default blog
+        // blog is found, is it default blog?
+        //  *
+        //  *      
+        //  *
+        
         models.User.findOne({where: {username:username}}).then(function(user) {
             if(!user) {
                 return res.status(404).json({error: 'UserNotFound'});
@@ -181,14 +190,28 @@ function isLoggedIn(req, res, next) {
 }
 */
 
-function requiredAuthentication(req, res, next) {
+/*function requiredAuthentication(req, res, next) {
     //console.log("beginnin auth: ", req.user.id);
+    if (req.user) {
+        next();
+    } else {
+        passport.authenticate('basic', {session: false},
+            function(err, user, info) {
+                console.log("Autentikointi valmis? ");
+                if (!user) {
+                    res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+                    return res.status(401).json({error: 'Unauthorized'});
+            })(req, res, next);
+    }
+};*/
+function requiredAuthentication(req, res, next) {
     if (req.user) {
         next();
     } else {
         basicAuth(req, res, next);
     }
 }
+
 
 
 module.exports = router;

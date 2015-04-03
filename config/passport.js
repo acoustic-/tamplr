@@ -32,7 +32,7 @@ module.exports = function(passport) {
     passport.use(new BasicStrategy(
         function(username, password, done) {
             models.User.findOne({where: {username: username }})
-                .success(function(user) {
+                .then(function(user) {
                 console.log(username);
                 console.log(password);
                 if (!user) {

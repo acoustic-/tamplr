@@ -32,7 +32,7 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     instanceMethods: { //This makes sure the returned JSON is
-        toJson: function() { //               in correct form
+        toJSON: function() { //               in correct form
             var res = this.values;
             // fromat JSON response correctly
             delete res.password;

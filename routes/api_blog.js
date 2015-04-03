@@ -19,7 +19,9 @@ router.post('/', requiredAuthentication, function(req, res, next) {
     name: blogname
   }).then(function(blog) {
     blog.addAuthor(req.user.dataValues.id);
-    return res.status(201).json({id: blog.id});
+    var blogID = '{"id": "' + blog.get('id') + '"}';
+      var id = blog.get('id');
+    return res.status(201).json(JSON.parse(blogID));
   },
   function(err) {
     return res.status(500).json({error: 'ServerError'});
@@ -27,7 +29,7 @@ router.post('/', requiredAuthentication, function(req, res, next) {
 });
 
 
-// create a blog message
+// create a blog post
 router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
   
 
@@ -160,13 +162,14 @@ router.get('/:id', requiredAuthentication, function(req, res, next) {
 
 
 
-
+// delete blog
 
 router.delete('/:id', requiredAuthentication, function(req, res, next) {
-    var id = req.params['id'];
-    var query = {where: {id:id}};
+    var refid = req.params['id'];
+    var query = {where: {id:refid}};
     var regId = req.user.dataValues.id;
     models.Blog.findOne(query).then(function(blog) {
+        
         if (blog) {
             if(blog.get('name') == "Default blog") {
                 return res.status(403).json({error: 'DefaultBlog'});
@@ -176,23 +179,39 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
                     if(authors[i].get('id') == regId) {
                         console.log("defined user found");
                         //models.Blog.destroy(query).then(function() {console.log("blog deleted")});
-                        blog.destroy().then(function() {console.log("blog deleted")});
+                        // blog.removeAuthor(regId);
+                        
+                        /*blog.destroy().then(function() {console.log("blog deleted")
+                                                       }, function(err) {console.log("no success!")});*/
+                        
+                        return res.status(200);
+                        break;
+                    }
+                    if ( i = authors.length -1 && authors[i].get('id') == regId) {
+                        res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+                        return res.status(403).json({error: 'InvalidAccessrights'});
                     }
                 }
+            }, function(err) {
+                return res.status(500).json({error: 'ServerError'});
             });
+            blog.destroy(query);
+            
         }
         if (!blog) {
             return res.status(404).json({error: 'BlogNotFound'});
         }
+    }, function (err) {
+        return res.status(500).json({error: 'ServerError'});
     });
     // joko blogi on poistettu tai ei
-    models.Blog.findOne(query).then(function(blog) {
+    /*models.Blog.findOne(query).then(function(blog) {
         if (blog) {
             // käyttäjällä ei ollu oikeuksia blogin poistoon
             res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
             return res.status(403).json({error: 'InvalidAccessrights'});
         }  
-    });
+    });*/
 });
 
 
