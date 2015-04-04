@@ -39,16 +39,18 @@ router.post('/', function(req, res, next) {
             models.Blog.create({
                 name: 'Default blog'
             }).then(function(blog){
-                blog.addAuthor(user.get('id')).then(function(blog) {console.log("User was added as author to default blog"); });
+                blog.addAuthor(user.get('id')).then(function(blog) {
+                    console.log("User was added as author to default blog"); 
+                }, function (err) {
+                    return res.status(500).json({error: 'ServerError'});
+                });
+                return res.status(201).json(user);
             }, function (err) {
                 return res.status(500).json({error: 'ServerError'});
             });
-            return res.status(201).json(user);
-        }, function (err) {
-            return res.status(500).json({error: 'ServerError'});
         });
-    };
-  });
+    }   
+    });
 });
 
 

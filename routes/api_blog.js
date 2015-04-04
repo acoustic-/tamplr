@@ -20,7 +20,7 @@ router.post('/', requiredAuthentication, function(req, res, next) {
   }).then(function(blog) {
     blog.addAuthor(req.user.dataValues.id);
     var blogID = '{"id": "' + blog.get('id') + '"}';
-      var id = blog.get('id');
+    var id = blog.get('id');
     return res.status(201).json(JSON.parse(blogID));
   },
   function(err) {
@@ -36,19 +36,28 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
   var id = req.params['id'];
   var titleInput = req.body.title;
   var textInput = req.body.text;
+
+  if ( titleInput == "" || textInput == "" )
+  {
+    return res.status(400).json({error: 'Missing title or text'});
+  }
+
   userHaveAccess = 123123; //global parameter
   //id of the request user
   var userID = req.user.dataValues.id;
-
+  console.log(userID);
+  console.log(id);
   var query = {where: {id: id}};
   console.log("tullaan!!");
   models.Blog.findOne(query).then(function(blog) {
     console.log("jou1");
   if (blog) {
+    console.log("jou2");
     blog.getAuthors().then(function(authors) {
+      console.log(authors.length);
           for ( var i = 0; i < authors.length; ++i )
           {
-              
+              console.log("jou4");
               if ( authors[i].get('id') == userID ) //does user have access to this blog
               {
                 console.log("moroo22");
@@ -64,17 +73,26 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
                     blog.addPosts( blogpost );
                     blogpost.setAuthor( userID );
                     blogpost.setInBlog( id );
+                    var blogpostID = '{"id": "' + blogpost.get('id') + '"}';
                     console.log("Blog writing done");
-                    return res.status(200).json();
-                }),
+                    return res.status(200).json(JSON.parse(blogpostID));
+                },
                 function(err) 
                 {
                     return res.status(500).json({error: 'ServerError'});
-                };
+                });
               }
           }
+        },
+        function(err) 
+        {
+          return res.status(500).json({error: 'ServerError'});
         });
     }
+  },
+  function(err) 
+  {
+    return res.status(500).json({error: 'ServerError'});
   });
   if (userHaveAccess != 123123 )
   {
