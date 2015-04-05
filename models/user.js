@@ -26,8 +26,8 @@ module.exports = function(sequelize, DataTypes) {
           
           User.belongsToMany(models.Blog, {as: 'AuthoredBlogs', through: 'BlogAuthors'}); //user is defined to some blogs?
           User.hasMany(models.BlogPost, {as: 'AuthoredPosts'}); //user has many blogpost
-          //User.belongsToMany(models.Blog, {as: 'FollowedBlogs', through: 'BlogFollowers'});
-          //User.belongsToMany(models.BlogPost, {as: 'LikedPosts', through: 'PostLikers'});
+          User.belongsToMany(models.Blog, {as: 'FollowedBlogs', through: 'BlogFollowers'});
+          User.belongsToMany(models.BlogPost, {as: 'LikedPosts', through: 'PostLikers'});
           
       }
     },

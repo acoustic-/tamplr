@@ -187,20 +187,19 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
             if(blog.get('name') == "Default blog") {
                 return res.status(403).json({error: 'DefaultBlog'});
             }
+            
+            
+        
             blog.getAuthors().then(function(authors) {
                 for(var i = 0; i < authors.length; ++i) {
                     if(authors[i].get('id') == regId) {
-                        console.log("defined user found");
-                        //models.Blog.destroy(query).then(function() {console.log("blog deleted")});
-                        // blog.removeAuthor(regId);
-                        
-                        /*blog.destroy().then(function() {console.log("blog deleted")
-                                                       }, function(err) {console.log("no success!")});*/
-                        
-                        return res.status(200);
-                        break;
+                        //blog.setPosts([]);
+                        //task.destroy().then(function() {
+                        //blog.setAuthors([]);
+                        blog.destroy().then(function(){console.log("blog removed")}, function(err) {"nope."});
+                        return res.status(200).json({Success: 'BlogRemoved'});
                     }
-                    if ( i = authors.length -1 && authors[i].get('id') == regId) {
+                    if ( i = authors.length -1 && authors[i].get('id') != regId) {
                         res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
                         return res.status(403).json({error: 'InvalidAccessrights'});
                     }
@@ -208,7 +207,7 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
             }, function(err) {
                 return res.status(500).json({error: 'ServerError'});
             });
-            blog.destroy(query);
+           
             
         }
         if (!blog) {
@@ -230,56 +229,57 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
 
              
     
-
+// lisää kirjoitusoikeus blogiin
 router.put('/:id/author/:username', requiredAuthentication, function(req, res, next) {
     // parameters of the reguest
     var id = req.params['id'];
     var username = req.params['username'];
-    
     var userId = 0;
+    
     // name of the registered user
     console.log("req user : ", req.user.dataValues.username);
+    
     models.User.findOne({where: {username: username}})
         .then(function(user){
-            console.log("testi11");
-            console.log("user.id : ", user.id);
-            // find user of the request; in 'user'
             userId = user.id;
-        console.log("onnistuiko?");
-        })
-        .catch(function(err) {
-            console.log("usern: ", username);
-            return res.status(404).json({error: 'UserNotFound'});
-        });
-      //user.getAuthoredBlogs().then(function(blogs) {
-    console.log("päästäänkö tänne?");
+            if(!user) {
+                console.log("usern: ", username);
+                return res.status(404).json({error: 'UserNotFound'});
+            }
+    });
+    
     models.Blog.findOne({where: {id: id}}).then(function(blog) {
-        // 403 if blog is default blog
-        
+        // if blog was not found
+        if(!blog) {
+            return res.status(404).json({error: 'BlogNotFound'});
+        }
+         // 403 if blog is default blog
         if(blog.get('name') == "Default blog") {
             return res.status(403).json({error: 'DefaultBlog'});
-        }
-        
-        console.log("testiä");
-        blog.getAuthors().then(function(authors){
+        } else {
+            blog.getAuthors().then(function(authors){
             // find is registered user has rights to the given blog
-            console.log("lisää tekstiä");
-           for(var i = 0; i < authors.length; ++i) {
-               console.log(authors[i].id);
-               if(authors[i].username == req.user.dataValues.username) {
-                    //console.log("blog ulos");
-                    //console.log(blog);
-                   // user is has author right so request can be fulfilled
-                    blog.addAuthor(userId);
-                    return res.status(200);
-               }
-            }; 
-        });
-        // TODO soemwhere should 403, not rights
-    })
-    .catch(function(err) {
-        return res.status(404).json({error: 'BlogNotFound'});
-    });                                 
+          
+                for(var i = 0; i < authors.length; ++i) {
+                    console.log(authors[i].id);
+                    if(authors[i].username == req.user.dataValues.username) {
+                        blog.addAuthor(userId).then(function(){console.log("onnistui")}, function(err) {console.log("epäonnistui")});
+                        return res.status(200).json({Success: 'AuthorAdded'});
+                    }
+                    if(i == authors.length -1 && authors[i].username != req.user.dataValues.username) {
+                        console.log("user had no rights");
+                        res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+                        return res.status(403).json({error: 'InvalidAccessrights'});
+                    }
+                }
+                 
+            }, function(err) {
+                return res.status(500).json({error: 'ServerError'});
+            });
+        }
+    }, function(err) {
+        return res.status(500).json({error: 'ServerError'});
+    });     
 });
 
 // pretty much same as the previous one
@@ -322,9 +322,18 @@ router.delete('/:id/author/:username', requiredAuthentication, function(req, res
                     //console.log("blog ulos");
                     //console.log(blog);
                    // user is has author right so request can be fulfilled
+                   
+                   //remove blog author
+                    
                     blog.removeAuthor(userId); // user-field?
-                    return res.status(200);
+                    return res.status(200).json({Success: 'AuthorRemoved'});
+                   
                }
+               if(i == authors.length -1 && authors[i].username != req.user.dataValues.username) {
+                        console.log("user had no rights");
+                        res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+                        return res.status(403).json({error: 'InvalidAccessrights'});
+                }
             }; 
         });
         // TODO soemwhere should 403, not rights
@@ -333,6 +342,50 @@ router.delete('/:id/author/:username', requiredAuthentication, function(req, res
         return res.status(404).json({error: 'BlogNotFound'});
     });                                 
 });
+
+
+//lisää kirjoitusoikeus
+
+/*router.put('/:id/author/:username', function(req, res, next) {
+    var username = req.params['username'];
+    var id = req.params['id'];
+    var regId = req.user.dataValues.id;
+    
+    models.Blog.findOne({where: {id: id}})
+    .then(function(blog) {
+//        /* if(!blog) { // user doesn't exist
+//            return res.status(404).json({error:'BlogNotFound'});
+//        } else {
+//            models.User.find({where: {username:username}}).then(function(user) {
+//                if(!user) {
+//                    return res.status(404).json({error: 'UserNotFound'});
+//                }
+//                /*blog.getAuthors().then(function(authors) {
+//                    for( var i = 0; i < authors.length; ++i) {
+//                        if(regId == authors[i].get('id')) {
+//                            // kirjautuneella käyttäjällä on kirjoitusoikeus blogiin
+//                            // voidaan lisätä kirjoitusoikeus
+//
+//                            //tarkista vielä onko kyseessä oletusblogi
+//                            if(blog.get('name') == "Default blog") {
+//                                return res.status(403).json({error: 'DefaultBlog'});
+//                            }
+//                            //lisää kirjoitusoikeus
+//                            blog.addAuthor(user.get('id'));
+//                            return res.status(200);
+//                        }
+//                    }
+//                });
+//                blog.addAuthor(user.get('id')).then(function() {console.log("lisätty."), function(err) {consolo.log("noup")}});
+//                return res.status(200);
+//            });
+//        }*/
+/*        console.log("blog found.", blog);      
+    }, function(err) {
+        return res.status(500).json({error: 'ServerError'});
+    });
+});*/
+
             
 function requiredAuthentication(req, res, next) {
 
