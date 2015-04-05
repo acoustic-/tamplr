@@ -33,7 +33,17 @@ router.get('/:id', function(req, res, next) {
     console.log("Haetaan blogia id:lla: ", id);
     models.BlogPost.findOne(query).then(function(post) {
     if (post) {
-      return res.status(200).json(post.toJson());
+        var jsonObj = post.toJson();
+        
+        post.getLikers().then(function(likers){
+            jsonObj.likes = likers.length;
+            return res.status(200).send(jsonObj );
+            
+        }, function(err) {
+            return res.status(500).json({error: 'ServerError'});
+        });
+        
+        
     }
     else {
       return res.status(404).json({error: 'Blog Post does not exists'});
