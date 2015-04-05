@@ -142,7 +142,115 @@ router.get('/:username/blogs', requiredAuthentication, function(req, res, next) 
                                                            
 });
 
+// like someone's blogpost
+// muista palauttaa jotai (esim. return res.status(200).json(------->"moro"<----); ) koska muuten POST ei palauta mitaan !!!!!!!!!!!!!!!!!!!!!!!!!!!
+router.post('/:username/likes/:id', function(req, res, next) {
 
+    var username = req.params['username'];
+    var blogpostid = req.params['id'];
+    //var namefield = req.body.name;
+    //var password = req.body.password;
+    //var id = req.user.dataValues.id;
+     
+    // check if user exists
+    var query = {where: {username: username}};
+    models.User.findOne(query).then(function(user) {
+        if(!user) { // user doesn't exist
+            return res.status(404).json({error:'UserNotFound'});
+        }
+        var query = {where: {id: blogpostid}}; 
+        models.BlogPost.findOne(query).then(function(blogpost) { 
+            if (!blogpost)
+            {
+                return res.status(404).json({error:'BlogPostNotFound'});
+            }        
+            blogpost.addLikers(user).then(function(){ 
+                console.log("User "+user.get('id')+" liked blogpost "+ blogpost.id);
+                console.log("Number of likes "+blogpost.get('likes'));
+                /*
+                var numOfLikers = blogpost.getLikers().then(function(likers){ 
+                    console.log( "LIKE "+likers.length )
+                });
+                */
+
+                blogpost.updateAttributes({
+                    likes: blogpost.get('likes')+1
+                }).then(function() {});
+                return res.status(200).json("moro");
+            }, function(err) {
+               return res.status(500).json({error: 'ServerError'});
+            });     
+        }, function(err)
+        {
+            return res.status(500).json({error: 'ServerError'});
+        });
+
+
+    }, function(err) {
+         return res.status(500).json({error: 'ServerError'});   
+    });
+    
+});
+/*
+                blogpost.getLikers().then(function(likers){ 
+                    blogpost.updateAttributes({
+                    likes: likers.length+1
+                    }).then(function() {return res.status(200).json("Liker added");
+                }); 
+*/
+
+// remove like
+router.delete('/:username/likes/:id', function(req, res, next) {
+
+    console.log("MORJJEE");
+    var username = req.params['username'];
+    var blogpostid = req.params['id'];
+    //var namefield = req.body.name;
+    //var password = req.body.password;
+    //var id = req.user.dataValues.id;
+     
+    // check if user exists
+    var query = {where: {username: username}};
+    models.User.findOne(query).then(function(user) {
+        if(!user) { // user doesn't exist
+            return res.status(404).json({error:'UserNotFound'});
+        }
+        var query = {where: {id: blogpostid}}; 
+        models.BlogPost.findOne(query).then(function(blogpost) { 
+            if (!blogpost)
+            {
+                return res.status(404).json({error:'BlogNotFound'});
+            }
+            /*
+            blogpost.getLikers().then(function(likers){ 
+                    console.log( "LIKE 1 "+likers.length )
+                });
+            */
+            blogpost.removeLikers([user]).then(function(){ 
+                /*
+                blogpost.getLikers().then(function(likers){ 
+                    console.log( "LIKE 2 "+likers.length )
+                });
+                */
+                console.log("User "+user.get('id')+" does not like anymore of blogpost "+ blogpost.id);
+                blogpost.updateAttributes({
+                    likes: blogpost.get('likes')-1
+                }).then(function() {});
+                return res.status(200).json("moro");
+            }, function(err) {
+               return res.status(500).json({error: 'ServerError1'});
+            });     
+        }, function(err)
+        {
+            return res.status(500).json({error: 'ServerError2'});
+        });
+
+
+    }, function(err) {
+         return res.status(500).json({error: 'ServerError3'});   
+    });
+    
+});
           
 /*
 function isLoggedIn(req, res, next) {

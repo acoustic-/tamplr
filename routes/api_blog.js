@@ -67,6 +67,7 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
 
                 title: titleInput,
                 text: textInput,
+                likes: 0,
                 author: authors[i].get('username')
                 }).then(function( blogpost ) 
                 {
@@ -79,7 +80,7 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
                 },
                 function(err) 
                 {
-                    return res.status(500).json({error: 'ServerError'});
+                    return res.status(500).json({error: 'ServerErrorr'});
                 });
               }
           }

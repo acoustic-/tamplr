@@ -33,6 +33,9 @@ router.get('/:id', function(req, res, next) {
     console.log("Haetaan blogia id:lla: ", id);
     models.BlogPost.findOne(query).then(function(post) {
     if (post) {
+              /*
+              post.getLikers().then(function(likers){ 
+                console.log("LKM likers "+likers.length);});*/
       return res.status(200).json(post.toJson());
     }
     else {
@@ -41,8 +44,8 @@ router.get('/:id', function(req, res, next) {
   });
 });
 
-// post's 10 latest comments
 
+// post's 10 latest comments
 router.get('/:id/comments', function(req, res, next) {
  
   var id = req.params['id'];

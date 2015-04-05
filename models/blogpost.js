@@ -4,6 +4,7 @@ module.exports = function(sequelize, DataTypes) {
   var BlogPost = sequelize.define("BlogPost", {
     title: {type:DataTypes.STRING, allowNull:false},
     text: {type:DataTypes.STRING, allowNull:false},
+    likes: {type:DataTypes.INTEGER, allowNull:false},
     author: {type:DataTypes.STRING, allowNull:false}
   }, {
     classMethods: {
