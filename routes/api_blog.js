@@ -85,10 +85,13 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
                 {
                     return res.status(500).json({error: 'ServerError'});
                 });
-              }
-              if ( i = authors.length -1 && authors[i].get('id') != regId) {
-                        res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
-                        return res.status(403).json({error: 'InvalidAccessrights'});
+              } else {
+                if ( i == authors.length -1 && authors[i].get('id') != userID) {
+                    console.log("Unauthorized user");
+                    res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+                    return res.status(403).json({error: 'InvalidAccessrights'});
+              
+                }
               }
           }
         },
@@ -136,7 +139,13 @@ router.get('/:id/posts', function(req, res, next) {
           if (posts)
           {
             var postArr = [];
-            for ( var i = 0; i < posts.length; ++i )
+              
+            var postMax = posts.length;
+            if( postMax > 10) {
+                postMax = 10;
+            }
+              
+            for ( var i = 0; i < postMax; ++i )
             {
                     var id = posts[i].get('id');
                     console.log(id);
@@ -146,7 +155,10 @@ router.get('/:id/posts', function(req, res, next) {
                     console.log(text);
                     //postArr.push("1");
                     //postArr.push( posts[i].toJson() );
-                    postArr.push( JSON.parse(JSON.stringify(posts[i])) );
+                    //postArr.push( JSON.parse(JSON.stringify(posts[i])) );
+                console.log("perus: ", posts[i].toJson() );
+                //console.log("parse: ", JSON.parse(posts[i].toJson() ) );
+                    postArr.push( posts[i].toJson() );
             }
             //var tulostus = JSON.stringify(postArr);
             console.log("morjesta poytaa");
@@ -212,7 +224,7 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
                         blog.destroy().then(function(){console.log("blog removed")}, function(err) {"nope."});
                         return res.status(200).json({Success: 'BlogRemoved'});
                     }
-                    if ( i = authors.length -1 && authors[i].get('id') != regId) {
+                    if ( i == authors.length -1 && authors[i].get('id') != regId) {
                         res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
                         return res.status(403).json({error: 'InvalidAccessrights'});
                     }

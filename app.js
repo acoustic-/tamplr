@@ -30,7 +30,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.set('json spaces', 40);
+app.set('json spaces', 2);
 
 app.use(flash());
 // uncomment after placing your favicon in /public
