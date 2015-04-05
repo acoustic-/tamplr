@@ -37,12 +37,16 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
   var titleInput = req.body.title;
   var textInput = req.body.text;
 
-  if ( titleInput == "" || textInput == "" )
+  if ( !titleInput)
   {
-    return res.status(400).json({error: 'Missing title or text'});
+    return res.status(400).json({error: 'MissingTitle'});
+  } 
+  if ( !textInput)
+  {
+    return res.status(400).json({error: 'MissingText'});
   }
 
-  userHaveAccess = 123123; //global parameter
+  //userHaveAccess = false; //global parameter
   //id of the request user
   var userID = req.user.dataValues.id;
   console.log(userID);
@@ -61,7 +65,7 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
               if ( authors[i].get('id') == userID ) //does user have access to this blog
               {
                 console.log("moroo22");
-                userHaveAccess = 0;
+                //userHaveAccess = true;
                 //creata blog message
                 models.BlogPost.create({
 
@@ -75,12 +79,16 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
                     blogpost.setInBlog( id );
                     var blogpostID = '{"id": "' + blogpost.get('id') + '"}';
                     console.log("Blog writing done");
-                    return res.status(200).json(JSON.parse(blogpostID));
+                    return res.status(201).json(JSON.parse(blogpostID));
                 },
                 function(err) 
                 {
                     return res.status(500).json({error: 'ServerError'});
                 });
+              }
+              if ( i = authors.length -1 && authors[i].get('id') != regId) {
+                        res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+                        return res.status(403).json({error: 'InvalidAccessrights'});
               }
           }
         },
@@ -88,17 +96,22 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
         {
           return res.status(500).json({error: 'ServerError'});
         });
+    } 
+      else 
+    {
+        return res.status(404).json({error: 'BlogNotFound'});
     }
   },
   function(err) 
   {
     return res.status(500).json({error: 'ServerError'});
   });
-  if (userHaveAccess != 123123 )
+    
+  /*if (!userHaveAccess && res.statusCode != 404)
   {
+      console.log("response: ", res.statusCode);
       return res.status(403).json({error: 'User does not have access to this blog'});
-  }
-
+  }*/
 });
 
 
