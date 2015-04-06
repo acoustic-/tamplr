@@ -202,7 +202,6 @@ router.get('/:id', function(req, res, next) {
 
 
 // delete blog
-
 router.delete('/:id', requiredAuthentication, function(req, res, next) {
     var refid = req.params['id'];
     var query = {where: {id:refid}};
@@ -232,23 +231,40 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
                 }
             }, function(err) {
                 return res.status(500).json({error: 'ServerError'});
-            }); 
-        }
+            });  // blog.getAuthors()...
+
+            
+            //no error function callbacks needed here 
+            blog.setFollowers([]).then(function() {  
+              //success
+              blog.setPosts([]).then(function() { 
+                //success
+                blog.destroy().then(function() {
+                  //success
+                  return res.status(200).json({success: "Blog destroyed"}) })
+              });
+            }); // blog.setFollowers([])...
+            
+            
+
+            
+        } //if (blog)
         else {
             return res.status(404).json({error: 'BlogNotFound'});
         }
-    }, function (err) {
+    }, function (err) { // models.Blog.findOne(query).the... error function callback
         return res.status(500).json({error: 'ServerError'});
-    }).then(function(varBlog) {
+    });
+    /*}).then(function(varBlog) {
         console.log("remove Followers", varBlog);
-        return varBlog.setFollowers([]);
+        varBlog.setFollowers([]).then(function() {;
     }).then(function(varBlog) {
         console.log("remove blog", varBlog);
-        return varBlog.destroy();
+        varBlog.destroy();
     }).then(function(blog){
         return res.json({Success: 'Done'});
         console.log("done?");
-    });
+    });*/
     // joko blogi on poistettu tai ei
     /*models.Blog.findOne(query).then(function(blog) {
         if (blog) {
