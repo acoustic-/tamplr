@@ -207,9 +207,14 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
     var refid = req.params['id'];
     var query = {where: {id:refid}};
     var regId = req.user.dataValues.id;
+    
+    var varBlog;
+    
     models.Blog.findOne(query).then(function(blog) {
         
         if (blog) {
+            varBlog = blog;
+            
             if(blog.get('name') == "Default blog") {
                 return res.status(403).json({error: 'DefaultBlog'});
             }
@@ -219,11 +224,10 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
             blog.getAuthors().then(function(authors) {
                 for(var i = 0; i < authors.length; ++i) {
                     if(authors[i].get('id') == regId) {
-                        //blog.setPosts([]);
-                        //task.destroy().then(function() {
-                        //blog.setAuthors([]);
-                        blog.destroy().then(function(){console.log("blog removed")}, function(err) {"nope."});
-                        return res.status(200).json({Success: 'BlogRemoved'});
+                    
+                        
+                        //blog.destroy().then(function(){console.log("blog removed")}, function(err) {"nope."});
+                        return blog.setAuthors([]);
                     }
                     if ( i == authors.length -1 && authors[i].get('id') != regId) {
                         res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
@@ -232,15 +236,15 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
                 }
             }, function(err) {
                 return res.status(500).json({error: 'ServerError'});
-            });
-           
-            
+            }); 
         }
-        if (!blog) {
+        else {
             return res.status(404).json({error: 'BlogNotFound'});
         }
     }, function (err) {
         return res.status(500).json({error: 'ServerError'});
+    }).then(function() {
+        return varBlog.destroy();
     });
     // joko blogi on poistettu tai ei
     /*models.Blog.findOne(query).then(function(blog) {
