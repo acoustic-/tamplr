@@ -299,6 +299,35 @@ router.get('/:username/follows', function(req, res, next) {
     });
                                      
 });
+
+router.delete('/:username/follows/:id', requiredAuthentication, function(req, res, next) {
+    var username = req.params['username'];
+    var blogID = req.params['id'];
+    
+    // kirjautunut käyttäjä
+    var userID = req.user.dataValues.id;
+    
+    // tarkista löytyykö nimellä käyttäjää
+    models.User.findOne({where: {username: username}}).then(function(user) {
+        if (!user) {
+            return res.status(404).json({error: 'InvalidUsername'});
+        }
+        if(user.get('id') != userID) {
+            res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+            return res.status(403).json({error: 'InvalidAccessrights'});
+        }
+        // tarkista löytyykö id:llä blogia
+        models.Blog.findOne({where: {id: blogID}}).then(function(blog) {
+            if(!blog) {
+                return res.status(404).json({error: 'InvalidBlogId'});
+            }
+            // seuraaminen voidaan lopettaa tässä
+            blog.removeFollower(user.get('id'));
+            return res.status(200).json({Success: 'FollowerRemoved'});
+        }); 
+            
+    });
+});
           
 /*
 function isLoggedIn(req, res, next) {
