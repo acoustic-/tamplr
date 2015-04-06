@@ -33,10 +33,24 @@ router.get('/:id', function(req, res, next) {
     console.log("Haetaan blogia id:lla: ", id);
     models.BlogPost.findOne(query).then(function(post) {
     if (post) {
+<<<<<<< HEAD
               /*
               post.getLikers().then(function(likers){ 
                 console.log("LKM likers "+likers.length);});*/
       return res.status(200).json(post.toJson());
+=======
+        var jsonObj = post.toJson();
+        
+        post.getLikers().then(function(likers){
+            jsonObj.likes = likers.length;
+            return res.status(200).send(jsonObj );
+            
+        }, function(err) {
+            return res.status(500).json({error: 'ServerError'});
+        });
+        
+        
+>>>>>>> f4bfb63f33cef5bd2e78db36d9548f3aa3d6fbed
     }
     else {
       return res.status(404).json({error: 'Blog Post does not exists'});

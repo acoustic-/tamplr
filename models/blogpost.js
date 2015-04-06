@@ -27,8 +27,12 @@ module.exports = function(sequelize, DataTypes) {
             var res = this.values;
             // format JSON response correctly
             //delete res.BlogId
+            delete res.UserId;
+            delete res.AuthorId;
+            delete res.InBlogId;
             delete res.createdAt; 
             delete res.updatedAt;
+            delete res.BlogId;
             return res;
         }
 
