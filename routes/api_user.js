@@ -176,7 +176,7 @@ router.post('/:username/likes/:id', function(req, res, next) {
                 blogpost.updateAttributes({
                     likes: blogpost.get('likes')+1
                 }).then(function() {});
-                return res.status(200).json("moro");
+                return res.status(200).json({Success: LikeAdded});
             }, function(err) {
                return res.status(500).json({error: 'ServerError'});
             });     
@@ -236,7 +236,7 @@ router.delete('/:username/likes/:id', function(req, res, next) {
                 blogpost.updateAttributes({
                     likes: blogpost.get('likes')-1
                 }).then(function() {});
-                return res.status(200).json("moro");
+                return res.status(200).json({Success: LikeRemoved});
             }, function(err) {
                return res.status(500).json({error: 'ServerError1'});
             });     
@@ -250,6 +250,54 @@ router.delete('/:username/likes/:id', function(req, res, next) {
          return res.status(500).json({error: 'ServerError3'});   
     });
     
+});
+
+router.put('/:username/follows/:id', requiredAuthentication, function(req, res, next) {
+    var username = req.params['username'];
+    var blogID = req.params['id'];
+    
+    // kirjautunut käyttäjä
+    var userID = req.user.dataValues.id;
+    
+    // tarkista löytyykö nimellä käyttäjää
+    models.User.findOne({where: {username: username}}).then(function(user) {
+        if (!user) {
+            return res.status(404).json({error: 'InvalidUsername'});
+        }
+        if(user.get('id') != userID) {
+            res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+            return res.status(403).json({error: 'InvalidAccessrights'});
+        }
+        // tarkista löytyykö id:llä blogia
+        models.Blog.findOne({where: {id: blogID}}).then(function(blog) {
+            if(!blog) {
+                return res.status(404).json({error: 'InvalidBlogId'});
+            }
+            // seuraaminen voidaan lisätä tässä
+            blog.addFollower(user.get('id'));
+            return res.status(200).json({Success: 'FollowerAdded'});
+        }); 
+            
+    });
+});
+
+router.get('/:username/follows', function(req, res, next) {
+    var username = req.params['username'];
+    
+    models.User.findOne({where: {username: username}}).then(function(user) {
+        if (!user) {
+            return res.status(404).json({error: 'InvalidUsername'});
+        }
+        user.getFollowedBlogs().then(function(follows) {
+            for(var i = 0; i < follows.length; ++i) {
+                follows[i] = follows[i].toJson();
+                delete follows[i].BlogFollowers;
+                delete follows[i].name;
+            }
+            return res.status(200).send(follows);
+        });
+    });
+                                     
 });
           
 /*

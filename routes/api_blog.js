@@ -423,6 +423,29 @@ router.delete('/:id/author/:username', requiredAuthentication, function(req, res
     });
 });*/
 
+//hae blogin seuraajat
+router.get('/:id/followers', function(req, res, next) {
+    var id = req.params['id'];
+    
+    models.Blog.findOne({where: {id: id}}).then(function(blog) {
+        if (!blog) {
+            return res.status(404).json({error: 'BlogNotFound'});
+        }
+        blog.getFollowers().then(function(followers) {
+            
+            for(var i = 0; i < followers.length; ++i) {
+                console.log("follower1: ", followers[i]);
+                // follows[i] = follows[i].toJson();
+                followers[i] = followers[i].toJSON();
+                //followers[i] = json.parse(followers[i]);
+                console.log("follower2: ", followers[i]);
+                delete followers[i].BlogFollowers;
+                delete followers[i].name;
+            }
+            return res.status(200).send(followers);
+        });
+    });
+});
             
 function requiredAuthentication(req, res, next) {
 
