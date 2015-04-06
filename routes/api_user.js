@@ -176,7 +176,7 @@ router.post('/:username/likes/:id', function(req, res, next) {
                 blogpost.updateAttributes({
                     likes: blogpost.get('likes')+1
                 }).then(function() {});
-                return res.status(200).json({Success: LikeAdded});
+                return res.status(200).json({Success: 'LikeAdded'});
             }, function(err) {
                return res.status(500).json({error: 'ServerError'});
             });     
@@ -236,7 +236,7 @@ router.delete('/:username/likes/:id', function(req, res, next) {
                 blogpost.updateAttributes({
                     likes: blogpost.get('likes')-1
                 }).then(function() {});
-                return res.status(200).json({Success: LikeRemoved});
+                return res.status(200).json({Success: 'LikeRemoved'});
             }, function(err) {
                return res.status(500).json({error: 'ServerError1'});
             });     
