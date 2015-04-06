@@ -163,7 +163,7 @@ router.get('/:id/posts', function(req, res, next) {
             }
             //var tulostus = JSON.stringify(postArr);
             console.log("morjesta poytaa");
-            return res.status(200).json(postArr,null,'\t' );
+            return res.status(200).send(postArr);
           }
           else
           {
@@ -213,12 +213,11 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
     models.Blog.findOne(query).then(function(blog) {
         
         if (blog) {
-            varBlog = blog;
+            
             
             if(blog.get('name') == "Default blog") {
                 return res.status(403).json({error: 'DefaultBlog'});
             }
-            
             
         
             blog.getAuthors().then(function(authors) {
@@ -227,6 +226,8 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
                     
                         
                         //blog.destroy().then(function(){console.log("blog removed")}, function(err) {"nope."});
+                        varBlog = blog;
+                        console.log("remove Authors");
                         return blog.setAuthors([]);
                     }
                     if ( i == authors.length -1 && authors[i].get('id') != regId) {
@@ -243,8 +244,15 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
         }
     }, function (err) {
         return res.status(500).json({error: 'ServerError'});
-    }).then(function() {
+    }).then(function(varBlog) {
+        console.log("remove Followers", varBlog);
+        return varBlog.setFollowers([]);
+    }).then(function(varBlog) {
+        console.log("remove blog", varBlog);
         return varBlog.destroy();
+    }).then(function(blog){
+        return res.json({Success: 'Done'});
+        console.log("done?");
     });
     // joko blogi on poistettu tai ei
     /*models.Blog.findOne(query).then(function(blog) {
@@ -312,7 +320,7 @@ router.put('/:id/author/:username', requiredAuthentication, function(req, res, n
     });     
 });
 
-// pretty much same as the previous one
+// poista kirjoistusoikeus
 router.delete('/:id/author/:username', requiredAuthentication, function(req, res, next) {
     // parameters of the reguest
     var id = req.params['id'];
@@ -366,7 +374,6 @@ router.delete('/:id/author/:username', requiredAuthentication, function(req, res
                 }
             }; 
         });
-        // TODO soemwhere should 403, not rights
     })
     .catch(function(err) {
         return res.status(404).json({error: 'BlogNotFound'});

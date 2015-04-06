@@ -59,14 +59,58 @@ router.get('/:id/comments', function(req, res, next) {
   models.BlogPost.findOne(query).then(function(post) {
     if (post) {
         post.getComments().then(function(comments) {
-            return res.status(200).json(comments);
+            var commentArr = [];
+            var commentsLength = 0;
+            
+            if (comments.length < 10) {
+                commentsLength = comments.length;
+            } else {
+                commentsLength = 10;
+            }
+            
+            for (var i = 0; i < commentsLength; ++i) {
+                commentArr.push( comments[i].toJson() );
+            }
+            console.log("commentsLength", commentsLength);
+            console.log("commentsArr: ", commentArr);
+            return res.status(200).send(commentArr);
         });                        
     }
     else {
-      return res.status(404).json({error: 'BlogNotFound'});
+      return res.status(404).json({error: 'BlogPostNotFound'});
     }
   });
 });
+
+// add new comment
+router.post('/:id/comments', requiredAuthentication, function(req, res, next) {
+    var id = req.params['id'];
+    var query = {where: {id: id}};
+    var textField = req.body.text;
+    
+    if (!textField || textField == "") {
+        return res.status(400).json({error: InvalidTextField});
+    }
+    
+    models.BlogPost.findOne(query).then(function(post) {
+        if(post) {
+            models.Comment.create({
+                text: textField,
+                author: req.user.dataValues.id
+                }).then(function(comment)  {
+                    post.addComments( comment );
+                    return res.status(201).json({id: comment.id});
+
+            });
+        }
+        else {
+            return res.status(404).json({error: 'BlogPostNotFound'});
+        }           
+    }, function(err) {
+        return res.status(500).json({error: 'ServerError'});
+    });
+});
+            
 
 function requiredAuthentication(req, res, next) {
     if (req.user) {
@@ -75,5 +119,8 @@ function requiredAuthentication(req, res, next) {
         basicAuth(req, res, next);
     }
 }
+
+
+
 
 module.exports = router;
