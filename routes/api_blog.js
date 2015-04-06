@@ -178,8 +178,8 @@ router.get('/:id/posts', function(req, res, next) {
   });
 });
 
-// post 
-router.get('/:id', requiredAuthentication, function(req, res, next) {
+// get blog
+router.get('/:id', function(req, res, next) {
  
   var id = req.params['id'];
   var query = {where: {id: id}};

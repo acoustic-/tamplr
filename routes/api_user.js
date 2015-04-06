@@ -107,7 +107,7 @@ router.put('/:username', requiredAuthentication, function(req, res, next) {
             if(password)  {user.updateAttributes({password: password}).then(function(user_) {console.log("passw patch")})};
             //user.sync();
             console.log("user patched");
-            models.User.findOne(query).then(function(user_){res.status(200).json(user_.toJson())});
+            models.User.findOne(query).then(function(user){res.status(200).json(user.toJSON())});
         } else {
            res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
            return res.status(403).json({error: 'InvalidAccessrights'}); 
