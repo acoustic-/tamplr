@@ -144,10 +144,13 @@ router.get('/:username/blogs', requiredAuthentication, function(req, res, next) 
 
 // like someone's blogpost
 // muista palauttaa jotai (esim. return res.status(200).json(------->"moro"<----); ) koska muuten POST ei palauta mitaan !!!!!!!!!!!!!!!!!!!!!!!!!!!
-router.post('/:username/likes/:id', function(req, res, next) {
+router.post('/:username/likes/:id', requiredAuthentication, function(req, res, next) {
 
     var username = req.params['username'];
     var blogpostid = req.params['id'];
+    var userID = req.user.dataValues.id;
+
+
     //var namefield = req.body.name;
     //var password = req.body.password;
     //var id = req.user.dataValues.id;
@@ -158,6 +161,12 @@ router.post('/:username/likes/:id', function(req, res, next) {
         if(!user) { // user doesn't exist
             return res.status(404).json({error:'UserNotFound'});
         }
+        if(user.get('id') != userID) {
+            res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+            return res.status(403).json({error: 'InvalidAccessrights'});
+        }
+
+
         var query = {where: {id: blogpostid}}; 
         models.BlogPost.findOne(query).then(function(blogpost) { 
             if (!blogpost)
@@ -168,15 +177,23 @@ router.post('/:username/likes/:id', function(req, res, next) {
                 console.log("User "+user.get('id')+" liked blogpost "+ blogpost.id);
                 console.log("Number of likes "+blogpost.get('likes'));
                 /*
-                var numOfLikers = blogpost.getLikers().then(function(likers){ 
+                numOfLikers = blogpost.getLikers().then(function(likers){ 
                     console.log( "LIKE "+likers.length )
                 });
-                */
+                
 
                 blogpost.updateAttributes({
                     likes: blogpost.get('likes')+1
                 }).then(function() {});
+                return res.status(200).json({Success: 'LikeAdded'});*/
+                 
+                numOfLikers = blogpost.getLikers().then(function(likers){ 
+                    console.log( "LIKE "+likers.length )
+                    blogpost.updateAttributes({
+                        likes: likers.length
+                    }).then(function() {});
                 return res.status(200).json({Success: 'LikeAdded'});
+                });
             }, function(err) {
                return res.status(500).json({error: 'ServerError'});
             });     
@@ -200,11 +217,12 @@ router.post('/:username/likes/:id', function(req, res, next) {
 */
 
 // remove like
-router.delete('/:username/likes/:id', function(req, res, next) {
+router.delete('/:username/likes/:id', requiredAuthentication,function(req, res, next) {
 
     console.log("MORJJEE");
     var username = req.params['username'];
     var blogpostid = req.params['id'];
+    var userID = req.user.dataValues.id;
     //var namefield = req.body.name;
     //var password = req.body.password;
     //var id = req.user.dataValues.id;
@@ -215,6 +233,12 @@ router.delete('/:username/likes/:id', function(req, res, next) {
         if(!user) { // user doesn't exist
             return res.status(404).json({error:'UserNotFound'});
         }
+
+        if(user.get('id') != userID) {
+            res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+            return res.status(403).json({error: 'InvalidAccessrights'});
+        }
+
         var query = {where: {id: blogpostid}}; 
         models.BlogPost.findOne(query).then(function(blogpost) { 
             if (!blogpost)
@@ -232,11 +256,14 @@ router.delete('/:username/likes/:id', function(req, res, next) {
                     console.log( "LIKE 2 "+likers.length )
                 });
                 */
-                console.log("User "+user.get('id')+" does not like anymore of blogpost "+ blogpost.id);
-                blogpost.updateAttributes({
-                    likes: blogpost.get('likes')-1
-                }).then(function() {});
-                return res.status(200).json({Success: 'LikeRemoved'});
+                blogpost.getLikers().then(function(likers){ 
+                    console.log( "LIKE 2 "+likers.length )
+                    console.log("User "+user.get('id')+" does not like anymore of blogpost "+ blogpost.id);
+                    blogpost.updateAttributes({
+                        likes: likers.length
+                    }).then(function() {});
+                    return res.status(200).json({Success: 'LikeRemoved'});
+                });
             }, function(err) {
                return res.status(500).json({error: 'ServerError1'});
             });     

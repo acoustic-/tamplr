@@ -211,15 +211,10 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
     var varBlog;
     
     models.Blog.findOne(query).then(function(blog) {
-        
         if (blog) {
-            
-            
             if(blog.get('name') == "Default blog") {
                 return res.status(403).json({error: 'DefaultBlog'});
             }
-            
-        
             blog.getAuthors().then(function(authors) {
                 for(var i = 0; i < authors.length; ++i) {
                     if(authors[i].get('id') == regId) {
