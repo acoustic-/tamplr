@@ -119,10 +119,24 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
 });
 
 
-
-
-
-
+//Ei maaritelty speksissa mutta anyway
+router.get('/:username', function(req, res, next) {
+var username = req.params['username'];
+models.User.findOne({where: {username: username}})
+        .then(function(user){
+            userId = user.id;
+            if(!user) {
+                console.log("usern: ", username);
+                return res.status(404).json({error: 'UserNotFound'});
+            }
+            else
+            {
+                user.getAuthoredBlogs().then(function(blog) {
+                    return res.status(200).json(blog)
+                  });
+            } 
+    });
+});
 
 
 // get blog's 10 blog writes
@@ -185,12 +199,14 @@ router.get('/:id', function(req, res, next) {
   var query = {where: {id: id}};
   models.Blog.findOne(query).then(function(blog) {
     if (blog) {
-      return res.json(blog.toJson());
+      return res.status(200).json(blog.toJson());
     }
     else {
       return res.status(404).json({error: 'BlogNotFound'});
     }
-  });
+  }, function(err) {
+      return res.status(500).json({error: 'ServerError'});
+            });  // blog.getAuthors()...});
 });
 
 

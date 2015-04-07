@@ -80,19 +80,36 @@ router.get('/:username', function(req, res, next) {
 });
 
 //patch user's information
-
 router.put('/:username', requiredAuthentication, function(req, res, next) {
     console.log("starting put..");
     var username = req.params['username'];
     var namefield = req.body.name;
     var password = req.body.password;
     var id = req.user.dataValues.id;
-     
+
+    console.log("USERNAME "+username);
+    console.log("NAMEFIELD" + namefield);
+    console.log("PASSWORD" + password);
+
     // check if the request is in correct form
+    /*
     if (!namefield || !password) {
+        console.log("TAALLA");
         return res.status(400).json({error: 'EmptyField'});
     }
-    
+    */
+    //if we have given new username or password, check they are not empty.
+    console.log("TAALLA1");
+    if ( namefield && namefield == "" ) {
+        console.log("TAALLA2");
+        return res.status(400).json({error: 'EmptyField'});
+    }
+
+    if ( password && password == "" ) {
+        console.log("TAALLA3");
+        return res.status(400).json({error: 'EmptyField'});
+    }
+
     // check if user exists
     var query = {where: {username: username}};
     models.User.findOne(query).then(function(user) {
@@ -144,7 +161,7 @@ router.get('/:username/blogs', requiredAuthentication, function(req, res, next) 
 
 // like someone's blogpost
 // muista palauttaa jotai (esim. return res.status(200).json(------->"moro"<----); ) koska muuten POST ei palauta mitaan !!!!!!!!!!!!!!!!!!!!!!!!!!!
-router.post('/:username/likes/:id', requiredAuthentication, function(req, res, next) {
+router.put('/:username/likes/:id', requiredAuthentication, function(req, res, next) {
 
     var username = req.params['username'];
     var blogpostid = req.params['id'];
@@ -154,7 +171,7 @@ router.post('/:username/likes/:id', requiredAuthentication, function(req, res, n
     //var namefield = req.body.name;
     //var password = req.body.password;
     //var id = req.user.dataValues.id;
-     
+    console.log("TAAALLA");
     // check if user exists
     var query = {where: {username: username}};
     models.User.findOne(query).then(function(user) {
