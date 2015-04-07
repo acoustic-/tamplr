@@ -244,14 +244,20 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
     
     models.Blog.findOne(query).then(function(blog) {
         if (blog) {
-            if(blog.get('name') == "Default blog") {
+            /*if(blog.get('name') == "Default blog") {
                 return res.status(403).json({error: 'DefaultBlog'});
-            }
+            }*/
             blog.getAuthors().then(function(authors) {
                 for(var i = 0; i < authors.length; ++i) {
                     if(authors[i].get('id') == regId) {
                     
-                        
+                        models.User.findOne({where: {id: regId}}).then(function(user) {
+                            user.getAuthoredBlogs().then(function(authored){
+                                if(authored[0].get('id') == refid) {
+                                    return res.status(403).json({error: 'DefaultBlog'});
+                                }
+                            });
+                        });
                         //blog.destroy().then(function(){console.log("blog removed")}, function(err) {"nope."});
                         varBlog = blog;
                         console.log("remove Authors");
@@ -328,6 +334,12 @@ router.put('/:id/author/:username', requiredAuthentication, function(req, res, n
                 console.log("usern: ", username);
                 return res.status(404).json({error: 'UserNotFound'});
             }
+          
+            user.getAuthoredBlogs().then(function(authored){
+                if(authored[0].get('id') == id) {
+                    return res.status(403).json({error: 'DefaultBlog'});
+                }
+            });
     });
     
     models.Blog.findOne({where: {id: id}}).then(function(blog) {
@@ -336,9 +348,9 @@ router.put('/:id/author/:username', requiredAuthentication, function(req, res, n
             return res.status(404).json({error: 'BlogNotFound'});
         }
          // 403 if blog is default blog
-        if(blog.get('name') == "Default blog") {
-            return res.status(403).json({error: 'DefaultBlog'});
-        } else {
+        //if(blog.get('name') == "Default blog") {
+        //    return res.status(403).json({error: 'DefaultBlog'});
+        //} else {
             blog.getAuthors().then(function(authors){
             // find is registered user has rights to the given blog
           
@@ -358,7 +370,7 @@ router.put('/:id/author/:username', requiredAuthentication, function(req, res, n
             }, function(err) {
                 return res.status(500).json({error: 'ServerError'});
             });
-        }
+        //}
     }, function(err) {
         return res.status(500).json({error: 'ServerError'});
     });     
@@ -379,7 +391,13 @@ router.delete('/:id/author/:username', requiredAuthentication, function(req, res
             console.log("user.id : ", user.id);
             // find user of the request; in 'user'
             userId = user.id;
+        user.getAuthoredBlogs().then(function(authored){
+                if(authored[0].get('id') == id) {
+                    return res.status(403).json({error: 'DefaultBlog'});
+                }
+        });
         console.log("onnistuiko?");
+        
         })
         .catch(function(err) {
             console.log("usern: ", username);
@@ -390,9 +408,9 @@ router.delete('/:id/author/:username', requiredAuthentication, function(req, res
     models.Blog.findOne({where: {id: id}}).then(function(blog) {
         // 403 if blog is default blog
         
-        if(blog.get('name') == "Default blog") {
+        /*if(blog.get('name') == "Default blog") {
             return res.status(403).json({error: 'DefaultBlog'});
-        }
+        }*/
         
         console.log("testiä");
         blog.getAuthors().then(function(authors){
