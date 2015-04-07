@@ -135,7 +135,7 @@ router.put('/:username', requiredAuthentication, function(req, res, next) {
     
 });
 
-router.get('/:username/blogs', requiredAuthentication, function(req, res, next) {
+router.get('/:username/blogs', function(req, res, next) {
     var username = req.params['username'];
     console.log("get blogs");
     models.User.findOne({where: {username: username}})

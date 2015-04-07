@@ -118,7 +118,7 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
   }*/
 });
 
-
+/*
 //Ei maaritelty speksissa mutta anyway
 router.get('/:username', function(req, res, next) {
 var username = req.params['username'];
@@ -137,7 +137,7 @@ models.User.findOne({where: {username: username}})
             } 
     });
 });
-
+*/
 
 // get blog's 10 blog writes
 router.get('/:id/posts', function(req, res, next) {
@@ -194,19 +194,36 @@ router.get('/:id/posts', function(req, res, next) {
 
 // get blog
 router.get('/:id', function(req, res, next) {
- 
-  var id = req.params['id'];
-  var query = {where: {id: id}};
-  models.Blog.findOne(query).then(function(blog) {
-    if (blog) {
-      return res.status(200).json(blog.toJson());
-    }
+    
+    var id = req.params['id'];
+    // tsekataan onko syötetty käyttäjä nimi vai numero
+    
+    if (isNaN(id) ) {
+        // kyseessä on username
+        var username = id;
+        var query = {where: { username: username}};
+        models.User.findOne(query).then(function(user) {
+            if (user) {
+                user.getAuthoredBlogs().then(function(blogs){
+                    return res.status(200).json(blogs[0].toJson() );
+                });
+            }
+        });
+        
+    } 
     else {
-      return res.status(404).json({error: 'BlogNotFound'});
+      var query = {where: {id: id}};
+      models.Blog.findOne(query).then(function(blog) {
+        if (blog) {
+          return res.status(200).json(blog.toJson());
+        }
+        else {
+          return res.status(404).json({error: 'BlogNotFound'});
+        }
+      }, function(err) {
+          return res.status(500).json({error: 'ServerError'});
+        });  // blog.getAuthors()...});
     }
-  }, function(err) {
-      return res.status(500).json({error: 'ServerError'});
-            });  // blog.getAuthors()...});
 });
 
 
