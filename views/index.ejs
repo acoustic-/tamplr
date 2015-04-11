@@ -3,29 +3,45 @@
   <head>
     <title>Tamplr</title>
     <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
+      <div class="banner" align="right"><table style="width: 100%"><th style="text-align: left"><a href="/" style="text-decoration: none"><div class="tamplr-logo-small">tamplr</a></div></th><th style="text-align: right"><%= user.username %> <a href="/settings">Asetukset</a> <a href="/logout">Kirjaudu ulos</a>  </th></table></div>  
     <h1 class="tamplr-logo">tamplr</h1>
-    <p>Tamplr:ssa on <%= users.length %> käyttäjää.
-    <ul>
-    <% for(var i=0; i<users.length; i++) {%>
-      <% var u = users[i]; %>
+      
+    <p>Uusimmat Tamplrin blogipostastaukset.
+
+      <ul>
+       <% for(var i=0; i<posts.length; i++) {%>
+      <% var u = posts[i]; %>
       <li>
-        <a href="/api/user/<%= u.username %>">
-          <%= u.username %>
-        </a>
+        <a href="/api/post/<%= u.id %>">
+          <%= u.title %></a> kirjoittanut <%= u.author %>, blogissa: <%= blogs[u.InBlogId].name %> (BlogId: <%= u.InBlogId %>).
+        
       </li>
     <% } %>
     </ul>
-    
-      Voit lisätä uuden käyttäjän seuraavanlaisella
-      <a href="http://curl.haxx.se/">curl</a>-komennolla:
-    </p>
-    <pre>curl -X POST http://<%= host %>/api/user -H 'Content-Type: application/json' -d '{"username": "teemu"}'</pre>
-    <p>
-      Windowsissa pitää käyttää vähän ylimääräisiä kenoviivoja:
-    </p>
-    <pre>curl -X POST http://<%= host %>/api/user -H 'Content-Type: application/json' -d '{\"username\": \"teemu\"}'</pre>
+
+    <h2 class="authored-blogs">Kirjoitat <%= authored.length %> blogiin: </h2>
+      
+      <ul>
+      <% for(var i=0; i<authored.length; i++) {%>
+          <% var b = authored[i].dataValues; %>
+          <li>
+            <a href="/api/blog/<%= b.id %>"><%= b.name %></a>
+          </li>
+        <% } %>
+      </ul>
+      <h2 class="followed-blogs"> Seuraat <%= follows.length %> blogia: </h2>
+      <ul>
+      <% for (var i=0; i <follows.length; i++) {%>
+      <% var f = follows[i].dataValues; %>
+          <li>
+            <a href="/api/blog/<% f.id %>"><%= f.name %></a>
+          </li>
+          <% } %>
+      </ul>
+      
   </body>
 </html>

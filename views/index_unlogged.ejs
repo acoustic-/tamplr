@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tamplr</title>
+    <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+      <div class="banner" align="right"><a href="/login">Kirjaudu sisään</a> <a href="/register">Luo uusi tili</a>  </div>
+    <h1 class="tamplr-logo">tamplr - UNLOGGED IN</h1>
+    <p>Uusimmat Tamplrin blogipostastaukset.
+
+      <ul>
+       <% for(var i=0; i<posts.length; i++) {%>
+      <% var u = posts[i]; %>
+      <li>
+        <a href="/api/post/<%= u.id %>">
+          <%= u.title %></a> kirjoittanut <%= u.author %>, blogissa: <%= blogs[u.InBlogId].name %> (BlogId: <%= u.InBlogId %>).
+        
+      </li>
+    <% } %>
+    </ul>
+  </body>
+</html>

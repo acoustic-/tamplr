@@ -37,14 +37,14 @@ module.exports = function(passport) {
                 console.log(password);
                 if (!user) {
                     console.log("testi2");
-                    return done(null, false, { message: 'Incorrect username.' });
+                    return done(null, false);
                 }
                 if(!user.validatePassword(password)) {
-                    return done(null, false, {message: 'Incorrect password.' });
+                    return done(null, false);
                 }
                 console.log("user found");
                 
-                return done(null, user, {message: 'Authentication was correct.' });
+                return done(null, user);
 
             })
         }
@@ -55,29 +55,31 @@ module.exports = function(passport) {
         passwordField: 'password'     
     },  function(username, password, done) {
             models.User.findOne({where: {username: username }})
-                .success(function(user) {
+                .then(function(user) {
                 console.log(username);
                 console.log(password);
                 if (!user) {
                     console.log("testi2");
-                    return done(null, false, { message: 'Incorrect username.' });
+                    return done(null, false);
                 }
                 if(!user.validatePassword(password)) {
-                    return done(null, false, {message: 'Incorrect password.' });
+                    return done(null, false);
                 }
-                console.log("user found");
-                return done(null, user, {message: 'Authentication was correct.' });
+                console.log("user found by local");
+                return done(null, user);
 
-            })
+            });
         }
     ));
     
     passport.serializeUser(function(user, done) {
-      done(null, user);
+        console.log("Serializing..");
+      done(null, user.id);
     });
 
     // Deserialisointi session-muuttujasta
     passport.deserializeUser(function(user, done) {
+        console.log("You've been DESERIALIZED!");
       done(null, user);
     });
 }

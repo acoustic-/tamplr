@@ -22,6 +22,7 @@ var apiUser =  require('./routes/api_user');
 var apiBlog =  require('./routes/api_blog');
 var apiHt =    require('./routes/api_ht');
 var apiPost =  require('./routes/api_post');
+var login =    require('./routes/login');
 
 
 var app = express();
@@ -49,7 +50,7 @@ app.use(session({
 }));
 
 app.use(passport.initialize());
-//app.use(passport.session());
+app.use(passport.session());
 
 
 app.use('/', routes);
@@ -57,6 +58,7 @@ app.use('/api/user', apiUser);
 app.use('/api/blog', apiBlog);
 app.use('/api/ht', apiHt);
 app.use('/api/post', apiPost);
+app.use('/login', login);
 //require('./config/passport')(passport);
 
 //passport logic

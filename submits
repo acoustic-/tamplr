@@ -1,0 +1,3 @@
+curl -X POST http://localhost:3000/api/user -H 'Content-Type: application/json' -d '{"username": "teemu", "name":"Teemu Heikki", "name":"Teemu heikki", "password":"sala"}' -i
+curl http://localhost:3000/api/blog -u 'teemu:sala' -X POST -H 'Content-Type: application/json' -d '{"name": "Mun blogi"}' -i
+curl http://localhost:3000/api/blog/1 -u 'teemu:sala' -X DELETE -H 'Content-type: application/json' -i

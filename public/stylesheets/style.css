@@ -7,6 +7,27 @@ h1.tamplr-logo:after {
   content: ".";
   position: relative;
   right: 0.1em;
+  top: 15px;
+}
+
+div.tamplr-logo-small {
+    font-family: 'Bree Serif', serif;
+    color: violet ;
+    position: relative;
+    left: 0.1em;
 }
 
 
+div.banner {
+    background-color: aqua;
+    position:fixed;
+    top:0px;
+    left: 0px;
+    z-index:100000;
+    width:100%;
+    box-shadow: 0px 2px 5px #888888;
+}
+
+body {
+    font-family: 'Open Sans', sans-seri;
+}
