@@ -5,20 +5,23 @@ var passport = require('passport');
 var models = require('../models');
 var basicAuth = passport.authenticate('basic', {session: false});
 
+var registered_user;
+
 // create a blog
 router.post('/', requiredAuthentication, function(req, res, next) {
 
-    
+    console.log("beginning to add blog");
   var blogname = req.body.name;
     
   if (!blogname) {
     return res.status(400).json({error: 'InvalidBlogName'});
   }
-    console.log("testi: ", req.user.dataValues.id);
+    console.log("testi: ", req.user);
   models.Blog.create({
     name: blogname
   }).then(function(blog) {
-    blog.addAuthor(req.user.dataValues.id);
+      console.log("blog created");
+    blog.addAuthor(registered_user);
     var blogID = '{"id": "' + blog.get('id') + '"}';
     var id = blog.get('id');
     return res.status(201).json(JSON.parse(blogID));
@@ -48,7 +51,7 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
 
   //userHaveAccess = false; //global parameter
   //id of the request user
-  var userID = req.user.dataValues.id;
+  var userID = registered_user;
   console.log(userID);
   console.log(id);
   var query = {where: {id: id}};
@@ -238,7 +241,7 @@ router.get('/:id', function(req, res, next) {
 router.delete('/:id', requiredAuthentication, function(req, res, next) {
     var refid = req.params['id'];
     var query = {where: {id:refid}};
-    var regId = req.user.dataValues.id;
+    var regId = registered_user;
     
     var varBlog;
     
@@ -448,7 +451,7 @@ router.delete('/:id/author/:username', requiredAuthentication, function(req, res
 /*router.put('/:id/author/:username', function(req, res, next) {
     var username = req.params['username'];
     var id = req.params['id'];
-    var regId = req.user.dataValues.id;
+    var regId = registered_user;
     
     models.Blog.findOne({where: {id: id}})
     .then(function(blog) {
@@ -513,9 +516,11 @@ function requiredAuthentication(req, res, next) {
 
     
     if (req.user) {
+        registered_user = req.user;
         next();
     } else {
         basicAuth(req, res, next);
+        registered_user = req.user.dataValues.id;
     }
 }
 

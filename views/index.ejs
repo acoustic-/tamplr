@@ -2,15 +2,58 @@
 <html>
   <head>
     <title>Tamplr</title>
+      
+      
     <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+       <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
     <link rel='stylesheet' href='/stylesheets/style.css' />
+      
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+      <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+      <script>
+      $(document).ready(function() {
+        $('#createBlog').on('submit', function(e){
+            console.log("submit action");
+          //prevent normal submit
+          e.preventDefault();
+          e.returnValue = false;
+          
+          //Read form
+          var nameField = $("#blogname").val();
+          
+          $.ajax({
+              url: '/api/blog/',
+              type: 'POST',
+              contentType: 'application/json',
+              dataType: 'json',
+              data: JSON.stringify({name: nameField}),
+              
+              success: function(data)
+              {
+                  console.log("data: ", data);
+                  // res
+                  
+                   $("#resCreateBlog").html("Blogin lisääminen onnistui!");
+                   $("#resCreateBlog").show().delay(5000).fadeOut();
+              },
+              error: function(data)
+              {
+                  console.log("error data: ", data);
+                  //err
+              }
+          });
+        });
+          
+      });
+     </script>
+      
   </head>
   <body>
       <div class="banner" align="right"><table style="width: 100%"><th style="text-align: left"><a href="/" style="text-decoration: none"><div class="tamplr-logo-small">tamplr</a></div></th><th style="text-align: right"><%= user.username %> <a href="/settings">Asetukset</a> <a href="/logout">Kirjaudu ulos</a>  </th></table></div>  
     <h1 class="tamplr-logo">tamplr</h1>
       
-    <p>Uusimmat Tamplrin blogipostastaukset.
+    <p>Uusimmat Tamplrin blogipostaukset.
 
       <ul>
        <% for(var i=0; i<posts.length; i++) {%>
@@ -42,6 +85,10 @@
           </li>
           <% } %>
       </ul>
+      <h2>Luo uusi blogi:</h2>
+      <div id="divCreateBlog"><form action="/api/blog/" method="post" id="createBlog">Uuden blogin nimi: <input id="blogname" type="text" name="name" value="Kallen kissablogi..">
+    <input type="submit" value="Submit"></form></div><br />
+      <div class="message" id="resCreateBlog"></div>
       
   </body>
 </html>
