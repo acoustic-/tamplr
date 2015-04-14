@@ -12,6 +12,8 @@ var localAuth = passport.authenticate('local', {session: false});
 
 //add user
 router.post('/', function(req, res, next) {
+  
+  console.log("morrje");
   var username = req.body.username;
   var name = req.body.name;
   var password = req.body.password;

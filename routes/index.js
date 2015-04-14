@@ -81,6 +81,11 @@ router.get('/', function(req, res, next) {
     }
 });
 
+router.get('/create_user', function(req, res) { 
+    res.render('create_user.ejs'); 
+      
+});
+
 function requiredAuthentication(req, res, next) {
     console.log("authentication!", req.user);
     if (req.user) {
