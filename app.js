@@ -23,6 +23,7 @@ var apiBlog =  require('./routes/api_blog');
 var apiHt =    require('./routes/api_ht');
 var apiPost =  require('./routes/api_post');
 var login =    require('./routes/login');
+var blog =     require('./routes/blog_route');
 
 
 var app = express();
@@ -53,12 +54,16 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-app.use('/', routes);
+// apis:
 app.use('/api/user', apiUser);
 app.use('/api/blog', apiBlog);
 app.use('/api/ht', apiHt);
 app.use('/api/post', apiPost);
+
+// normal pages
+app.use('/', routes);
 app.use('/login', login);
+app.use('/blog', blog);
 //require('./config/passport')(passport);
 
 //passport logic

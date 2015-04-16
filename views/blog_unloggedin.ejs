@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= name %></title>
+
+        <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        
+        <!--
+<script>
+
+// var update = new EJS({url: '/index.ejs'}).update('blogs');
+
+$(document).ready(function() {
+$(".alert").hide();
+$('#createBlog').on('submit', function(e){
+console.log("submit action");
+//prevent normal submit
+e.preventDefault();
+e.returnValue = false;
+
+//Read form
+var nameField = $("#blogname").val();
+
+$.ajax({
+url: '/api/blog/',
+type: 'POST',
+contentType: 'application/json',
+dataType: 'json',
+data: JSON.stringify({name: nameField}),
+
+success: function(data)
+{
+console.log("data: ", data);
+//author_len+1;
+// res
+//var html = new EJS({url: 'authored_blogs.ejs'}).render(authored);
+$("#authored").append("<li>" + nameField + "</li>");
+$("#resCreateBlog").html("Blogin lisääminen onnistui!");
+$("#resCreateBlog").show().delay(5000).fadeOut();
+
+},
+error: function(data)
+{
+console.log("error data: ", data);
+$("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Tarkista, että kirjoitit oikean bloginimen.');
+$("#errormessage").show().delay(5000).fadeOut();
+//err
+}
+});
+});
+
+});
+</script>
+-->
+    </head>
+    <body>
+
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/"><div class="tamplr-logo-small">tamplr</div></a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="/login">Kirjaudu sisään</a></li>
+                        <li><a href="/register">Luo uusi tili</a></li>
+                    </ul>
+
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+
+        <div class="container">
+            <div class="row">
+                <!-- Blog Post Content Column -->
+
+                <h1 class="tamplr-logo"><%= name %></h1>
+
+                <% for (var i=0; i < posts.length; ++i) { %><p>
+                <div class="col-lg-8" style="background-color: #F8F8F8; padding: 5px; border-radius: 10px;">
+                    <% var p = posts[i]; %>
+                    <h1><%= p.title %></h1> <!-- linkki postaukseen -->
+                    <!-- Author -->
+                    <p class="lead">
+                        kirjoittanut <%= p.author %><!-- linkki käyttäjään? -->
+                    </p>
+                    <hr>
+
+                    <!-- Date/Time -->
+                    <p><span class="glyphicon glyphicon-time"></span> Kirjoitettu <%= p.created %></p>
+                    <hr>
+                    <p class="lead"><%= p.text %> <br /></p><hr>
+                    <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span><%= p.likes %>
+                    <span class="glyphicon glyphicon-comment" aria-hidden="true"></span><%= p.comments %>
+                    
+                </div></p>
+                <br /> <br />
+                <% } %>
+            </div>
+        </div>
+    </body>
+</html>

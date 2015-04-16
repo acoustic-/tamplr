@@ -36,7 +36,7 @@
                         success: function(data)
                         {
                             console.log("data: ", data);
-                            author_len+1;
+                            //author_len+1;
                             // res
                             //var html = new EJS({url: 'authored_blogs.ejs'}).render(authored);
                             $("#authored").append("<li>" + nameField + "</li>");
@@ -47,6 +47,8 @@
                         error: function(data)
                         {
                             console.log("error data: ", data);
+                            $("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Tarkista, että kirjoitit oikean bloginimen.');
+                            $("#errormessage").show().delay(5000).fadeOut();
                             //err
                         }
                     });
@@ -128,9 +130,11 @@
             <h2>Luo uusi blogi:</h2>
             <div id="divCreateBlog"><form action="/api/blog/" method="post" id="createBlog">Uuden blogin nimi: 
                 <input id="blogname" type="text" name="name" placeholder="Kallen kissablogi..">
-                <input type="submit" value="Submit"></form></div><br />
+                <input type="submit" value="Luo uusi blogi"></form></div><br />
         </div>
-        <div class="alert alert-success alert-dismissable message" role="alert" id="resCreateBlog" data-fade="3000"></div>
+        <div class="alert alert-success alert-dismissable message" role="alert" id="resCreateBlog"></div>
+        <div class="alert alert-danger message" role="alert" id="errormessage"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">
+            </span></div>
 
     </body>
 </html>

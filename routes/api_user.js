@@ -10,6 +10,8 @@ var BasicStrategy = require('passport-http').BasicStrategy;
 var basicAuth = passport.authenticate('basic', {session: false});
 var localAuth = passport.authenticate('local', {session: false});
 
+var registered_user;
+
 //add user
 router.post('/', function(req, res, next) {
   
@@ -303,7 +305,7 @@ router.put('/:username/follows/:id', requiredAuthentication, function(req, res, 
     var blogID = req.params['id'];
     
     // kirjautunut käyttäjä
-    var userID = req.user.dataValues.id;
+    var userID = registered_user;
     
     // tarkista löytyykö nimellä käyttäjää
     models.User.findOne({where: {username: username}}).then(function(user) {
@@ -402,13 +404,16 @@ function isLoggedIn(req, res, next) {
     }
 };*/
 function requiredAuthentication(req, res, next) {
+
+    
     if (req.user) {
+        registered_user = req.user;
         next();
     } else {
         basicAuth(req, res, next);
+        registered_user = req.user.dataValues.id;
     }
 }
-
 
 
 module.exports = router;

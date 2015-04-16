@@ -114,12 +114,13 @@ router.post('/:id/comments', requiredAuthentication, function(req, res, next) {
 
 function requiredAuthentication(req, res, next) {
     if (req.user) {
+        registered_user = req.user;
         next();
     } else {
         basicAuth(req, res, next);
+        registered_user = req.user.dataValues.id;
     }
 }
-
 
 
 
