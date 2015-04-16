@@ -23,14 +23,13 @@ var apiBlog =  require('./routes/api_blog');
 var apiHt =    require('./routes/api_ht');
 var apiPost =  require('./routes/api_post');
 var login =    require('./routes/login');
-
+//var settings =    require('./routes/settings');
 
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
 app.set('json spaces', 2);
 
 app.use(flash());
@@ -59,6 +58,7 @@ app.use('/api/blog', apiBlog);
 app.use('/api/ht', apiHt);
 app.use('/api/post', apiPost);
 app.use('/login', login);
+//app.use('/settings', settings);
 //require('./config/passport')(passport);
 
 //passport logic

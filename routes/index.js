@@ -88,6 +88,19 @@ router.get('/register', function(req, res) {
       
 });
 
+router.get('/settings', function(req, res) {
+
+    //if(req.user) {
+    models.User.findOne({where: {id: req.session.passport.user }}).then(function(user) {
+    
+    //console.log(user.get('username')+" moro");
+    res.render('settings.ejs', {
+        userName: user.get('username')
+        }); 
+    });    
+      
+});
+
 
 router.get('/logout', function(req, res){
   req.logout();
