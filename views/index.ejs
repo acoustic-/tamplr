@@ -1,129 +1,136 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Tamplr</title>
-      
-      
-    <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'> 
-      
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-      
-      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-      <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-      <script>
-      $(document).ready(function() {
-        $('#createBlog').on('submit', function(e){
-            console.log("submit action");
-          //prevent normal submit
-          e.preventDefault();
-          e.returnValue = false;
-          
-          //Read form
-          var nameField = $("#blogname").val();
-          
-          $.ajax({
-              url: '/api/blog/',
-              type: 'POST',
-              contentType: 'application/json',
-              dataType: 'json',
-              data: JSON.stringify({name: nameField}),
-              
-              success: function(data)
-              {
-                  console.log("data: ", data);
-                  // res
-                  
-                   $("#resCreateBlog").html("Blogin lisääminen onnistui!");
-                   $("#resCreateBlog").show().delay(5000).fadeOut();
-              },
-              error: function(data)
-              {
-                  console.log("error data: ", data);
-                  //err
-              }
-          });
-        });
-          
-      });
-     </script>
-      
-  </head>
-  <body>
-      <nav class="navbar navbar-default navbar-fixed-top">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#"><div class="tamplr-logo-small">tamplr</div></a>
-    </div>
+    <head>
+        <title>Tamplr</title>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
-        <li><a href="#">Link</a></li>
-        
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%= user.username %> <span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="/settings">Asetukset</a></li>
-               <li class="divider"></li>
-            <li><a href="/logout">Kirjaudu ulos</a></li>
-          </ul>
-        </li>
-      </ul>
-        
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-<!--      <div class="banner" align="right"><table style="width: 100%"><th style="text-align: left"><a href="/" style="text-decoration: none"><div class="tamplr-logo-small">tamplr</a></div></th><th style="text-align: right"><%= user.username %> <a href="/settings">Asetukset</a> <a href="/logout">Kirjaudu ulos</a>  </th></table></div>  -->
-    <h1 class="tamplr-logo">tamplr</h1>
-      
-    <p>Uusimmat Tamplrin blogipostaukset.
+        <!--<% var author_len = authored.length; %>  -->
+        <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 
-      <ul>
-       <% for(var i=0; i<posts.length; i++) {%>
-      <% var u = posts[i]; %>
-      <li>
-        <a href="/api/post/<%= u.id %>">
-          <%= u.title %></a> kirjoittanut <%= u.author %>, blogissa: <%= blogs[u.InBlogId].name %> (BlogId: <%= u.InBlogId %>).
-        
-      </li>
-    <% } %>
-    </ul>
+        <script>
 
-    <h2 class="authored-blogs">Kirjoitat <%= authored.length %> blogiin: </h2>
-      
-      <ul>
-      <% for(var i=0; i<authored.length; i++) {%>
-          <% var b = authored[i].dataValues; %>
-          <li>
-            <a href="/api/blog/<%= b.id %>"><%= b.name %></a>
-          </li>
-        <% } %>
-      </ul>
-      <h2 class="followed-blogs"> Seuraat <%= follows.length %> blogia: </h2>
-      <ul>
-      <% for (var i=0; i <follows.length; i++) {%>
-      <% var f = follows[i].dataValues; %>
-          <li>
-            <a href="/api/blog/<% f.id %>"><%= f.name %></a>
-          </li>
-          <% } %>
-      </ul>
-      <h2>Luo uusi blogi:</h2>
-      <div id="divCreateBlog"><form action="/api/blog/" method="post" id="createBlog">Uuden blogin nimi: <input id="blogname" type="text" name="name" value="Kallen kissablogi..">
-    <input type="submit" value="Submit"></form></div><br />
-      <div class="message" id="resCreateBlog"></div>
-      
-  </body>
+            // var update = new EJS({url: '/index.ejs'}).update('blogs');
+
+            $(document).ready(function() {
+                $(".alert").hide();
+                $('#createBlog').on('submit', function(e){
+                    console.log("submit action");
+                    //prevent normal submit
+                    e.preventDefault();
+                    e.returnValue = false;
+
+                    //Read form
+                    var nameField = $("#blogname").val();
+
+                    $.ajax({
+                        url: '/api/blog/',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        data: JSON.stringify({name: nameField}),
+
+                        success: function(data)
+                        {
+                            console.log("data: ", data);
+                            author_len+1;
+                            // res
+                            //var html = new EJS({url: 'authored_blogs.ejs'}).render(authored);
+                            $("#authored").append("<li>" + nameField + "</li>");
+                            $("#resCreateBlog").html("Blogin lisääminen onnistui!");
+                            $("#resCreateBlog").show().delay(5000).fadeOut();
+
+                        },
+                        error: function(data)
+                        {
+                            console.log("error data: ", data);
+                            //err
+                        }
+                    });
+                });
+
+            });
+        </script>
+
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#"><div class="tamplr-logo-small">tamplr</div></a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%= user.username %> <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="/settings"><span class="glyphicon glyphicon-wrench" aria-hidden="true">Asetukset</a></li>
+                                <li class="divider"></li>
+                                <li><a href="/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Kirjaudu ulos</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+        <!--      <div class="banner" align="right"><table style="width: 100%"><th style="text-align: left"><a href="/" style="text-decoration: none"><div class="tamplr-logo-small">tamplr</a></div></th><th style="text-align: right"><%= user.username %> <a href="/settings">Asetukset</a> <a href="/logout">Kirjaudu ulos</a>  </th></table></div>  -->
+        <div class="container">
+            <h1 class="tamplr-logo">tamplr</h1>
+
+            <p>Uusimmat Tamplrin blogipostaukset.
+
+            <ul>
+                <% for(var i=0; i<posts.length; i++) {%>
+                <% var u = posts[i]; %>
+                <li>
+                    <a href="/api/post/<%= u.id %>">
+                        <%= u.title %></a> kirjoittanut <%= u.author %>, blogissa: <%= blogs[u.InBlogId].name %> (BlogId: <%= u.InBlogId %>).
+
+                </li>
+                <% } %>
+            </ul>
+            <% author_len = authored.length; %>
+            <div style="heigth: 50px">
+                <h2 class="authored-blogs">Kirjoitat <%= author_len %> blogiin: </h2>
+
+                <ul id="authored" class="columnify">
+                    <% for(var i=0; i<authored.length; i++) {%>
+                    <% var b = authored[i].dataValues; %>
+                    <li>
+                        <a href="/api/blog/<%= b.id %>"><%= b.name %></a>
+                    </li>
+                    <% } %>
+                </ul></div>
+            <div style="heigth: 50px">
+                <h2 class="followed-blogs"> Seuraat <%= follows.length %> blogia: </h2>
+                <ul>
+                    <% for (var i=0; i <follows.length; i++) {%>
+                    <% var f = follows[i].dataValues; %>
+                    <li>
+                        <a href="/api/blog/<% f.id %>"><%= f.name %></a>
+                    </li>
+                    <% } %>
+                </ul></div>
+
+            <h2>Luo uusi blogi:</h2>
+            <div id="divCreateBlog"><form action="/api/blog/" method="post" id="createBlog">Uuden blogin nimi: 
+                <input id="blogname" type="text" name="name" placeholder="Kallen kissablogi..">
+                <input type="submit" value="Submit"></form></div><br />
+        </div>
+        <div class="alert alert-success alert-dismissable message" role="alert" id="resCreateBlog" data-fade="3000"></div>
+
+    </body>
 </html>

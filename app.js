@@ -23,7 +23,6 @@ var apiBlog =  require('./routes/api_blog');
 var apiHt =    require('./routes/api_ht');
 var apiPost =  require('./routes/api_post');
 var login =    require('./routes/login');
-//var createUser =    require('./routes/create_user');
 
 
 var app = express();
@@ -60,7 +59,6 @@ app.use('/api/blog', apiBlog);
 app.use('/api/ht', apiHt);
 app.use('/api/post', apiPost);
 app.use('/login', login);
-//app.use('/create_user', createUser);
 //require('./config/passport')(passport);
 
 //passport logic

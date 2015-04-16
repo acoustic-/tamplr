@@ -29,15 +29,35 @@ div.banner {
 }
 
 div.message {
-    background-color: #29ff29;
     position:fixed;
     top:20px;
     right: 20px;
     z-index:100000;
-    width: 200px;
-    box-shadow: 0px 2px 5px #888888;
 }
 
+
 body {
+    padding-top: 30px; 
     font-family: 'Open Sans', sans-seri;
+}
+
+.row-centered {
+    text-align:center;
+}
+.col-centered {
+    display:inline-block;
+    float:none;
+    /* reset the text-align */
+    text-align:left;
+    /* inline-block space fix */
+    margin-right:-4px;
+}
+
+.columnify {
+    -moz-column-count: 3;
+    -moz-column-gap: 20px;
+    -webkit-column-count: 3;
+    -webkit-column-gap: 20px;
+    column-count: 3;
+    column-gap: 20px;
 }

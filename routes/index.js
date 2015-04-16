@@ -83,8 +83,8 @@ router.get('/', function(req, res, next) {
 
 
 // Luo tili -painike
-router.get('/create_user', function(req, res) { 
-    res.render('create_user.ejs'); 
+router.get('/register', function(req, res) { 
+    res.render('register.ejs'); 
       
 });
 

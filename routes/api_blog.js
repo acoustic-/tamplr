@@ -83,11 +83,12 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
                     blogpost.setInBlog( id );
                     var blogpostID = '{"id": "' + blogpost.get('id') + '"}';
                     console.log("Blog writing done");
+                
                     return res.status(201).json(JSON.parse(blogpostID));
                 },
                 function(err) 
                 {
-                    return res.status(500).json({error: 'ServerErrorr'});
+                    return res.status(500).json({error: 'ServerError'});
                 });
               } else {
                 if ( i == authors.length -1 && authors[i].get('id') != userID) {

@@ -3,14 +3,45 @@
   <head>
     <title>Tamplr</title>
     <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+      <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+      <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
+      <link rel='stylesheet' href='/stylesheets/style.css' />
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+      <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
   </head>
   <body>
-      <div class="banner" align="right">
-          <table style="width: 100%"><th style="text-align: left"><a href="/" style="text-decoration: none"><div class="tamplr-logo-small">tamplr</a></div></th><th style="text-align: right"><a href="/login">Kirjaudu sisään</a> <a href="/create_user">Luo uusi tili</a>  </th></table>
+          <nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/"><div class="tamplr-logo-small">tamplr</div></a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+          <li><a href="/login">Kirjaudu sisään</a></li>
+          <li><a href="/register">Luo uusi tili</a></li>
+      </ul>
+        
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+      <div class="container">
+    <h1 class="tamplr-logo">tamplr</h1>
+          <div class="jumbotron" >
+  <h1>Tervetuloa Tampleriin!</h1>
+  <p>Tampler on suomalainen, uuden sukupolven blogipalvelu.</p>
+  <p><a class="btn btn-primary btn-lg" href="/register" role="button" >Luo uusi tili</a></p>
           </div>
-    <h1 class="tamplr-logo">tamplr - UNLOGGED IN</h1>
+          <div class="row row-centered">
+              <div class="col-centered">
     <p>Uusimmat Tamplrin blogipostastaukset.
 
       <ul>
@@ -23,5 +54,8 @@
       </li>
     <% } %>
     </ul>
+          </div>
+          </div>
+      </div>
   </body>
 </html>

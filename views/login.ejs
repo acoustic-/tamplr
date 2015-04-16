@@ -1,6 +1,7 @@
 <!DOCTYPE html>
+
   <head>
-  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tamplr</title>
     <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
@@ -11,24 +12,47 @@
       <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 </head>
 <body>
-      <div class="banner" align="right">
-      <table style="width: 100%"><th style="text-align: left"><a href="/" style="text-decoration: none"><div class="tamplr-logo-small">tamplr</a></div></th><th style="text-align: right"></th></table>
-      </div>
-    <h1 class="tamplr-logo">tamplr - REGISTER</h1>
+      <nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/"><div class="tamplr-logo-small">tamplr</div></a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+          <li><a href="/login">Kirjaudu sisään</a></li>
+          <li><a href="/register">Luo uusi tili</a></li>
+      </ul>
+        
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+    
+    <div class="container">
+    <h1 class="tamplr-logo">tamplr</h1>
+    
     <form action="/login" method="post">
-    <div>
-        <label>Kayttaja:</label>
-        <input type="text" name="username"/>
+    <div class="form-group">
+        <label>Käyttäjä:</label>
+        <input type="username"  class="form-control" name="username" placeholder="Syötä käyttäjätunnus"/>
     </div>
-    <div>
+    <div class="form-group">
         <label>Salasana:</label>
-        <input type="password" name="password"/>
+        <input type="password"  class="form-control" name="password" placeholder="Syötä salasana"/>
     </div>
     <div>
-        <input type="submit" value="Kirjaudu"/>
+        <input type="submit" class="btn btn-default" value="Kirjaudu"/>
     </div>
 </form>
-
+</div>
 </div>
 
 </div>
