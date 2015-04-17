@@ -9,7 +9,6 @@
         <link rel='stylesheet' href='/stylesheets/style.css' />
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-        
         <!--
 <script>
 
@@ -90,8 +89,8 @@ $("#errormessage").show().delay(5000).fadeOut();
 
                 <h1 class="tamplr-logo"><%= name %></h1>
 
-                <% for (var i=0; i < posts.length; ++i) { %><p>
-                <div class="col-lg-8" style="background-color: #F8F8F8; padding: 5px; border-radius: 10px;">
+                <% for (var i= posts.length -1; i >= 0; --i) { %>
+                <div class="well">
                     <% var p = posts[i]; %>
                     <h1><%= p.title %></h1> <!-- linkki postaukseen -->
                     <!-- Author -->
@@ -105,12 +104,21 @@ $("#errormessage").show().delay(5000).fadeOut();
                     <hr>
                     <p class="lead"><%= p.text %> <br /></p><hr>
                     <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span><%= p.likes %>
-                    <span class="glyphicon glyphicon-comment" aria-hidden="true"></span><%= p.comments %>
-                    
+                    <span class="glyphicon glyphicon-comment" aria-hidden="true"></span><%= comments[i] %>
+
                 </div></p>
-                <br /> <br />
-                <% } %>
+            
+            <% } %>
+        </div>
+        <!-- Footer -->
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; Tamplr 2015</p>
+                </div>
             </div>
+            <!-- /.row -->
+        </footer>
         </div>
     </body>
 </html>

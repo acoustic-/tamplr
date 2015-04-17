@@ -353,7 +353,7 @@ router.delete('/:username/follows/:id', requiredAuthentication, function(req, re
     var blogID = req.params['id'];
     
     // kirjautunut käyttäjä
-    var userID = req.user.dataValues.id;
+    var userID = registered_user;
     
     // tarkista löytyykö nimellä käyttäjää
     models.User.findOne({where: {username: username}}).then(function(user) {

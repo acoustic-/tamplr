@@ -13,9 +13,15 @@
         <script>
 
             // var update = new EJS({url: '/index.ejs'}).update('blogs');
-
+            console.log("POSTS LENGTH: ", <%= posts.length%>);
+            
             $(document).ready(function() {
                 $(".alert").hide();
+                $("#newPostDiv").hide();
+
+                $("#newPost").click(function(){
+                    $("#newPostDiv").toggle(500);
+                });
 
                 var follows = false;
                 $.ajax({
@@ -24,48 +30,120 @@
                     success: function(data)
                     {
                         for(var i = 0; i < data.length; ++i) {
-                            if (data[i].id == <%= user.id %>) {
+                            if (data[i].id == <%= blogID %>) {
                                 follows = true;
                                 }
-                                if(i == data.length -1 && data[i].id != <%= user.id %>) {
+                                if(i == data.length -1 && data[i].id != <%= blogID %>) {
                                 follows = false;
                             }
                         }
+                        console.log("follows: ", follows);
+
+                        if(follows) {
+                            $("#follow").html("Lopeta seuraaminen");
+                        } else {
+                            $("#follow").html("Seuraa");
+                        }
                     }
                 });
-                console.log("follows: ", follows);
-                if(follows) {
-                    $("#follow").html("Lopeta seuraaminen");
-                } else {
-                    $("#follow").html("Seuraa");
-                }
 
-
-
-
-
-
+                // muuta seuraamisstatusta
                 $('#follow').click(function(){
-                    console.log("submit action");
-
+                    console.log("klikattu");
+                    var follows = false;
 
                     $.ajax({
-                        url: '/api/user/<%= user.username %>/follows/<%= blogID %>',
-                        type: 'PUT',
+                        url: '/api/user/<%= user.username %>/follows/',
+                        type: 'GET',
+                        success: function(data)
+                        {
+                            console.log("!data: ", data);
+                            for(var i = 0; i < data.length; ++i) {
+                                console.log("i :", i, data[i], <%= user.id %>);
+                                            if (data[i].id == <%= blogID %>) {
+                                    follows = true;
+                                }
+                            }
+
+
+
+
+                            console.log("follows: ", follows);
+                            if(follows) {
+                                $.ajax({
+                                    url: '/api/user/<%= user.username %>/follows/<%= blogID %>',
+                                    type: 'DELETE',
+
+                                    success: function(data)
+                                    {
+
+                                        console.log("data: ", data);
+                                        $("#followalert").html("Et enää seuraa tätä blogia!");
+                                        $("#followalert").show().delay(5000).fadeOut();
+                                        $("#follow").html("Seuraa");
+
+                                    }
+
+
+                                });
+
+                            } else {
+                                $.ajax({
+                                    url: '/api/user/<%= user.username %>/follows/<%= blogID %>',
+                                    type: 'PUT',
+
+                                    success: function(data)
+                                    {
+
+                                        console.log("data: ", data);
+                                        $("#followalert").html("Seuraat nyt tätä blogia!");
+                                        $("#followalert").show().delay(5000).fadeOut();
+                                        $("#follow").html("Lopeta seuraaminen");
+
+                                    }
+
+
+                                });
+
+                            }
+                            console.log("submit action");
+                        }
+
+                    });
+
+                });
+
+                // lähetä blogipostaus
+                $('#postbutton').click( function(){
+
+
+                    //Read form
+                    var nameField = $("#postname").val();
+                    var textField = $("#posttext").val();
+
+                    $.ajax({
+                        url: '/api/blog/<%= blogID %>/posts',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        data: JSON.stringify({title: nameField, text: textField }),
 
                         success: function(data)
                         {
-
                             console.log("data: ", data);
-                            $("#followalert").html("Seuraat nyt tätä blogia!");
-                            $("#followalert").show().delay(5000).fadeOut();
-                            $("#follow").html("Lopeta seuraaminen");
 
+                            $("#followalert").html("Uuden postauksen lisääminen onnistui. Päivitä sivu!");
+                            $("#followalert").show().delay(10000).fadeOut();
+
+                        },
+                        error: function(data)
+                        {
+                            console.log("error data: ", data);
+                            $("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Tarkista, että täytit kaikki kentät');
+                            $("#errormessage").show().delay(5000).fadeOut();
+                            //err
                         }
-
-
                     });
-                        
                 });
 
             });
@@ -86,7 +164,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#"><div class="tamplr-logo-small">tamplr</div></a>
+                    <a class="navbar-brand" href="/"><div class="tamplr-logo-small">tamplr</div></a>
                 </div>
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
@@ -106,36 +184,73 @@
             </div><!-- /.container-fluid -->
         </nav>
 
-        <div class="container">
+        <div class ="container">
             <div class="row">
+
+
                 <!-- Blog Post Content Column -->
 
-                <h1 class="tamplr-logo"><%= name %></h1>
-                <!-- seuraa blogia -->
-                <button id="follow" class="btn btn-default"/>Seuraa blogia</button>
+                <table width="100%"><tr><td><h1 class="tamplr-logo"><%= name %></h1></td>
+                    <td><button id="follow" class="btn btn-default" title="Seuraa/Lopeta seuraaminen" style="float: right;">Seuraa blogia</button><button id="newPost" class="btn btn-default" title="Uusi blogipostaus" style="float: right;"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+                    </td></tr>
+                </table>
+                <div id="newPostDiv">
+                    <h2>Luo uusi blogipostaus</h2>
+                    <form role="form" id="postform">
+                        <div class="form-group">
+                            <div><label for="postname">Postauksen nimi:</label>
+                                <input id="postname" class="form-control" name="post" placeholder="Postauksen nimi"/></div>
+                            <div><label for="posttext">Postauksen sisältö:</label>
+                                <textarea class="form-control" rows="5" id="posttext"></textarea></div><br />
+                            <div>
+                                <button id="postbutton" onclick="this.disabled = true" class="btn btn-default" value="Lähetä postaus">Lähetä postaus</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- glyphicon glyphicon-pencil -->
 
-            <% for (var i=0; i < posts.length; ++i) { %>
-            <div class="col-lg-8" style="background-color: #F8F8F8; padding: 5px; border-radius: 10px;">
-                <% var p = posts[i]; %>
-                <h1><%= p.title %></h1> <!-- linkki postaukseen -->
-                <!-- Author -->
-                <p class="lead">
-                    kirjoittanut <%= p.author %><!-- linkki käyttäjään? -->
-                </p>
-                <hr>
+                <% for (var i= posts.length -1; i >= 0; --i) { %>
+                <!--style="background-color: #F8F8F8; padding: 5px; border-radius: 10px;">-->
+                <div class="well">
+                    
+                    <% var p = posts[i]; %>
+                    <h1><%= p.title %></h1> <!-- linkki postaukseen -->
+                    <!-- Author -->
+                    <p class="lead">
+                        kirjoittanut <%= p.author %><!-- linkki käyttäjään? -->
+                    </p>
+                    <hr>
 
-                <!-- Date/Time -->
-                <p><span class="glyphicon glyphicon-time"></span> Kirjoitettu <%= p.created %></p>
-                <hr>
-                <p class="lead"><%= p.text %> <br /></p><hr>
-                <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span><%= p.likes %>
-                <span class="glyphicon glyphicon-comment" aria-hidden="true"></span><%= p.comments %>
+                    <!-- Date/Time -->
+                    <p><span class="glyphicon glyphicon-time"></span> Kirjoitettu <%= p.created %></p>
+                    <hr>
+                    <p class="lead"><%= p.text %> <br /></p><hr>
+                    <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span><%= p.likes %>
+                    <span class="glyphicon glyphicon-comment" aria-hidden="true"></span><%= comments[i] %>
 
-            </div>
-            <br /> <br />
-            <% } %>
+                </div>
+
+
+                <% } %>
+
+
+
+            </div> <!-- row -->
+            <!-- Footer -->
+            <footer>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p>Copyright &copy; Tamplr 2015</p>
+                    </div>
+                </div>
+                <!-- /.row -->
+            </footer>
+        </div><!-- container -->
+
+        <div class="alert alert-success alert-dismissable message" role="alert" id="followalert"></div>
+        <div class="alert alert-danger message" role="alert" id="errormessage">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
         </div>
-        </div>
-    <div class="alert alert-success alert-dismissable message" role="alert" id="followalert"></div>
     </body>
 </html>

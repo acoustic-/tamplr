@@ -3,12 +3,6 @@ h1.tamplr-logo {
   color: violet ;
 }
 
-h1.tamplr-logo:after {
-  content: ".";
-  position: relative;
-  right: 0.1em;
-  top: 15px;
-}
 
 div.tamplr-logo-small {
     font-family: 'Bree Serif', serif;
@@ -37,7 +31,7 @@ div.message {
 
 
 body {
-    padding-top: 30px; 
+    padding-top: 50px; 
     font-family: 'Open Sans', sans-seri;
 }
 
