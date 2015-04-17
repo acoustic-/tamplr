@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= name %></title>
+
+        <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+        <script>
+
+            // var update = new EJS({url: '/index.ejs'}).update('blogs');
+
+            $(document).ready(function() {
+                $(".alert").hide();
+                $("#commentDiv").hide();
+
+                $("#newComment").click(function(){
+                    $("#commentDiv").toggle(500);
+                });
+
+                var textField = $('#commenttext').val();
+
+                $('#postComment').click(function(){
+                    console.log("klikattu", textField);
+
+                    $.ajax({
+                        url: '/api/post/<%= post.id %>/comments/',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        data: JSON.stringify({text: textField }),
+                        success: function(data)
+                        {
+                            $("#followalert").html("Kommentti lähetetty!");
+                            $("#followalert").show().delay(5000).fadeOut();
+
+                        }
+                    });
+                });
+            });
+
+
+        </script>
+
+    </head>
+    <body>
+
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/"><div class="tamplr-logo-small">tamplr</div></a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%= user.username %> <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="/settings"><span class="glyphicon glyphicon-wrench" aria-hidden="true">Asetukset</a></li>
+                                <li class="divider"></li>
+                                <li><a href="/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Kirjaudu ulos</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+
+        <div class ="container">
+            <div class="row">
+
+
+                <!-- Blog Post Content Column -->
+
+                <h1 class="tamplr-logo"><%= name %></h1>
+
+
+
+                <!--style="background-color: #F8F8F8; padding: 5px; border-radius: 10px;">-->
+                <div class="well">
+
+                    <h1><%= post.title %></h1> <!-- linkki postaukseen -->
+                    <!-- Author -->
+                    <p class="lead">
+                        kirjoittanut <%= post.author %><!-- linkki käyttäjään? -->
+                    </p>
+                    <hr>
+
+                    <!-- Date/Time -->
+                    <p><span class="glyphicon glyphicon-time"></span> Kirjoitettu <%= post.createdAt %></p>
+                    <hr>
+                    <p class="lead"><%= post.text %> <br /></p><hr>
+                    <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span><%= post.likes %>
+                    <span class="glyphicon glyphicon-comment" aria-hidden="true"></span><%= comments.length %>
+
+                </div>
+
+
+
+
+
+
+
+                <div><button id="newComment" class="btn btn-default" title="Uusi blogipostaus" style="float: left;"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Kirjoita uusi kommentti</button></div></ br>
+                
+                <div id="commentDiv" class="well">
+                    <h2>Luo uusi blogipostaus</h2>
+                    <form role="form" id="commentform">
+                        <div class="form-group">
+                            <div><label for="posttext">Kommenttisi:</label>
+                                <textarea class="form-control" rows="5" id="commenttext"></textarea></div><br />
+                            <div>
+                                <button id="postComment" onclick="this.disabled = true" class="btn btn-default" value="Lähetä kommentti">Lähetä kommentti</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div> <!-- row -->
+            <!-- Footer -->
+            <footer>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p>Copyright &copy; Tamplr 2015</p>
+                    </div>
+                </div>
+                <!-- /.row -->
+            </footer>
+        </div><!-- container -->
+
+        <div class="alert alert-success alert-dismissable message" role="alert" id="commentalert"></div>
+    </body>
+</html>

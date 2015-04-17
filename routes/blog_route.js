@@ -144,6 +144,52 @@ router.get('/:id', function(req, res, next) {
         });
     });
 });
+
+router.get('/:blogid/post/:postid', function(req, res, next){
+    var blogid = req.params['blogid'];
+    var postid = req.params['postid'];
+
+    models.Blog.findOne({where: {id: blogid}}).then(function(blog){
+        console.log("found blog");
+        blog.getPosts().then(function(posts) {
+            console.log("found postst?", posts)
+            for(var i = 0; i < posts.length; ++i) {
+                if(posts[i].get('id') == postid) {
+                    models.BlogPost.findOne({where: {id: postid}}).then(function(post) {
+                        console.log("post: ", post);
+                        if (req.user) {
+                            models.User.findOne({where: {id: req.user}}).then(function(user){
+                                post.getComments().then(function(comments) {   
+                                    // käyttäjä on kirjautunut sisään
+                                    res.render('post', {
+                                        post: post,
+                                        name: blog.get('name'),
+                                        blogID: blog.get('id'),
+                                        comments: comments,
+                                        user: user
+                                    });
+                                });
+                            });
+
+                        } else {
+                            posts[i].getComments().then(function(comments) {   
+                                // käyttäjä on kirjautunut sisään
+                                res.render('post_unloggedin', {
+                                    post: posts[i],
+                                    name: blog.get('name'),
+                                    blogID: blog.get('id'),
+                                    comments: comments
+                                });
+                            });
+
+                        }
+                    });
+                }
+            }
+        });
+    });
+});
+
 /*router.get('/:id', function(req, res, next) {
     var id = req.params['id'];
     var query = {where: {id: id}};

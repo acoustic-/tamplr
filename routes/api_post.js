@@ -89,14 +89,14 @@ router.post('/:id/comments', requiredAuthentication, function(req, res, next) {
     var textField = req.body.text;
     
     if (!textField || textField == "") {
-        return res.status(400).json({error: InvalidTextField});
+        return res.status(400).json({error: 'InvalidTextField'});
     }
     
     models.BlogPost.findOne(query).then(function(post) {
         if(post) {
             models.Comment.create({
                 text: textField,
-                author: req.user.dataValues.id
+                author: registered_user
                 }).then(function(comment)  {
                     post.addComments( comment );
                     return res.status(201).json({id: comment.id});
