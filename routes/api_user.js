@@ -89,8 +89,9 @@ router.put('/:username', requiredAuthentication, function(req, res, next) {
     var username = req.params['username'];
     var namefield = req.body.name;
     var password = req.body.password;
-    var id = req.user.dataValues.id;
-
+    //var id = req.user.dataValues.id;
+    var id = registered_user;
+    
     console.log("USERNAME "+username);
     console.log("NAMEFIELD" + namefield);
     console.log("PASSWORD" + password);
@@ -134,6 +135,7 @@ router.put('/:username', requiredAuthentication, function(req, res, next) {
            return res.status(403).json({error: 'InvalidAccessrights'}); 
         }
     }, function(err) {
+         console.log("MORHHE");
          return res.status(500).json({error: 'ServerError'});   
     });
     
