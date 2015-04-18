@@ -9,113 +9,122 @@ var registered_user;
 
 // create a blog
 router.post('/', requiredAuthentication, function(req, res, next) {
-
-    console.log("beginning to add blog");
-  var blogname = req.body.name;
     
-  if (!blogname) {
-    return res.status(400).json({error: 'InvalidBlogName'});
-  }
+    // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
+    if (req.user !== parseInt(req.user, 10)) {
+        registered_user = req.user.dataValues.id;
+    }
+    
+    console.log("beginning to add blog");
+    var blogname = req.body.name;
+
+    if (!blogname) {
+        return res.status(400).json({error: 'InvalidBlogName'});
+    }
     console.log("testi: ", req.user);
-  models.Blog.create({
-    name: blogname
-  }).then(function(blog) {
-      console.log("blog created");
-    blog.addAuthor(registered_user);
-    var blogID = '{"id": "' + blog.get('id') + '"}';
-    var id = blog.get('id');
-    return res.status(201).json(JSON.parse(blogID));
-  },
-  function(err) {
-    return res.status(500).json({error: 'ServerError'});
-  });
+    models.Blog.create({
+        name: blogname
+    }).then(function(blog) {
+        console.log("blog created");
+        blog.addAuthor(registered_user);
+        var blogID = '{"id": "' + blog.get('id') + '"}';
+        var id = blog.get('id');
+        return res.status(201).json(JSON.parse(blogID));
+    },
+            function(err) {
+        return res.status(500).json({error: 'ServerError'});
+    });
 });
 
 
 // create a blog post
 router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
-  
 
-  var id = req.params['id'];
-  var titleInput = req.body.title;
-  var textInput = req.body.text;
-
-  if ( !titleInput)
-  {
-    return res.status(400).json({error: 'MissingTitle'});
-  } 
-  if ( !textInput)
-  {
-    return res.status(400).json({error: 'MissingText'});
-  }
-
-  //userHaveAccess = false; //global parameter
-  //id of the request user
-  var userID = registered_user;
-  console.log(userID);
-  console.log(id);
-  var query = {where: {id: id}};
-  console.log("tullaan!!");
-  models.Blog.findOne(query).then(function(blog) {
-    console.log("jou1");
-  if (blog) {
-    console.log("jou2");
-    blog.getAuthors().then(function(authors) {
-      console.log(authors.length);
-          for ( var i = 0; i < authors.length; ++i )
-          {
-              console.log("jou4");
-              if ( authors[i].get('id') == userID ) //does user have access to this blog
-              {
-                console.log("moroo22");
-                //userHaveAccess = true;
-                //creata blog message
-                models.BlogPost.create({
-
-                title: titleInput,
-                text: textInput,
-                likes: 0,
-                author: authors[i].get('username')
-                }).then(function( blogpost ) 
-                {
-                    blog.addPosts( blogpost );
-                    blogpost.setAuthor( userID );
-                    blogpost.setInBlog( id );
-                    var blogpostID = '{"id": "' + blogpost.get('id') + '"}';
-                    console.log("Blog writing done");
-                
-                    return res.status(201).json(JSON.parse(blogpostID));
-                },
-                function(err) 
-                {
-                    return res.status(500).json({error: 'ServerError'});
-                });
-              } else {
-                if ( i == authors.length -1 && authors[i].get('id') != userID) {
-                    console.log("Unauthorized user");
-                    res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
-                    return res.status(403).json({error: 'InvalidAccessrights'});
-              
-                }
-              }
-          }
-        },
-        function(err) 
-        {
-          return res.status(500).json({error: 'ServerError'});
-        });
-    } 
-      else 
-    {
-        return res.status(404).json({error: 'BlogNotFound'});
+    // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
+    if (req.user !== parseInt(req.user, 10)) {
+        registered_user = req.user.dataValues.id;
     }
-  },
-  function(err) 
-  {
-    return res.status(500).json({error: 'ServerError'});
-  });
     
-  /*if (!userHaveAccess && res.statusCode != 404)
+    var id = req.params['id'];
+    var titleInput = req.body.title;
+    var textInput = req.body.text;
+
+    if ( !titleInput)
+    {
+        return res.status(400).json({error: 'MissingTitle'});
+    } 
+    if ( !textInput)
+    {
+        return res.status(400).json({error: 'MissingText'});
+    }
+
+    //userHaveAccess = false; //global parameter
+    //id of the request user
+    var userID = registered_user;
+    console.log(userID);
+    console.log(id);
+    var query = {where: {id: id}};
+    console.log("tullaan!!");
+    models.Blog.findOne(query).then(function(blog) {
+        console.log("jou1");
+        if (blog) {
+            console.log("jou2");
+            blog.getAuthors().then(function(authors) {
+                console.log(authors.length);
+                for ( var i = 0; i < authors.length; ++i )
+                {
+                    console.log("jou4");
+                    if ( authors[i].get('id') == userID ) //does user have access to this blog
+                    {
+                        console.log("moroo22");
+                        //userHaveAccess = true;
+                        //creata blog message
+                        models.BlogPost.create({
+
+                            title: titleInput,
+                            text: textInput,
+                            likes: 0,
+                            author: authors[i].get('username')
+                        }).then(function( blogpost ) 
+                                {
+                            blog.addPosts( blogpost );
+                            blogpost.setAuthor( userID );
+                            blogpost.setInBlog( id );
+                            var blogpostID = '{"id": "' + blogpost.get('id') + '"}';
+                            console.log("Blog writing done");
+
+                            return res.status(201).json(JSON.parse(blogpostID));
+                        },
+                                function(err) 
+                                {
+                            return res.status(500).json({error: 'ServerError'});
+                        });
+                    } else {
+                        if ( i == authors.length -1 && authors[i].get('id') != userID) {
+                            console.log("Unauthorized user");
+                            res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+                            return res.status(403).json({error: 'InvalidAccessrights'});
+
+                        }
+                    }
+                }
+            },
+                                   function(err) 
+                                   {
+                return res.status(500).json({error: 'ServerError'});
+            });
+        } 
+        else 
+        {
+            return res.status(404).json({error: 'BlogNotFound'});
+        }
+    },
+                                    function(err) 
+                                    {
+        return res.status(500).json({error: 'ServerError'});
+    });
+
+    /*if (!userHaveAccess && res.statusCode != 404)
   {
       console.log("response: ", res.statusCode);
       return res.status(403).json({error: 'User does not have access to this blog'});
@@ -145,63 +154,64 @@ models.User.findOne({where: {username: username}})
 
 // get blog's 10 blog writes
 router.get('/:id/posts', function(req, res, next) {
- 
-  console.log("blogin tekstien haku");
 
-  var id = req.params['id'];
-  var query = {where: {id: id}};
-  models.Blog.findOne(query).then(function(blog) {
-      if (blog)
-      {
-        blog.getPosts().then(function(posts) {
-          console.log("tassa");
-          if (posts)
-          {
-            var postArr = [];
-              
-            var postMax = posts.length;
-            if( postMax > 10) {
-                postMax = 10;
-            }
-              
-            for ( var i = 0; i < postMax; ++i )
-            {
-                    var id = posts[i].get('id');
-                    console.log(id);
-                    var title = posts[i].get('title');
-                    console.log(title);
-                    var text = posts[i].get('text');
-                    console.log(text);
-                    //postArr.push("1");
-                    //postArr.push( posts[i].toJson() );
-                    //postArr.push( JSON.parse(JSON.stringify(posts[i])) );
-                console.log("perus: ", posts[i].toJson() );
-                //console.log("parse: ", JSON.parse(posts[i].toJson() ) );
-                    postArr.push( posts[i].toJson() );
-            }
-            //var tulostus = JSON.stringify(postArr);
-            console.log("morjesta poytaa");
-            return res.status(200).send(postArr);
-          }
-          else
-          {
-            return res.status(404).json({error: 'BlogPostNotFound'});
-          }
-      });
-    }
-    else
-    {
-      return res.status(404).json({error: 'BlogNotFound'});
-    }
-  });
+    console.log("blogin tekstien haku");
+
+    var id = req.params['id'];
+    var query = {where: {id: id}};
+    models.Blog.findOne(query).then(function(blog) {
+        if (blog)
+        {
+            blog.getPosts().then(function(posts) {
+                console.log("tassa");
+                if (posts)
+                {
+                    var postArr = [];
+
+                    var postMax = posts.length;
+                    if( postMax > 10) {
+                        postMax = 10;
+                    }
+
+                    for ( var i = 0; i < postMax; ++i )
+                    {
+                        var id = posts[i].get('id');
+                        console.log(id);
+                        var title = posts[i].get('title');
+                        console.log(title);
+                        var text = posts[i].get('text');
+                        console.log(text);
+                        //postArr.push("1");
+                        //postArr.push( posts[i].toJson() );
+                        //postArr.push( JSON.parse(JSON.stringify(posts[i])) );
+                        console.log("perus: ", posts[i].toJson() );
+                        //console.log("parse: ", JSON.parse(posts[i].toJson() ) );
+                        postArr.push( posts[i].toJson() );
+                    }
+                    //var tulostus = JSON.stringify(postArr);
+                    console.log("morjesta poytaa");
+                    return res.status(200).send(postArr);
+                }
+                else
+                {
+                    return res.status(404).json({error: 'BlogPostNotFound'});
+                }
+            });
+        }
+        else
+        {
+            return res.status(404).json({error: 'BlogNotFound'});
+        }
+    });
 });
 
 // get blog
 router.get('/:id', function(req, res, next) {
     
+
     var id = req.params['id'];
     // tsekataan onko syötetty käyttäjä nimi vai numero
-    
+
     if (isNaN(id) ) {
         // kyseessä on username
         var username = id;
@@ -213,19 +223,19 @@ router.get('/:id', function(req, res, next) {
                 });
             }
         });
-        
+
     } 
     else {
-      var query = {where: {id: id}};
-      models.Blog.findOne(query).then(function(blog) {
-        if (blog) {
-          return res.status(200).json(blog.toJson());
-        }
-        else {
-          return res.status(404).json({error: 'BlogNotFound'});
-        }
-      }, function(err) {
-          return res.status(500).json({error: 'ServerError'});
+        var query = {where: {id: id}};
+        models.Blog.findOne(query).then(function(blog) {
+            if (blog) {
+                return res.status(200).json(blog.toJson());
+            }
+            else {
+                return res.status(404).json({error: 'BlogNotFound'});
+            }
+        }, function(err) {
+            return res.status(500).json({error: 'ServerError'});
         });  // blog.getAuthors()...});
     }
 });
@@ -240,12 +250,18 @@ router.get('/:id', function(req, res, next) {
 
 // delete blog
 router.delete('/:id', requiredAuthentication, function(req, res, next) {
+    
+    // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
+    if (req.user !== parseInt(req.user, 10)) {
+        registered_user = req.user.dataValues.id;
+    }
+    
     var refid = req.params['id'];
     var query = {where: {id:refid}};
     var regId = registered_user;
-    
+
     var varBlog;
-    
+
     models.Blog.findOne(query).then(function(blog) {
         if (blog) {
             /*if(blog.get('name') == "Default blog") {
@@ -254,7 +270,7 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
             blog.getAuthors().then(function(authors) {
                 for(var i = 0; i < authors.length; ++i) {
                     if(authors[i].get('id') == regId) {
-                    
+
                         models.User.findOne({where: {id: regId}}).then(function(user) {
                             user.getAuthoredBlogs().then(function(authored){
                                 if(authored[0].get('id') == refid) {
@@ -276,21 +292,21 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
                 return res.status(500).json({error: 'ServerError'});
             });  // blog.getAuthors()...
 
-            
+
             //no error function callbacks needed here 
             blog.setFollowers([]).then(function() {  
-              //success
-              blog.setPosts([]).then(function() { 
                 //success
-                blog.destroy().then(function() {
-                  //success
-                  return res.status(200).json({success: "Blog destroyed"}) })
-              });
+                blog.setPosts([]).then(function() { 
+                    //success
+                    blog.destroy().then(function() {
+                        //success
+                        return res.status(200).json({success: "Blog destroyed"}) })
+                });
             }); // blog.setFollowers([])...
-            
-            
 
-            
+
+
+
         } //if (blog)
         else {
             return res.status(404).json({error: 'BlogNotFound'});
@@ -318,62 +334,77 @@ router.delete('/:id', requiredAuthentication, function(req, res, next) {
     });*/
 });
 
+router.get('/:id/authors', requiredAuthentication, function(req, res, next) {
+    var blogID = req.params['id'];
 
-             
-    
+    models.Blog.findOne({where: {id: blogID}}).then(function(blog) {
+        blog.getAuthors().then(function(authors) {
+            return res.status(200).json(authors);
+        } , function(err) {
+            return res.status(500).json({error: 'ServerError'});
+        });
+    });
+});
+
+
 // lisää kirjoitusoikeus blogiin
 router.put('/:id/author/:username', requiredAuthentication, function(req, res, next) {
+    
+    // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
+    if (req.user !== parseInt(req.user, 10)) {
+        registered_user = req.user.dataValues.id;
+    }
+    
     // parameters of the reguest
     var id = req.params['id'];
     var username = req.params['username'];
     var userId = 0;
-    
+
     // name of the registered user
-    console.log("req user : ", req.user.dataValues.username);
-    
+
     models.User.findOne({where: {username: username}})
         .then(function(user){
-            userId = user.id;
-            if(!user) {
-                console.log("usern: ", username);
-                return res.status(404).json({error: 'UserNotFound'});
+        userId = user.id;
+        if(!user) {
+            console.log("usern: ", username);
+            return res.status(404).json({error: 'UserNotFound'});
+        }
+
+        user.getAuthoredBlogs().then(function(authored){
+            if(authored[0].get('id') == id) {
+                return res.status(403).json({error: 'DefaultBlog'});
             }
-          
-            user.getAuthoredBlogs().then(function(authored){
-                if(authored[0].get('id') == id) {
-                    return res.status(403).json({error: 'DefaultBlog'});
-                }
-            });
+        });
     });
-    
+
     models.Blog.findOne({where: {id: id}}).then(function(blog) {
         // if blog was not found
         if(!blog) {
             return res.status(404).json({error: 'BlogNotFound'});
         }
-         // 403 if blog is default blog
+        // 403 if blog is default blog
         //if(blog.get('name') == "Default blog") {
         //    return res.status(403).json({error: 'DefaultBlog'});
         //} else {
-            blog.getAuthors().then(function(authors){
+        blog.getAuthors().then(function(authors){
             // find is registered user has rights to the given blog
-          
-                for(var i = 0; i < authors.length; ++i) {
-                    console.log(authors[i].id);
-                    if(authors[i].username == req.user.dataValues.username) {
-                        blog.addAuthor(userId).then(function(){console.log("onnistui")}, function(err) {console.log("epäonnistui")});
-                        return res.status(200).json({Success: 'AuthorAdded'});
-                    }
-                    if(i == authors.length -1 && authors[i].username != req.user.dataValues.username) {
-                        console.log("user had no rights");
-                        res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
-                        return res.status(403).json({error: 'InvalidAccessrights'});
-                    }
+
+            for(var i = 0; i < authors.length; ++i) {
+                console.log(authors[i].id);
+                if(authors[i].id == registered_user) {
+                    blog.addAuthor(userId).then(function(){console.log("onnistui")}, function(err) {console.log("epäonnistui")});
+                    return res.status(200).json({Success: 'AuthorAdded'});
                 }
-                 
-            }, function(err) {
-                return res.status(500).json({error: 'ServerError'});
-            });
+                if(i == authors.length -1 && authors[i].id != registered_user) {
+                    console.log("user had no rights");
+                    res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+                    return res.status(403).json({error: 'InvalidAccessrights'});
+                }
+            }
+
+        }, function(err) {
+            return res.status(500).json({error: 'ServerError'});
+        });
         //}
     }, function(err) {
         return res.status(500).json({error: 'ServerError'});
@@ -382,66 +413,74 @@ router.put('/:id/author/:username', requiredAuthentication, function(req, res, n
 
 // poista kirjoistusoikeus
 router.delete('/:id/author/:username', requiredAuthentication, function(req, res, next) {
+    
+    // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
+    if (req.user !== parseInt(req.user, 10)) {
+        registered_user = req.user.dataValues.id;
+    }
+    
+    console.log("begin delete author");
     // parameters of the reguest
     var id = req.params['id'];
     var username = req.params['username'];
-    
+
     var userId = 0;
     // name of the registered user
-    console.log("req user : ", req.user.dataValues.username);
+
     models.User.findOne({where: {username: username}})
         .then(function(user){
-            console.log("testi11");
-            console.log("user.id : ", user.id);
-            // find user of the request; in 'user'
-            userId = user.id;
+        console.log("testi11");
+        console.log("user.id : ", user.id);
+        // find user of the request; in 'user'
+        userId = user.id;
         user.getAuthoredBlogs().then(function(authored){
-                if(authored[0].get('id') == id) {
-                    return res.status(403).json({error: 'DefaultBlog'});
-                }
+            console.log("AUTHORED: ", authored[0].get('id'),id);
+            if(user.get(defaultBlog) == id) {
+                return res.status(403).json({error: 'DefaultBlog'});
+            }
         });
         console.log("onnistuiko?");
-        
-        })
+
+    })
         .catch(function(err) {
-            console.log("usern: ", username);
-            return res.status(404).json({error: 'UserNotFound'});
-        });
-      //user.getAuthoredBlogs().then(function(blogs) {
+        console.log("usern: ", username);
+        return res.status(404).json({error: 'UserNotFound'});
+    });
+    //user.getAuthoredBlogs().then(function(blogs) {
     console.log("päästäänkö tänne?");
     models.Blog.findOne({where: {id: id}}).then(function(blog) {
         // 403 if blog is default blog
-        
+
         /*if(blog.get('name') == "Default blog") {
             return res.status(403).json({error: 'DefaultBlog'});
         }*/
-        
+
         console.log("testiä");
         blog.getAuthors().then(function(authors){
             // find is registered user has rights to the given blog
             console.log("lisää tekstiä");
-           for(var i = 0; i < authors.length; ++i) {
-               console.log(authors[i].id);
-               if(authors[i].username == req.user.dataValues.username) {
+            for(var i = 0; i < authors.length; ++i) {
+                console.log(authors[i].id);
+                if(authors[i].id== registered_user) {
                     //console.log("blog ulos");
                     //console.log(blog);
-                   // user is has author right so request can be fulfilled
-                   
-                   //remove blog author
-                    
+                    // user is has author right so request can be fulfilled
+
+                    //remove blog author
+
                     blog.removeAuthor(userId); // user-field?
                     return res.status(200).json({Success: 'AuthorRemoved'});
-                   
-               }
-               if(i == authors.length -1 && authors[i].username != req.user.dataValues.username) {
-                        console.log("user had no rights");
-                        res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
-                        return res.status(403).json({error: 'InvalidAccessrights'});
+
+                }
+                if(i == authors.length -1 && authors[i].id != registered_user) {
+                    console.log("user had no rights");
+                    res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+                    return res.status(403).json({error: 'InvalidAccessrights'});
                 }
             }; 
         });
     })
-    .catch(function(err) {
+        .catch(function(err) {
         return res.status(404).json({error: 'BlogNotFound'});
     });                                 
 });
@@ -453,7 +492,7 @@ router.delete('/:id/author/:username', requiredAuthentication, function(req, res
     var username = req.params['username'];
     var id = req.params['id'];
     var regId = registered_user;
-    
+
     models.Blog.findOne({where: {id: id}})
     .then(function(blog) {
 //        /* if(!blog) { // user doesn't exist
@@ -492,13 +531,13 @@ router.delete('/:id/author/:username', requiredAuthentication, function(req, res
 //hae blogin seuraajat
 router.get('/:id/followers', function(req, res, next) {
     var id = req.params['id'];
-    
+
     models.Blog.findOne({where: {id: id}}).then(function(blog) {
         if (!blog) {
             return res.status(404).json({error: 'BlogNotFound'});
         }
         blog.getFollowers().then(function(followers) {
-            
+
             for(var i = 0; i < followers.length; ++i) {
                 console.log("follower1: ", followers[i]);
                 // follows[i] = follows[i].toJson();
@@ -512,16 +551,15 @@ router.get('/:id/followers', function(req, res, next) {
         });
     });
 });
-            
+
 function requiredAuthentication(req, res, next) {
 
-    
+
     if (req.user) {
         registered_user = req.user;
         next();
     } else {
         basicAuth(req, res, next);
-        registered_user = req.user.dataValues.id;
     }
 }
 

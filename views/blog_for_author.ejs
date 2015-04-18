@@ -14,13 +14,18 @@
 
             // var update = new EJS({url: '/index.ejs'}).update('blogs');
             console.log("POSTS LENGTH: ", <%= posts.length%>);
-            
-            $(document).ready(function() {
+
+                        $(document).ready(function() {
                 $(".alert").hide();
                 $("#newPostDiv").hide();
+                $("#authorsDiv").hide();
 
                 $("#newPost").click(function(){
                     $("#newPostDiv").toggle(500);
+                });
+
+                $("#getAuthors").click(function(){
+                    $("#authorsDiv").toggle(500);
                 });
 
                 var follows = false;
@@ -78,8 +83,8 @@
                                     {
 
                                         console.log("data: ", data);
-                                        $("#followalert").html("Et enää seuraa tätä blogia!");
-                                        $("#followalert").show().delay(5000).fadeOut();
+                                        $("#alertSuccess").html("Et enää seuraa tätä blogia!");
+                                        $("#alertSuccess").show().delay(5000).fadeOut();
                                         $("#follow").html("Seuraa");
 
                                     }
@@ -96,8 +101,8 @@
                                     {
 
                                         console.log("data: ", data);
-                                        $("#followalert").html("Seuraat nyt tätä blogia!");
-                                        $("#followalert").show().delay(5000).fadeOut();
+                                        $("#alertSuccess").html("Seuraat nyt tätä blogia!");
+                                        $("#alertSuccess").show().delay(5000).fadeOut();
                                         $("#follow").html("Lopeta seuraaminen");
 
                                     }
@@ -132,8 +137,9 @@
                         {
                             console.log("data: ", data);
 
-                            $("#followalert").html("Uuden postauksen lisääminen onnistui. Päivitä sivu!");
-                            $("#followalert").show().delay(10000).fadeOut();
+                            $("#alertSuccess").html("Uuden postauksen lisääminen onnistui.");
+                            $("#alertSuccess").show().delay(10000).fadeOut();
+                            location.reload();
 
                         },
                         error: function(data)
@@ -146,7 +152,121 @@
                     });
                 });
 
+
+                var blogAuthors = 0;
+                var load = true;
+                // nappia painaessa lataa kirjoitusoikeuksien haltijat
+                $("#getAuthors").click(function() {
+                    if(load) {
+
+                        var authorsArr = [];
+                        // lähetä pyyntö
+                        $.ajax({
+                            url: '/api/blog/<%= blogID %>/authors',
+                            type: 'GET',
+                            success: function(data) 
+                            {
+                                blogAuthors = data.length;
+
+                                $("#authorsDiv").append('<div class="form-group">'
+                                                        +'<label>Anna käyttäjälle kirjoitusoikeus:</label>'
+                                                        +'<textarea class="form-control" rows="1" id="addAuthorByName"></textarea>'
+                                                        +'<button id="addAuthor">Lisää kirjoitusoikeus</button></div>');
+                                //$("authorsDiv").append('tyhmä teksti');
+                                console.log("--- lisää uusi -----");
+                                for(var i = 0; i < data.length; ++i) {
+                                    $("#authorsDiv").append('<div class="alert alert-info alert-dismissible author-name" role="alert" id="author'+i+ '">'
+                                                            +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+                                                            +'<span aria-hidden="true">&times;</span></button>Käyttäjällä <strong>'
+                                                            +data[i].username +'</strong> on kirjoitusoikeus tähän blogiin.</div>');
+                                    console.log(data[i].username);
+                                    authorsArr.push(data[i].username);
+
+                                }
+                                $('#addAuthor').click(function() {
+                                    console.log("add author");
+
+                                    var usernameToAdd = $('#addAuthorByName').val(); 
+                                    var addUrl = '/api/blog/<%= blogID%>/author/' + usernameToAdd;
+                                    $.ajax({
+                                        url: addUrl,
+                                        type: 'PUT',
+                                        success: function (data) {
+                                            $("#alertSuccess").html("Kirjoittajan lisääminen onnistui!");
+                                            $("#alertSuccess").show().delay(5000).fadeOut();
+                                            location.reload();
+
+                                        }, error: function (data) {
+                                            console.log("error data: ", data);
+                                            $("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Tarkista, että käyttäjänimi on '
+                                                                      +'oikein ja että kyseessä ei ole käyttäjän oletusblogi.');
+                                            $("#errormessage").show().delay(5000).fadeOut();
+                                        }
+
+                                    })
+                                })
+
+                                $.each(authorsArr, function(index, value) {
+
+                                    $('#author' +index).on('closed.bs.alert', function(){
+                                        
+                                        if(value != "<%= user.username %>") {
+                                            var toUrl = "/api/blog/<%= blogID%>/author/" + value;
+
+                                            $.ajax({
+                                                url : toUrl,
+                                                type: 'DELETE',
+                                                success: function(data) 
+                                                {
+                                                    console.log("deleted", value);
+                                                }
+
+
+
+                                            });
+
+                                        }
+                                    });
+
+                                });
+                                //$("#authorsDiv").show();
+                                load = false;
+
+                            }
+                        });
+                    } else {
+                        //$("#authorsDiv").hide();
+                        $("#authorsDiv").empty();
+                        load = true;
+                    }
+                });
+
+                // author alert-info:n ruksin painaminen linkitetty
+                // kirjoitusoikeusden poistoon 
+                /*$(".author-name").each(function() {
+                    var id = this.attr('id');
+                    console.log("tapahtuuko täällä edes mitään", id);
+                    this.bind('closed.bs.alert', function(){
+                        alert("Alert has been " + id );
+                    });
+
+
+                });*/
+
+
+                /*
+                $("#myAlert").bind('closed.bs.alert', function(){
+                    alert("Alert message box has been closed.");
+                });
+
+                for(var i = 0; i < blogAuthors; ++i) {
+                    $('#author' +i).bind('closed.bs.alert', function(){
+                        console.log("something happens", i);
+                        alert("Alert has been " + id );
+                    });
+                }*/
             });
+
 
 
         </script>
@@ -213,7 +333,7 @@
                 <% for (var i= posts.length -1; i >= 0; --i) { %>
                 <!--style="background-color: #F8F8F8; padding: 5px; border-radius: 10px;">-->
                 <div class="well">
-                    
+
                     <% var p = posts[i]; %>
                     <h1><%= p.title %></h1> <!-- linkki postaukseen -->
                     <!-- Author -->
@@ -223,7 +343,7 @@
                     <hr>
 
                     <!-- Date/Time -->
-                    <p><span class="glyphicon glyphicon-time"></span> Kirjoitettu <%= p.created %></p>
+                    <p><span class="glyphicon glyphicon-time"></span> Kirjoitettu <%= p.createdAt %></p>
                     <hr>
                     <p class="lead"><%= p.text %> <br /></p><hr>
                     <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span><%= p.likes %>
@@ -233,8 +353,8 @@
 
 
                 <% } %>
-
-
+                <button id="getAuthors" class="btn btn-default" title="Blogin seuraajat" style="float: right;"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>
+                <div id="authorsDiv" class="well"></div>
 
             </div> <!-- row -->
             <!-- Footer -->
@@ -248,7 +368,7 @@
             </footer>
         </div><!-- container -->
 
-        <div class="alert alert-success alert-dismissable message" role="alert" id="followalert"></div>
+        <div class="alert alert-success alert-dismissable message" role="alert" id="alertSuccess"></div>
         <div class="alert alert-danger message" role="alert" id="errormessage">
             <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
         </div>

@@ -375,7 +375,6 @@ function requiredAuthentication(req, res, next) {
         next();
     } else {
         basicAuth(req, res, next);
-        registered_user = req.user.dataValues.id;
     }
 }
 module.exports = router;

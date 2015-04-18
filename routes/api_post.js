@@ -84,6 +84,11 @@ router.get('/:id/comments', function(req, res, next) {
 
 // add new comment
 router.post('/:id/comments', requiredAuthentication, function(req, res, next) {
+    
+   if (req.user.dataValues.id) {
+        registered_user = req.user.dataValues.id;
+    }
+    
     var id = req.params['id'];
     var query = {where: {id: id}};
     var textField = req.body.text;
@@ -118,7 +123,6 @@ function requiredAuthentication(req, res, next) {
         next();
     } else {
         basicAuth(req, res, next);
-        registered_user = req.user.dataValues.id;
     }
 }
 

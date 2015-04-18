@@ -14,47 +14,58 @@ var registered_user;
 
 //add user
 router.post('/', function(req, res, next) {
-  
-  
-  var username = req.body.username;
-  var name = req.body.name;
-  var password = req.body.password;
-  if (!username || !password || !name ) {
-    return res.status(400).json({error: 'InvalidUserName'});
-  }
-  // check if user is logged in
+
+
+    var username = req.body.username;
+    var name = req.body.name;
+    var password = req.body.password;
+    if (!username || !password || !name ) {
+        return res.status(400).json({error: 'InvalidUserName'});
+    }
+    // check if user is logged in
     //console.log("pidempi: ", req.user.dataValues.id);
     //console.log("lyhyempi: ", req.user.id);
 
     // check if username previously exists
-  var query = {where: {username: username}};
-  models.User.findOne(query).then(function(user) {
-    
-    if (user) {
-      return res.status(409)
-      .json({error:'UserAlreadyExists'});
-    } else {
-        models.User.create({
-            username: username,
-            name: name,
-            password: password
-        }).then(function(user) {
-            //add default blog to user
-            models.Blog.create({
-                name: 'Default blog'
-            }).then(function(blog){
-                blog.addAuthor(user.get('id')).then(function(blog) {
-                    console.log("User was added as author to default blog"); 
+    var query = {where: {username: username}};
+    models.User.findOne(query).then(function(user) {
+
+        if (user) {
+            return res.status(409)
+                .json({error:'UserAlreadyExists'});
+        } else {
+            models.User.create({
+                username: username,
+                name: name,
+                password: password,
+                defaultBlog: 0
+            }).then(function(user) {
+                //add default blog to user
+                models.Blog.create({
+                    name: 'Default blog'
+                }).then(function(blog){
+                    blog.addAuthor(user.get('id')).then(function(blog) {
+
+
+                        console.log("User was added as author to default blog", user.id, blog.BlogId); 
+                        user.updateAttributes({defaultBlog: blog.BlogId});
+                        return res.status(201).json(user);
+
+
+
+                    });
+
                 }, function (err) {
                     return res.status(500).json({error: 'ServerError'});
                 });
-                return res.status(201).json(user);
-            }, function (err) {
-                return res.status(500).json({error: 'ServerError'});
+
+
+
+
             });
-        });
-    }   
+        }
     });
+
 });
 
 
@@ -66,32 +77,39 @@ router.post('/', function(req, res, next) {
 //});
 
 router.get('/:username', function(req, res, next) {
-  var username = req.params['username'];
-  var query = {where: {username: username}};
-   // console.log("lalalalaa: ", req.user.id);
-  models.User.findOne(query).then(function(user) {
-    if (user) {
-      return res.status(200).json(user);
-    }
-    else {
+    var username = req.params['username'];
+    var query = {where: {username: username}};
+    // console.log("lalalalaa: ", req.user.id);
+    models.User.findOne(query).then(function(user) {
+        if (user) {
+            return res.status(200).json(user);
+        }
+        else {
 
-      return res.status(404).json({error: 'UserNotFound'});
-    }
-  }, function (err) {
-    return res.status(500).json({error: 'ServerError'});
-  });
-  // router.put
+            return res.status(404).json({error: 'UserNotFound'});
+        }
+    }, function (err) {
+        return res.status(500).json({error: 'ServerError'});
+    });
+    // router.put
 });
 
 //patch user's information
 router.put('/:username', requiredAuthentication, function(req, res, next) {
+    
+    // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
+    if (req.user !== parseInt(req.user, 10)) {
+        registered_user = req.user.dataValues.id;
+    }
+    
     console.log("starting put..");
     var username = req.params['username'];
     var namefield = req.body.name;
     var password = req.body.password;
     //var id = req.user.dataValues.id;
     var id = registered_user;
-    
+    console.log("put- reg user: ", registered_user);
+
     console.log("USERNAME "+username);
     console.log("NAMEFIELD" + namefield);
     console.log("PASSWORD" + password);
@@ -124,21 +142,21 @@ router.put('/:username', requiredAuthentication, function(req, res, next) {
         if (user.get('id') == id) { // user is modifying one's own information
             console.log("modifyname: ", namefield);
             console.log("modifypass: ", password);
-            
+
             if(namefield) {user.updateAttributes({name: namefield}).then(function(user_) {console.log("username patch")})};
             if(password)  {user.updateAttributes({password: password}).then(function(user_) {console.log("passw patch")})};
             //user.sync();
             console.log("user patched");
             models.User.findOne(query).then(function(user){res.status(200).json(user.toJSON())});
         } else {
-           res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
-           return res.status(403).json({error: 'InvalidAccessrights'}); 
+            res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
+            return res.status(403).json({error: 'InvalidAccessrights'}); 
         }
     }, function(err) {
-         console.log("MORHHE");
-         return res.status(500).json({error: 'ServerError'});   
+        console.log("MORHHE");
+        return res.status(500).json({error: 'ServerError'});   
     });
-    
+
 });
 
 router.get('/:username/blogs', function(req, res, next) {
@@ -150,28 +168,33 @@ router.get('/:username/blogs', function(req, res, next) {
         //models.User.getAuthoredBlogs({where: {username: username}});
         //user.getAuthoredBlogs().then(function(blogs) {
         user.getAuthoredBlogs().then(function(blogs){
-            
+
             console.log("blogs: ", blogs.length);
             for(var i = 0; i < blogs.length; ++i) {
                 console.log(blogs[i].id);
                 blogs[i] = {id: blogs[i].id};
-            
+
             }
             return res.status(200).json(blogs);
         });
     }) .catch(function(err) {
         return res.status(404).json({error: 'UserNotFound'});
     });
-                                                           
+
 });
 
 // like someone's blogpost
 // muista palauttaa jotai (esim. return res.status(200).json(------->"moro"<----); ) koska muuten POST ei palauta mitaan !!!!!!!!!!!!!!!!!!!!!!!!!!!
 router.put('/:username/likes/:id', requiredAuthentication, function(req, res, next) {
-
+    
+    // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
+    if (req.user !== parseInt(req.user, 10)) {
+        registered_user = req.user.dataValues.id;
+    }
+    
     var username = req.params['username'];
     var blogpostid = req.params['id'];
-    var userID = req.user.dataValues.id;
+    var userID = registered_user
 
 
     //var namefield = req.body.name;
@@ -203,33 +226,33 @@ router.put('/:username/likes/:id', requiredAuthentication, function(req, res, ne
                 numOfLikers = blogpost.getLikers().then(function(likers){ 
                     console.log( "LIKE "+likers.length )
                 });
-                
+
 
                 blogpost.updateAttributes({
                     likes: blogpost.get('likes')+1
                 }).then(function() {});
                 return res.status(200).json({Success: 'LikeAdded'});*/
-                 
+
                 numOfLikers = blogpost.getLikers().then(function(likers){ 
                     console.log( "LIKE "+likers.length )
                     blogpost.updateAttributes({
                         likes: likers.length
                     }).then(function() {});
-                return res.status(200).json({Success: 'LikeAdded'});
+                    return res.status(200).json({Success: 'LikeAdded'});
                 });
             }, function(err) {
-               return res.status(500).json({error: 'ServerError'});
+                return res.status(500).json({error: 'ServerError'});
             });     
         }, function(err)
-        {
+                                            {
             return res.status(500).json({error: 'ServerError'});
         });
 
 
     }, function(err) {
-         return res.status(500).json({error: 'ServerError'});   
+        return res.status(500).json({error: 'ServerError'});   
     });
-    
+
 });
 /*
                 blogpost.getLikers().then(function(likers){ 
@@ -241,15 +264,19 @@ router.put('/:username/likes/:id', requiredAuthentication, function(req, res, ne
 
 // remove like
 router.delete('/:username/likes/:id', requiredAuthentication,function(req, res, next) {
+    
+    if (req.user.dataValues.id) {
+        registered_user = req.user.dataValues.id;
+    }
 
     console.log("MORJJEE");
     var username = req.params['username'];
     var blogpostid = req.params['id'];
-    var userID = req.user.dataValues.id;
+    var userID = registered_user;
     //var namefield = req.body.name;
     //var password = req.body.password;
     //var id = req.user.dataValues.id;
-     
+
     // check if user exists
     var query = {where: {username: username}};
     models.User.findOne(query).then(function(user) {
@@ -288,27 +315,34 @@ router.delete('/:username/likes/:id', requiredAuthentication,function(req, res, 
                     return res.status(200).json({Success: 'LikeRemoved'});
                 });
             }, function(err) {
-               return res.status(500).json({error: 'ServerError1'});
+                return res.status(500).json({error: 'ServerError1'});
             });     
         }, function(err)
-        {
+                                            {
             return res.status(500).json({error: 'ServerError2'});
         });
 
 
     }, function(err) {
-         return res.status(500).json({error: 'ServerError3'});   
+        return res.status(500).json({error: 'ServerError3'});   
     });
-    
+
 });
 
 router.put('/:username/follows/:id', requiredAuthentication, function(req, res, next) {
+    
+    // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
+    if (req.user !== parseInt(req.user, 10)) {
+        registered_user = req.user.dataValues.id;
+    }
+    
     var username = req.params['username'];
     var blogID = req.params['id'];
-    
+
     // kirjautunut käyttäjä
     var userID = registered_user;
-    
+    console.log("put- reg user: ", registered_user);
+
     // tarkista löytyykö nimellä käyttäjää
     models.User.findOne({where: {username: username}}).then(function(user) {
         if (!user) {
@@ -327,13 +361,13 @@ router.put('/:username/follows/:id', requiredAuthentication, function(req, res, 
             blog.addFollower(user.get('id'));
             return res.status(200).json({Success: 'FollowerAdded'});
         }); 
-            
+
     });
 });
 
 router.get('/:username/follows', function(req, res, next) {
     var username = req.params['username'];
-    
+
     models.User.findOne({where: {username: username}}).then(function(user) {
         if (!user) {
             return res.status(404).json({error: 'InvalidUsername'});
@@ -347,16 +381,21 @@ router.get('/:username/follows', function(req, res, next) {
             return res.status(200).send(follows);
         });
     });
-                                     
+
 });
 
 router.delete('/:username/follows/:id', requiredAuthentication, function(req, res, next) {
     var username = req.params['username'];
     var blogID = req.params['id'];
     
+    // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
+    if (req.user !== parseInt(req.user, 10)) {
+        registered_user = req.user.dataValues.id;
+    }
+
     // kirjautunut käyttäjä
     var userID = registered_user;
-    
+
     // tarkista löytyykö nimellä käyttäjää
     models.User.findOne({where: {username: username}}).then(function(user) {
         if (!user) {
@@ -375,10 +414,10 @@ router.delete('/:username/follows/:id', requiredAuthentication, function(req, re
             blog.removeFollower(user.get('id'));
             return res.status(200).json({Success: 'FollowerRemoved'});
         }); 
-            
+
     });
 });
-          
+
 /*
 function isLoggedIn(req, res, next) {
 
@@ -406,14 +445,12 @@ function isLoggedIn(req, res, next) {
     }
 };*/
 function requiredAuthentication(req, res, next) {
-
-    
+  
     if (req.user) {
         registered_user = req.user;
         next();
     } else {
-        basicAuth(req, res, next);
-        registered_user = req.user.dataValues.id;
+        basicAuth(req, res, next);                                           
     }
 }
 

@@ -5,6 +5,8 @@ var passport = require('passport');
 var models = require('../models');
 var basicAuth = passport.authenticate('basic', {session: false});
 
+var registered_user;
+
 
 router.get('/', function(req, res, next) {
  /* models.User.findAll().then(function(users) {
@@ -15,6 +17,7 @@ router.get('/', function(req, res, next) {
   });*/
     if(req.user) { // käyttäjä kirjautunut sisään
         console.log("user id: ", req.session.passport.user );
+        
         models.BlogPost.findAll().then(function(posts) {
             var postsMax = 0;
             var postsArr = [];
@@ -112,6 +115,8 @@ router.get('/logout', function(req, res){
 function requiredAuthentication(req, res, next) {
     console.log("authentication!", req.user);
     if (req.user) {
+        console.log("1tässä on viestini: ", req.user);
+        registered_user = req.user;
         next();
     } else {
         basicAuth(req, res, next);

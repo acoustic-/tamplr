@@ -14,7 +14,8 @@ module.exports = function(sequelize, DataTypes) {
               
                 this.setDataValue('password', hash);
                 }
-              }
+              },
+      defaultBlog: {type:DataTypes.INTEGER, allowNull:false}
   }, {
     classMethods: {
       associate: function(models) {
