@@ -26,6 +26,7 @@
           //Read form
           var realName = $("#name").val();
           var pswrd = $("#password").val();
+          var urlProfilePic = $("#profile_pic").val();
           //<%user_name = userName %>
           //alert('moro');
           $.ajax({
@@ -33,7 +34,7 @@
               type: 'PUT',
               contentType: 'application/json',
               dataType: 'json',
-              data: JSON.stringify({name: realName, password: pswrd }),
+              data: JSON.stringify({name: realName, password: pswrd, profile_pic: urlProfilePic }),
               
               success: function(data)
               {
@@ -88,7 +89,7 @@
     <form name="ajaxSettings" id="ajaxSettings" action="http://localhost:3000/api/user" method="put">
     Nimi: <input id="name" type="name" class="form-control" name="name" placeholder="Etunimi Sukunimi"><br>
     Salasana: <input id="password" type="password" name="password" class="form-control" placeholder="Salasana"><br>
-    
+    Profiilikuva: <input id="profile_pic" type="text" name="profile_pic" class="form-control" placeholder="Esim: http://kuvasi.jpg"><br>
     <input type="submit" class="btn btn-default" value="Muuta tiedot!"><br><br>
     </form>
      <div class="alert alert-success alert-dismissable message" role="alert" id="resUserSettings"></div>

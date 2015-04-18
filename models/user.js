@@ -6,6 +6,7 @@ module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define("User", {
     username: {type:DataTypes.STRING, allowNull:false},
     name: {type:DataTypes.STRING, allowNull:false},
+    profile_picture: {type:DataTypes.STRING, allowNull:false},
     password: {type:DataTypes.STRING, 
               // hash the password   
               set: function(secret) {

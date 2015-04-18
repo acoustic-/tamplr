@@ -37,7 +37,8 @@ router.post('/', function(req, res, next) {
         models.User.create({
             username: username,
             name: name,
-            password: password
+            password: password,
+            profile_picture: "profile_picture/default_pic.jpg" //default profile picture
         }).then(function(user) {
             //add default blog to user
             models.Blog.create({
@@ -89,6 +90,7 @@ router.put('/:username', requiredAuthentication, function(req, res, next) {
     var username = req.params['username'];
     var namefield = req.body.name;
     var password = req.body.password;
+    var proflie_pic = req.body.profile_pic;
     //var id = req.user.dataValues.id;
     var id = registered_user;
     
@@ -127,6 +129,7 @@ router.put('/:username', requiredAuthentication, function(req, res, next) {
             
             if(namefield) {user.updateAttributes({name: namefield}).then(function(user_) {console.log("username patch")})};
             if(password)  {user.updateAttributes({password: password}).then(function(user_) {console.log("passw patch")})};
+            if(proflie_pic)  {user.updateAttributes({profile_picture: proflie_pic}).then(function(user_) {console.log("profile picture patch")})};
             //user.sync();
             console.log("user patched");
             models.User.findOne(query).then(function(user){res.status(200).json(user.toJSON())});
