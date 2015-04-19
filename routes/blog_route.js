@@ -11,90 +11,66 @@ router.get('/:id', function(req, res, next) {
 
 
     console.log("registered_user: ", req.user);
+    models.User.findAll().then(function(users) {
+        console.log("userrs: ", users);
+        models.Blog.findOne(query).then(function(blog) {
+            // models.User.findAll().then(function(users) {
+            blog.getPosts().then(function(posts) {
+                var commentsArr = [];
+                //------------ jos blogissa ei ole postauksia
+                if (posts.length == 0) {
+                    var now = new Date();
+                    var jsonDate = now.toJSON();
+                    var nposts = [{title: "Blogissa ei ole..", text: ".. vielä yhtään postausta.",
+                                   likes: 0, comments: 0, author: "admin", 
+                                   created:jsonDate}];
+                    commentsArr.push(0);
+                    if(!req.user) {// if user isn't logged in
+                        console.log("user isn't logged in -> render");
+                        res.render('blog_unloggedin', {
+                            posts: nposts,
+                            name:  blog.get('name'),
+                            comments: commentsArr
+                        });
+                    } else {
+                        models.User.findOne({where: {id: req.user}}).then(function(user) {
+                            var rendered = false;
+                            blog.getAuthors().then(function(authors) {
+                                console.log("--commentsArr: ", commentsArr);
+                                for(var i = 0; i< authors.length; ++i) {
+                                    if (authors[i].get('id') == req.user) {
+                                        console.log("author found");
+                                        rendered = true;
+                                        res.render('blog_for_author', {
+                                            posts: nposts,
+                                            name:  blog.get('name'),
+                                            user: user,
+                                            blogID: blog.get('id'),
+                                            comments: commentsArr,
+                                            users: users
+                                        });
+                                    }
+                                    if(!rendered && i == authors.length-1 
+                                       && authors[i].get('id') != req.user) {
+                                        res.render('blog', {
+                                            posts: nposts,
+                                            name:  blog.get('name'),
+                                            user: user,
+                                            blogID: blog.get('id'),
+                                            comments: commentsArr
+                                        });
+                                    }
+                                }
+                            });
 
-    models.Blog.findOne(query).then(function(blog) {
-        blog.getPosts().then(function(posts) {
-            var commentsArr = [];
-            //------------ jos blogissa ei ole postauksia
-            if (posts.length == 0) {
-                var now = new Date();
-                var jsonDate = now.toJSON();
-                var nposts = [{title: "Blogissa ei ole..", text: ".. vielä yhtään postausta.",
-                               likes: 0, comments: 0, author: "admin", 
-                               created:jsonDate}];
-                commentsArr.push(0);
-                if(!req.user) {// if user isn't logged in
-                    console.log("user isn't logged in -> render");
-                    res.render('blog_unloggedin', {
-                        posts: nposts,
-                        name:  blog.get('name'),
-                        comments: commentsArr
-                    });
-                } else {
-                    models.User.findOne({where: {id: req.user}}).then(function(user) {
-                        blog.getAuthors().then(function(authors) {
-                            console.log("--commentsArr: ", commentsArr);
-                            for(var i = 0; i< authors.length; ++i) {
-                                if (authors[i].get('id') == req.user) {
-                                    console.log("author found");
-                                    rendered = true;
-                                    res.render('blog_for_author', {
-                                        posts: nposts,
-                                        name:  blog.get('name'),
-                                        user: user,
-                                        blogID: blog.get('id'),
-                                        comments: commentsArr
-                                    });
-                                }
-                                if(!rendered && i == authors.length-1 
-                                   && authors[i].get('id') != req.user) {
-                                    res.render('blog', {
-                                        posts: nposts,
-                                        name:  blog.get('name'),
-                                        user: user,
-                                        blogID: blog.get('id'),
-                                        comments: commentsArr
-                                    });
-                                }
-                            }
                         });
 
-                    });
-
-                }
-            } else {
-
-                if(!req.user) {// if user isn't logged in
-
-                    var anotherArr = [];
-                    function printToComments(element, index, array){
-
-                        posts[index].getComments().then(function(comments) {
-                            return comments.length;
-                        }) .then(function(long) {
-                            commentsArr.push(long);
-                            return commentsArr;
-                        }) .then(function(commentsArr) {
-                            if( posts.length-1 == index) {
-
-                                console.log("user isn't logged in -> render");
-                                res.render('blog_unloggedin', {
-                                    posts: posts,
-                                    name:  blog.get('name'),
-                                    comments: commentsArr
-                                });
-                            }
-                        });
-                    };
-
-                    console.log("redy comm: ", commentsArr);
-                    console.log("redy comm: ", anotherArr);
-
-                    posts.forEach(printToComments);
-
+                    }
                 } else {
-                    models.User.findOne({where: {id: req.user}}).then(function(user) {
 
+                    if(!req.user) {// if user isn't logged in
+
+                        var anotherArr = [];
                         function printToComments(element, index, array){
 
                             posts[index].getComments().then(function(comments) {
@@ -102,48 +78,79 @@ router.get('/:id', function(req, res, next) {
                             }) .then(function(long) {
                                 commentsArr.push(long);
                                 return commentsArr;
+                            }) .then(function(commentsArr) {
+                                if( posts.length-1 == index) {
+
+                                    console.log("user isn't logged in -> render");
+                                    res.render('blog_unloggedin', {
+                                        posts: posts,
+                                        name:  blog.get('name'),
+                                        comments: commentsArr
+                                    });
+                                }
                             });
-                            console.log("!comm: ", commentsArr);
                         };
 
                         console.log("redy comm: ", commentsArr);
+                        console.log("redy comm: ", anotherArr);
 
                         posts.forEach(printToComments);
 
-                        console.log("user is logger in -> render");
-                        var rendered = false;
-                        blog.getAuthors().then(function(authors) {
-                            console.log("--commentsArr: ", commentsArr);
-                            for(var i = 0; i< authors.length; ++i) {
-                                if (authors[i].get('id') == req.user) {
-                                    console.log("author found");
-                                    rendered = true;
-                                    res.render('blog_for_author', {
-                                        posts: posts,
-                                        name:  blog.get('name'),
-                                        user: user,
-                                        blogID: blog.get('id'),
-                                        comments: commentsArr
-                                    });
+                    } else {
+                        models.User.findOne({where: {id: req.user}}).then(function(user) {
+
+                            function printToComments(element, index, array){
+
+                                posts[index].getComments().then(function(comments) {
+                                    return comments.length;
+                                }) .then(function(long) {
+                                    commentsArr.push(long);
+                                    return commentsArr;
+                                });
+                                console.log("!comm: ", commentsArr);
+                            };
+
+                            console.log("redy comm: ", commentsArr);
+
+                            posts.forEach(printToComments);
+
+                            console.log("user is logger in -> render");
+                            var rendered = false;
+                            blog.getAuthors().then(function(authors) {
+                                console.log("--commentsArr: ", commentsArr);
+                                for(var i = 0; i< authors.length; ++i) {
+                                    if (authors[i].get('id') == req.user) {
+                                        console.log("author found");
+                                        rendered = true;
+                                        res.render('blog_for_author', {
+                                            posts: posts,
+                                            name:  blog.get('name'),
+                                            user: user,
+                                            blogID: blog.get('id'),
+                                            comments: commentsArr,
+                                            users: users
+                                        });
+                                    }
+                                    if(!rendered && i == authors.length-1 
+                                       && authors[i].get('id') != req.user) {
+                                        res.render('blog', {
+                                            posts: posts,
+                                            name:  blog.get('name'),
+                                            user: user,
+                                            blogID: blog.get('id'),
+                                            comments: commentsArr
+                                        });
+                                    }
                                 }
-                                if(!rendered && i == authors.length-1 
-                                   && authors[i].get('id') != req.user) {
-                                    res.render('blog', {
-                                        posts: posts,
-                                        name:  blog.get('name'),
-                                        user: user,
-                                        blogID: blog.get('id'),
-                                        comments: commentsArr
-                                    });
-                                }
-                            }
+                            });
                         });
-                    });
+                    }
                 }
-            }
+            });
         });
     });
 });
+//});
 
 router.get('/:blogid/post/:postid', function(req, res, next){
     var blogid = req.params['blogid'];

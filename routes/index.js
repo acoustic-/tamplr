@@ -9,15 +9,14 @@ var registered_user;
 
 
 router.get('/', function(req, res, next) {
- /* models.User.findAll().then(function(users) {
+    /* models.User.findAll().then(function(users) {
     res.render('index', {
       host: req.headers.host,
       users: users
     });
   });*/
     if(req.user) { // käyttäjä kirjautunut sisään
-        console.log("user id: ", req.session.passport.user );
-        
+
         models.BlogPost.findAll().then(function(posts) {
             var postsMax = 0;
             var postsArr = [];
@@ -31,17 +30,17 @@ router.get('/', function(req, res, next) {
             for (var i = 0; i < postsMax; ++i) {
                 postsArr[i] = posts[i];
             }
-            
-            
+
+
             models.User.findOne({where: {id: req.session.passport.user }}).then(function(user) {
-                
+
                 user.getAuthoredBlogs().then(function(authored) {
-                    console.log("authored blogs len: ", authored.length);
-                    console.log("authored: ", authored[0].dataValues.id);
-                  
-              //user.getAuthoredBlogs().then(function(blogs){
+              
+
+                    //user.getAuthoredBlogs().then(function(blogs){
                     user.getFollowedBlogs().then(function(follows) {
                         models.Blog.findAll().then(function(blogs) {
+                            
                             res.render('index', {
                                 host: req.headers.host,
                                 user: user,
@@ -88,26 +87,26 @@ router.get('/', function(req, res, next) {
 // Luo tili -painike
 router.get('/register', function(req, res) { 
     res.render('register.ejs'); 
-      
+
 });
 
 router.get('/settings', function(req, res) {
 
     //if(req.user) {
     models.User.findOne({where: {id: req.session.passport.user }}).then(function(user) {
-    
-    //console.log(user.get('username')+" moro");
-    res.render('settings.ejs', {
-        userName: user.get('username')
+
+        //console.log(user.get('username')+" moro");
+        res.render('settings.ejs', {
+            userName: user.get('username')
         }); 
     });    
-      
+
 });
 
 
 router.get('/logout', function(req, res){
-  req.logout();
-  res.redirect('/');
+    req.logout();
+    res.redirect('/');
 });
 
 

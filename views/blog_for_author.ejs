@@ -5,17 +5,20 @@
 
         <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/cupertino/jquery-ui.css">
         <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
+
         <link rel='stylesheet' href='/stylesheets/style.css' />
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 
         <script>
 
             // var update = new EJS({url: '/index.ejs'}).update('blogs');
-            console.log("POSTS LENGTH: ", <%= posts.length%>);
 
-                        $(document).ready(function() {
+
+            $(document).ready(function() {
                 $(".alert").hide();
                 $("#newPostDiv").hide();
                 $("#authorsDiv").hide();
@@ -170,80 +173,130 @@
 
                                 $("#authorsDiv").append('<div class="form-group">'
                                                         +'<label>Anna käyttäjälle kirjoitusoikeus:</label>'
-                                                        +'<textarea class="form-control" rows="1" id="addAuthorByName"></textarea>'
+                                                        +'<input class="form-control" rows="1" id="addAuthorByName" />'
                                                         +'<button id="addAuthor">Lisää kirjoitusoikeus</button></div>');
                                 //$("authorsDiv").append('tyhmä teksti');
                                 console.log("--- lisää uusi -----");
                                 for(var i = 0; i < data.length; ++i) {
-                                    $("#authorsDiv").append('<div class="alert alert-info alert-dismissible author-name" role="alert" id="author'+i+ '">'
-                                                            +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
-                                                            +'<span aria-hidden="true">&times;</span></button>Käyttäjällä <strong>'
-                                                            +data[i].username +'</strong> on kirjoitusoikeus tähän blogiin.</div>');
-                                    console.log(data[i].username);
+                                    if(data[i].username == "<%= user.username %>") {
+                                        $("#authorsDiv").append('<div class="alert alert-info author-name" role="alert" id="author'+i+ '">'
+                                                                +'Sinulla on kirjoitusoikeus tähän blogiin.');
+
+                                    } else {
+                                        $("#authorsDiv").append('<div class="alert alert-info alert-dismissible author-name" role="alert" id="author'+i+ '">'
+                                                                +'<button data-toggle="tooltip" data-placement="top" title="Poista kirjoitusoikeus" '
+                                                                +'type="button" class="close" data-dismiss="alert">'
+                                                                +'Poista kirjoitusoikeus</button>Käyttäjällä <strong>'
+                                                                +data[i].username +'</strong> on kirjoitusoikeus tähän blogiin.</div>');
+                                    };
                                     authorsArr.push(data[i].username);
 
                                 }
-                                $('#addAuthor').click(function() {
-                                    console.log("add author");
 
-                                    var usernameToAdd = $('#addAuthorByName').val(); 
-                                    var addUrl = '/api/blog/<%= blogID%>/author/' + usernameToAdd;
-                                    $.ajax({
-                                        url: addUrl,
-                                        type: 'PUT',
-                                        success: function (data) {
-                                            $("#alertSuccess").html("Kirjoittajan lisääminen onnistui!");
-                                            $("#alertSuccess").show().delay(5000).fadeOut();
-                                            location.reload();
 
-                                        }, error: function (data) {
-                                            console.log("error data: ", data);
-                                            $("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Tarkista, että käyttäjänimi on '
-                                                                      +'oikein ja että kyseessä ei ole käyttäjän oletusblogi.');
-                                            $("#errormessage").show().delay(5000).fadeOut();
+                                $.ajax({
+                                    url: '/api/user/users/all',
+                                    type: 'GET',
+                                    success: function (data) {
+                                        users = data;
+
+                                        for (var i = 0; i < users.length; ++i) {
+                                            users[i] = users[i].username;
                                         }
 
-                                    })
-                                })
+                                        $("#addAuthorByName").autocomplete({
+                                            source: users
+                                        });
+                                    }
+                                });
 
-                                $.each(authorsArr, function(index, value) {
 
-                                    $('#author' +index).on('closed.bs.alert', function(){
-                                        
-                                        if(value != "<%= user.username %>") {
-                                            var toUrl = "/api/blog/<%= blogID%>/author/" + value;
 
-                                            $.ajax({
-                                                url : toUrl,
-                                                type: 'DELETE',
-                                                success: function(data) 
-                                                {
-                                                    console.log("deleted", value);
+
+                                $('#addAuthor').click(function() {
+                                    console.log("userblog: ", <%=user.defaultBlog %>, <%= blogID %>)
+                                    if(<%= user.defaultBlog %> != <%= blogID %>) {  
+                                        console.log("add author");
+
+                                        var usernameToAdd = $('#addAuthorByName').val();
+
+                                        var addUrl = '/api/blog/<%= blogID%>/author/' + usernameToAdd;
+                                        $.ajax({
+                                            url: addUrl,
+                                            type: 'PUT',
+                                            success: function (data) {
+                                                $("#alertSuccess").html("Kirjoittajan lisääminen onnistui!");
+                                                $("#alertSuccess").show().delay(5000).fadeOut();
+                                                //location.reload();
+
+                                            }, error: function (data) {
+                                                console.log("error data: ", data);
+                                                $("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Tarkista, että käyttäjänimi on '
+                                                                          +'oikein ja että kyseessä ei ole käyttäjän oletusblogi.');
+                                                $("#errormessage").show().delay(5000).fadeOut();
+                                            }
+
+                                        })
+
+
+                                        $.each(authorsArr, function(index, value) {
+
+                                            $('#author' +index).on('closed.bs.alert', function(){
+
+                                                if(value != "<%= user.username %>") {
+                                                    var toUrl = "/api/blog/<%= blogID%>/author/" + value;
+
+                                                    $.ajax({
+                                                        url : toUrl,
+                                                        type: 'DELETE',
+                                                        success: function(data) 
+                                                        {
+                                                            $("#alertSuccess").html("Poistaminen onnistui!");
+                                                            $("#alertSuccess").show().delay(5000).fadeOut();
+                                                            console.log("deleted", value);
+                                                        }, error: function (data) {
+                                                            console.log("error data: ", data);
+                                                            $("#errormessage").html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">'
+                                                                                    +'</span><span class="sr-only">Virhe:</span>'+' Käyttäjän poistaminen ei'
+                                                                                    +' onnistunut.');
+                                                            $("#errormessage").show().delay(5000).fadeOut();
+                                                        }
+                                                    });
+
+                                                } else {
+                                                    $("#errormessage").html('<span class="sr-only">Virhe:</span>'+' Et voi poistaa itseäsi!');
+                                                    $("#errormessage").show().delay(5000).fadeOut();
+
                                                 }
-
-
-
                                             });
 
-                                        }
-                                    });
+                                        });
+                                        //$("#authorsDiv").show();
 
+                                        load = false;
+
+                                    } else {
+                                        $("#alertSuccess").html('<strong>Huomaa </strong>, että tämä on oletusblogisi,'
+                                                                +' joten sen kirjoittajia ei saa muokattua.');
+                                        $("#alertSuccess").show().delay(5000).fadeOut();
+
+                                    }
                                 });
-                                //$("#authorsDiv").show();
-                                load = false;
-
                             }
                         });
+
                     } else {
                         //$("#authorsDiv").hide();
                         $("#authorsDiv").empty();
                         load = true;
                     }
                 });
+            });
 
-                // author alert-info:n ruksin painaminen linkitetty
-                // kirjoitusoikeusden poistoon 
-                /*$(".author-name").each(function() {
+
+            // author alert-info:n ruksin painaminen linkitetty
+            // kirjoitusoikeusden poistoon 
+            /*$(".author-name").each(function() {
                     var id = this.attr('id');
                     console.log("tapahtuuko täällä edes mitään", id);
                     this.bind('closed.bs.alert', function(){
@@ -254,7 +307,7 @@
                 });*/
 
 
-                /*
+            /*
                 $("#myAlert").bind('closed.bs.alert', function(){
                     alert("Alert message box has been closed.");
                 });
@@ -265,7 +318,7 @@
                         alert("Alert has been " + id );
                     });
                 }*/
-            });
+            
 
 
 
@@ -369,8 +422,6 @@
         </div><!-- container -->
 
         <div class="alert alert-success alert-dismissable message" role="alert" id="alertSuccess"></div>
-        <div class="alert alert-danger message" role="alert" id="errormessage">
-            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-        </div>
+        <div class="alert alert-danger message" role="alert" id="errormessage"></div>
     </body>
 </html>

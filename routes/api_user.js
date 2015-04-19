@@ -98,12 +98,12 @@ router.get('/:username', function(req, res, next) {
 
 //patch user's information
 router.put('/:username', requiredAuthentication, function(req, res, next) {
-    
+
     // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
     if (req.user !== parseInt(req.user, 10)) {
         registered_user = req.user.dataValues.id;
     }
-    
+
     console.log("starting put..");
     var username = req.params['username'];
     var namefield = req.body.name;
@@ -190,12 +190,12 @@ router.get('/:username/blogs', function(req, res, next) {
 // like someone's blogpost
 // muista palauttaa jotai (esim. return res.status(200).json(------->"moro"<----); ) koska muuten POST ei palauta mitaan !!!!!!!!!!!!!!!!!!!!!!!!!!!
 router.put('/:username/likes/:id', requiredAuthentication, function(req, res, next) {
-    
+
     // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
     if (req.user !== parseInt(req.user, 10)) {
         registered_user = req.user.dataValues.id;
     }
-    
+
     var username = req.params['username'];
     var blogpostid = req.params['id'];
     var userID = registered_user
@@ -268,7 +268,7 @@ router.put('/:username/likes/:id', requiredAuthentication, function(req, res, ne
 
 // remove like
 router.delete('/:username/likes/:id', requiredAuthentication,function(req, res, next) {
-    
+
     if (req.user.dataValues.id) {
         registered_user = req.user.dataValues.id;
     }
@@ -334,12 +334,12 @@ router.delete('/:username/likes/:id', requiredAuthentication,function(req, res, 
 });
 
 router.put('/:username/follows/:id', requiredAuthentication, function(req, res, next) {
-    
+
     // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
     if (req.user !== parseInt(req.user, 10)) {
         registered_user = req.user.dataValues.id;
     }
-    
+
     var username = req.params['username'];
     var blogID = req.params['id'];
 
@@ -391,7 +391,7 @@ router.get('/:username/follows', function(req, res, next) {
 router.delete('/:username/follows/:id', requiredAuthentication, function(req, res, next) {
     var username = req.params['username'];
     var blogID = req.params['id'];
-    
+
     // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
     if (req.user !== parseInt(req.user, 10)) {
         registered_user = req.user.dataValues.id;
@@ -422,6 +422,11 @@ router.delete('/:username/follows/:id', requiredAuthentication, function(req, re
     });
 });
 
+router.get('/users/all', requiredAuthentication,function(req, res, next) {
+    models.User.findAll().then(function(users) {
+        return res.status(200).json(users);
+    });
+});
 /*
 function isLoggedIn(req, res, next) {
 
@@ -449,7 +454,7 @@ function isLoggedIn(req, res, next) {
     }
 };*/
 function requiredAuthentication(req, res, next) {
-  
+
     if (req.user) {
         registered_user = req.user;
         next();

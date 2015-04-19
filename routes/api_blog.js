@@ -9,12 +9,12 @@ var registered_user;
 
 // create a blog
 router.post('/', requiredAuthentication, function(req, res, next) {
-    
+
     // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
     if (req.user !== parseInt(req.user, 10)) {
         registered_user = req.user.dataValues.id;
     }
-    
+
     console.log("beginning to add blog");
     var blogname = req.body.name;
 
@@ -44,7 +44,7 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
     if (req.user !== parseInt(req.user, 10)) {
         registered_user = req.user.dataValues.id;
     }
-    
+
     var id = req.params['id'];
     var titleInput = req.body.title;
     var textInput = req.body.text;
@@ -71,6 +71,7 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
             console.log("jou2");
             blog.getAuthors().then(function(authors) {
                 console.log(authors.length);
+                var sent = false;
                 for ( var i = 0; i < authors.length; ++i )
                 {
                     console.log("jou4");
@@ -92,6 +93,7 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
                             blogpost.setInBlog( id );
                             var blogpostID = '{"id": "' + blogpost.get('id') + '"}';
                             console.log("Blog writing done");
+                            sent = true;
 
                             return res.status(201).json(JSON.parse(blogpostID));
                         },
@@ -100,17 +102,15 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
                             return res.status(500).json({error: 'ServerError'});
                         });
                     } else {
-                        if ( i == authors.length -1 && authors[i].get('id') != userID) {
-                            console.log("Unauthorized user");
+                        if ( i == authors.length && authors[i].get('id') != userID && !sent) {
+                            console.log("Unauthorized user",authors.length, authors[i].get('id'), userID, sent);
                             res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
                             return res.status(403).json({error: 'InvalidAccessrights'});
 
                         }
                     }
                 }
-            },
-                                   function(err) 
-                                   {
+            }, function(err) {
                 return res.status(500).json({error: 'ServerError'});
             });
         } 
@@ -207,7 +207,7 @@ router.get('/:id/posts', function(req, res, next) {
 
 // get blog
 router.get('/:id', function(req, res, next) {
-    
+
 
     var id = req.params['id'];
     // tsekataan onko syötetty käyttäjä nimi vai numero
@@ -250,12 +250,12 @@ router.get('/:id', function(req, res, next) {
 
 // delete blog
 router.delete('/:id', requiredAuthentication, function(req, res, next) {
-    
+
     // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
     if (req.user !== parseInt(req.user, 10)) {
         registered_user = req.user.dataValues.id;
     }
-    
+
     var refid = req.params['id'];
     var query = {where: {id:refid}};
     var regId = registered_user;
@@ -349,12 +349,12 @@ router.get('/:id/authors', requiredAuthentication, function(req, res, next) {
 
 // lisää kirjoitusoikeus blogiin
 router.put('/:id/author/:username', requiredAuthentication, function(req, res, next) {
-    
+
     // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
     if (req.user !== parseInt(req.user, 10)) {
         registered_user = req.user.dataValues.id;
     }
-    
+
     // parameters of the reguest
     var id = req.params['id'];
     var username = req.params['username'];
@@ -413,12 +413,12 @@ router.put('/:id/author/:username', requiredAuthentication, function(req, res, n
 
 // poista kirjoistusoikeus
 router.delete('/:id/author/:username', requiredAuthentication, function(req, res, next) {
-    
+
     // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
     if (req.user !== parseInt(req.user, 10)) {
         registered_user = req.user.dataValues.id;
     }
-    
+
     console.log("begin delete author");
     // parameters of the reguest
     var id = req.params['id'];

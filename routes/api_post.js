@@ -85,7 +85,8 @@ router.get('/:id/comments', function(req, res, next) {
 // add new comment
 router.post('/:id/comments', requiredAuthentication, function(req, res, next) {
     
-   if (req.user.dataValues.id) {
+   // tarkista onko req.user int-tyyppinen : jos ei niin luo arvo id
+    if (req.user !== parseInt(req.user, 10)) {
         registered_user = req.user.dataValues.id;
     }
     
