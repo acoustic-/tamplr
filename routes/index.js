@@ -17,7 +17,7 @@ router.get('/', function(req, res, next) {
   });*/
     if(req.user) { // käyttäjä kirjautunut sisään
 
-        models.BlogPost.findAll().then(function(posts) {
+        models.BlogPost.findAll({order: 'createdAt DESC'}).then(function(posts) {
             var postsMax = 0;
             var postsArr = [];
 
@@ -56,7 +56,7 @@ router.get('/', function(req, res, next) {
 
         });
     } else {
-        models.BlogPost.findAll().then(function(posts) {
+        models.BlogPost.findAll({order: 'createdAt DESC'}).then(function(posts) {
             var postsMax = 0;
             var postsArr = [];
 
@@ -114,7 +114,6 @@ router.get('/logout', function(req, res){
 function requiredAuthentication(req, res, next) {
     console.log("authentication!", req.user);
     if (req.user) {
-        console.log("1tässä on viestini: ", req.user);
         registered_user = req.user;
         next();
     } else {

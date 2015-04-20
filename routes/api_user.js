@@ -50,8 +50,9 @@ router.post('/', function(req, res, next) {
 
 
                         console.log("User was added as author to default blog", user.id, blog.BlogId); 
-                        user.updateAttributes({defaultBlog: blog.BlogId});
-                        return res.status(201).json(user);
+                        user.updateAttributes({defaultBlog: blog.BlogId}).then(function(user_) {console.log("default blog changed")});
+                        console.log("updated user: ", user);
+                        models.User.findOne(query).then(function(user_){return res.status(201).json(user);});
 
 
 
@@ -151,7 +152,7 @@ router.put('/:username', requiredAuthentication, function(req, res, next) {
             if(proflie_pic)  {user.updateAttributes({profile_picture: proflie_pic}).then(function(user_) {console.log("profile picture patch")})};
             //user.sync();
             console.log("user patched");
-            models.User.findOne(query).then(function(user){res.status(200).json(user.toJSON())});
+            models.User.findOne(query).then(function(user_){res.status(200).json(user_.toJSON())});
         } else {
             res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
             return res.status(403).json({error: 'InvalidAccessrights'}); 

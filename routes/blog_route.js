@@ -12,12 +12,14 @@ router.get('/:id', function(req, res, next) {
 
     console.log("registered_user: ", req.user);
     models.User.findAll().then(function(users) {
-        console.log("userrs: ", users);
         models.Blog.findOne(query).then(function(blog) {
+            if(!blog) {
+                return res.status(404).json({error: "Blog was not found!"});
+            }
             // models.User.findAll().then(function(users) {
             blog.getPosts().then(function(posts) {
                 var commentsArr = [];
-                //------------ jos blogissa ei ole postauksia
+//------------ jos blogissa ei ole postauksia
                 if (posts.length == 0) {
                     var now = new Date();
                     var jsonDate = now.toJSON();
@@ -66,6 +68,7 @@ router.get('/:id', function(req, res, next) {
                         });
 
                     }
+//-------- jos blogissa on postauksia                    
                 } else {
 
                     if(!req.user) {// if user isn't logged in
@@ -114,13 +117,13 @@ router.get('/:id', function(req, res, next) {
 
                             posts.forEach(printToComments);
 
-                            console.log("user is logger in -> render");
+                            console.log("user is logged in -> render");
                             var rendered = false;
                             blog.getAuthors().then(function(authors) {
                                 console.log("--commentsArr: ", commentsArr);
                                 for(var i = 0; i< authors.length; ++i) {
                                     if (authors[i].get('id') == req.user) {
-                                        console.log("author found");
+                                        console.log("author found, user is ", user);
                                         rendered = true;
                                         res.render('blog_for_author', {
                                             posts: posts,
@@ -152,17 +155,24 @@ router.get('/:id', function(req, res, next) {
 });
 //});
 
-router.get('/:blogid/post/:postid', function(req, res, next){
+router.get('/:blogid/:postid', function(req, res, next){
     var blogid = req.params['blogid'];
     var postid = req.params['postid'];
 
     models.Blog.findOne({where: {id: blogid}}).then(function(blog){
+        if(!blog) {
+            return res.status(404).json({error: "Blog was not found"});
+        }
         console.log("found blog");
         blog.getPosts().then(function(posts) {
             console.log("found postst?", posts)
             for(var i = 0; i < posts.length; ++i) {
                 if(posts[i].get('id') == postid) {
                     models.BlogPost.findOne({where: {id: postid}}).then(function(post) {
+                        if(!post) {
+                            return res.status(404).json({error: "Post was not found"});
+                        }
+                        
                         console.log("post: ", post);
                         if (req.user) {
                             models.User.findOne({where: {id: req.user}}).then(function(user){
