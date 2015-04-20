@@ -88,6 +88,15 @@ router.get('/', function(req, res, next) {
 });
 
 
+// töherrä
+router.get('/scribble', function(req, res) { 
+
+    res.render('scribble.ejs');
+
+});
+
+
+
 // Luo tili -painike
 router.get('/register', function(req, res) { 
 

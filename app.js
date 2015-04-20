@@ -60,7 +60,7 @@ app.use('/api/ht', apiHt);
 app.use('/api/post', apiPost);
 
 // normal pages
-app.use('/', routes);
+app.use('/', routes); //index
 app.use('/login', login);
 app.use('/blog', blog);
 //require('./config/passport')(passport);
