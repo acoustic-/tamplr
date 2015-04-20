@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Tamplr</title>
 
         <!--<% var author_len = authored.length; %>  -->
@@ -64,22 +65,23 @@
             <div class="container-fluid">
                 <!-- Brand and toggle get grouped for better mobile display -->
                 <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
                         <span class="sr-only">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#"><div class="tamplr-logo-small">tamplr</div></a>
+                    <a class="navbar-brand" href="/"><div class="tamplr-logo-small">tamplr</div></a>
                 </div>
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <div class="collapse navbar-collapse" id="navbar">
+          
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%= user.username %> <span class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="/settings"><span class="glyphicon glyphicon-wrench" aria-hidden="true">Asetukset</a></li>
+                                <li><a href="/settings"><span class="glyphicon glyphicon-wrench" aria-hidden="true"> Asetukset</a></li>
                                 <li class="divider"></li>
                                 <li><a href="/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Kirjaudu ulos</a></li>
                             </ul>
@@ -92,20 +94,22 @@
         <!--      <div class="banner" align="right"><table style="width: 100%"><th style="text-align: left"><a href="/" style="text-decoration: none"><div class="tamplr-logo-small">tamplr</a></div></th><th style="text-align: right"><%= user.username %> <a href="/settings">Asetukset</a> <a href="/logout">Kirjaudu ulos</a>  </th></table></div>  -->
         <div class="container">
             <h1 class="tamplr-logo">tamplr</h1>
-            <h2 class="authored-blogs"> Tervetuloa! </h2>
-            <img src="<%= user.profile_picture %>" alt="Mountain View" width="304" height="228px">
-            <p>Uusimmat Tamplrin blogipostaukset.
+            <h2 class="authored-blogs"> Tervetuloa takaisin <%= user.name %>! </h2>
+            
+            <div class="col-md-6"><p>Uusimmat Tamplrin blogipostaukset.
 
             <ul>
                 <% for(var i=0; i < posts.length; ++i) {%>
                 <% var u = posts[i]; %>
-                <li>
-                    <a href="/api/post/<%= u.id %>">
-                        <%= u.title %></a> kirjoittanut <%= u.author %>, blogissa: <%= blogs[u.InBlogId-1].name %> (BlogId: <%= u.InBlogId %>).
+                <li style="padding: 3px">
+                    <a href="/blog/<%= u.InBlogId %>/<%= u.id %>">
+                        <%= u.title %></a>,  blogissa: <a href="/blog/<%= u.InBlogId %>"><%= blogs[u.InBlogId-1].name %></a>, kirjoittanut <%= u.author %> <img src="<%= users[u.AuthorId-1].profile_picture %>" alt="Mountain View" width="30px" style=" padding-right: 5px; vertical-align: bottom">
 
                 </li>
                 <% } %>
-            </ul>
+                </ul></div><div class="col-md-6">
+                <img src="<%= user.profile_picture %>" alt="Profile picture" width="80%"></div>
+            <div class="col-md-12">
             <% author_len = authored.length; %>
             <div style="heigth: 50px">
                 <h2 class="authored-blogs">Kirjoitat <%= author_len %> blogiin: </h2>
@@ -136,7 +140,7 @@
         </div>
         <div class="alert alert-success alert-dismissable message" role="alert" id="resCreateBlog"></div>
         <div class="alert alert-danger message" role="alert" id="errormessage"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">
-            </span></div>
+            </span></div></div>
 
     </body>
 </html>

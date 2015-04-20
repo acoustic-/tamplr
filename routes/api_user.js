@@ -270,7 +270,7 @@ router.put('/:username/likes/:id', requiredAuthentication, function(req, res, ne
 // remove like
 router.delete('/:username/likes/:id', requiredAuthentication,function(req, res, next) {
 
-    if (req.user.dataValues.id) {
+    if (req.user !== parseInt(req.user, 10)) {
         registered_user = req.user.dataValues.id;
     }
 
@@ -423,37 +423,35 @@ router.delete('/:username/follows/:id', requiredAuthentication, function(req, re
     });
 });
 
+// get all registered users
 router.get('/users/all', requiredAuthentication,function(req, res, next) {
     models.User.findAll().then(function(users) {
         return res.status(200).json(users);
     });
 });
-/*
-function isLoggedIn(req, res, next) {
 
-    // if user is authenticated in the session, carry on
-    if (req.isAuthenticated())
-        return next();
+// get user by id
+router.get('/byId/:id', function(req, res, next) {
 
-    // if they aren't redirect them to the home page
-    res.redirect('/');
-}
-*/
+    var id = req.params['id'];
+    var query = {where: {id: id}};
 
-/*function requiredAuthentication(req, res, next) {
-    //console.log("beginnin auth: ", req.user.id);
-    if (req.user) {
-        next();
-    } else {
-        passport.authenticate('basic', {session: false},
-            function(err, user, info) {
-                console.log("Autentikointi valmis? ");
-                if (!user) {
-                    res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
-                    return res.status(401).json({error: 'Unauthorized'});
-            })(req, res, next);
-    }
-};*/
+    console.log("Searching user by id: ", id);
+    models.User.findOne(query).then(function(user) {
+        if (user) {
+            return res.status(200).json(user);
+        }
+        else {
+
+            return res.status(404).json({error: 'UserNotFound'});
+        }
+    }, function (err) {
+        return res.status(500).json({error: 'ServerError'});
+    });
+
+});
+
+
 function requiredAuthentication(req, res, next) {
 
     if (req.user) {

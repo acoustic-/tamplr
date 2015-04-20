@@ -189,7 +189,7 @@ router.get('/:blogid/:postid', function(req, res, next){
                             });
 
                         } else {
-                            posts[i].getComments().then(function(comments) {   
+                            post.getComments().then(function(comments) {   
                                 // käyttäjä on kirjautunut sisään
                                 res.render('post_unloggedin', {
                                     post: posts[i],

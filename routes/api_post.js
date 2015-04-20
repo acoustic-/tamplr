@@ -116,6 +116,23 @@ router.post('/:id/comments', requiredAuthentication, function(req, res, next) {
         return res.status(500).json({error: 'ServerError'});
     });
 });
+
+// get all comments
+router.get('/:id/comments/all', function(req, res, next) {
+ 
+  var id = req.params['id'];
+  var query = {where: {id: id}};
+  models.BlogPost.findOne(query).then(function(post) {
+    if (post) {
+        post.getComments().then(function(comments) {
+            return res.status(200).send(comments);
+        });                        
+    }
+    else {
+      return res.status(404).json({error: 'BlogPostNotFound'});
+    }
+  });
+});
             
 
 function requiredAuthentication(req, res, next) {

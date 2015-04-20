@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title><%= name %></title>
 
         <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
@@ -134,7 +135,7 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%= user.username %> <span class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="/settings"><span class="glyphicon glyphicon-wrench" aria-hidden="true">Asetukset</a></li>
+                                <li><a href="/settings"><span class="glyphicon glyphicon-wrench" aria-hidden="true"> Asetukset</a></li>
                                 <li class="divider"></li>
                                 <li><a href="/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Kirjaudu ulos</a></li>
                             </ul>
@@ -151,7 +152,7 @@
 
                 <!-- Blog Post Content Column -->
 
-                <table width="100%"><tr><td><h1 class="tamplr-logo"><%= name %></h1></td>
+                <table width="100%"><tr><td><h1 class="tamplr-logo"><a href="/blog/<%= blogID %>"><%= name %></a></h1></td>
                     <td><button id="follow" class="btn btn-default" style="float: right;">Seuraa blogia</button></td></tr></table>
 
 
@@ -159,7 +160,7 @@
                 <!--style="background-color: #F8F8F8; padding: 5px; border-radius: 10px;">-->
                 <div class="well">
                     <% var p = posts[i]; %>
-                    <h1><%= p.title %></h1> <!-- linkki postaukseen -->
+                    <h1><a href="/blog/<%= blogID %>/<%= p.id %>"><%= p.title %></a></h1> <!-- linkki postaukseen -->
                     <!-- Author -->
                     <p class="lead">
                         kirjoittanut <%= p.author %><!-- linkki käyttäjään? -->

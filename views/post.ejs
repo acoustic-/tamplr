@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title><%= name %></title>
 
         <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
@@ -22,10 +23,35 @@
                     $("#commentDiv").toggle(500);
                 });
 
-                var textField = $('#commenttext').val();
+                // lataa kommentit ja esitä ne
+                $.ajax({
+                    url: '/api/post/<%= post.id %>/comments/all',
+                    type: 'GET',
+                    success: function(data)
+                    {
+                        $.each(data, function(index, value) {
+                            // lataa kommentoijan nimi
+                            var userUrl = '/api/user/byId/' + value.author;
+                            $.ajax({
+                                url: userUrl,
+                                type: 'GET',
+                                success: function(user) 
+                                {
+                                    // lisää latatut tiedot kommentti diviin
+                                    $("#commentsDiv").append('<img src="<%= user.profile_picture %>" alt="Mountain View" width="50px" height="50px" style="float: left; padding-right: 5px">' +value.text + '<br /><small>kirjoittanut ' 
+                                                             + user.username + '<hr>');
+                                }
+                            });
+
+                        });
+                    }
+                });
+
+
 
                 $('#postComment').click(function(){
                     console.log("klikattu", textField);
+                    var textField = $('#commenttext').val();
 
                     $.ajax({
                         url: '/api/post/<%= post.id %>/comments/',
@@ -35,11 +61,39 @@
                         data: JSON.stringify({text: textField }),
                         success: function(data)
                         {
-                            $("#followalert").html("Kommentti lähetetty!");
-                            $("#followalert").show().delay(5000).fadeOut();
+                            $("#successalert").html("Kommentti lähetetty!");
+                            $("#successalert").show().delay(5000).fadeOut();
+                            location.reload();
 
                         }
                     });
+                });
+
+                // lähetä tykkäys
+                $('#sendLike').click(function() {
+                    $.ajax({
+                        url: '/api/user/<%= user.username%>/likes/<%=post.id%>',
+                        type: 'PUT',
+                        success: function(data)
+                        {
+                            $("#successalert").html("Tykkäät nyt tästä postauksesta");
+                            $("#successalert").show().delay(5000).fadeOut();
+                            location.reload();
+                        }
+                    }) 
+                });
+
+                $('#cancelLike').click(function() {
+                    $.ajax({
+                        url: '/api/user/<%= user.username%>/likes/<%=post.id%>',
+                        type: 'DELETE',
+                        success: function(data)
+                        {
+                            $("#successalert").html("Et enää tykkää tästä postauksesta.");
+                            $("#successalert").show().delay(5000).fadeOut();
+                            location.reload();
+                        }
+                    }) 
                 });
             });
 
@@ -68,7 +122,7 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%= user.username %> <span class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="/settings"><span class="glyphicon glyphicon-wrench" aria-hidden="true">Asetukset</a></li>
+                                <li><a href="/settings"><span class="glyphicon glyphicon-wrench" aria-hidden="true"> Asetukset</a></li>
                                 <li class="divider"></li>
                                 <li><a href="/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Kirjaudu ulos</a></li>
                             </ul>
@@ -85,7 +139,8 @@
 
                 <!-- Blog Post Content Column -->
 
-                <h1 class="tamplr-logo"><%= name %></h1>
+                <h1 class="tamplr-logo"><a href="/blog/<%= post.InBlogId %>"><%= name %></a></h1>
+                <button class="btn btn-default" id="sendLike" style="float: right;" title="Tykkää postauksesta"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></button><button class="btn btn-default" id="cancelLike" style="float: right;" title="Poista tykkäys"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span></button>
 
 
 
@@ -95,7 +150,7 @@
                     <h1><%= post.title %></h1> <!-- linkki postaukseen -->
                     <!-- Author -->
                     <p class="lead">
-                        kirjoittanut <%= post.author %><!-- linkki käyttäjään? -->
+                        kirjoittanut <%= post.author %><img src="<%= user.profile_picture %>" alt="Profile picture" width="40px" style="float: left; padding-right: 5px"><!-- linkki käyttäjään? -->
                     </p>
                     <hr>
 
@@ -112,34 +167,35 @@
 
 
 
-
+                <div class="well" id="commentsDiv"></div>
 
                 <div><button id="newComment" class="btn btn-default" title="Uusi blogipostaus" style="float: left;"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Kirjoita uusi kommentti</button></div></ br>
-                
-                <div id="commentDiv" class="well">
-                    <h2>Luo uusi blogipostaus</h2>
-                    <form role="form" id="commentform">
-                        <div class="form-group">
-                            <div><label for="posttext">Kommenttisi:</label>
-                                <textarea class="form-control" rows="5" id="commenttext"></textarea></div><br />
-                            <div>
-                                <button id="postComment" onclick="this.disabled = true" class="btn btn-default" value="Lähetä kommentti">Lähetä kommentti</button>
-                            </div>
+
+            <div id="commentDiv" class="well">
+                <h2>Lähetä uusi kommentti</h2>
+                <form role="form" id="commentform">
+                    <div class="form-group">
+                        <div><label for="posttext">Kommenttisi:</label>
+                            <textarea class="form-control" rows="5" id="commenttext"></textarea></div><br />
+                        <div>
+                            <button id="postComment" onclick="this.disabled = true" class="btn btn-default" value="Lähetä kommentti">Lähetä kommentti</button>
                         </div>
-                    </form>
-                </div>
-            </div> <!-- row -->
-            <!-- Footer -->
-            <footer>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <p>Copyright &copy; Tamplr 2015</p>
                     </div>
+                </form>
+            </div>
+        </div> <!-- row -->
+        <!-- Footer -->
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; Tamplr 2015</p>
                 </div>
-                <!-- /.row -->
-            </footer>
+            </div>
+            <!-- /.row -->
+        </footer>
         </div><!-- container -->
 
-        <div class="alert alert-success alert-dismissable message" role="alert" id="commentalert"></div>
-    </body>
-</html>
+    <div class="alert alert-success alert-dismissable message" role="alert" id="successalert"></div>
+    <div class="alert alert-danger message" role="alert" id="errormessage"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">
+        </body>
+        </html>

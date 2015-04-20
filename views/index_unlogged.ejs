@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Tamplr</title>
+        
+        
         <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
         <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
@@ -49,27 +52,27 @@
                     <p>Uusimmat Tamplrin blogipostastaukset.
 
                     <ul>
-                        
+
                         <% for(var i = 0; i < posts.length; ++i) {%>
                         <% var u = posts[i]; %>
-                        <li>
-                            <a href="/api/post/<%= u.id %>">
-                                <%= u.title %></a> kirjoittanut <%= u.author %>, blogissa: <%= blogs[u.InBlogId-1].name %> (BlogId: <%= u.InBlogId %>).
+                        <li style="padding: 3px">
+                            <a href="/blog/<%= u.InBlogId %>/<%= u.id %>">
+                                <%= u.title %></a>,  blogissa: <a href="/blog/<%= u.InBlogId %>"><%= blogs[u.InBlogId-1].name %></a>, kirjoittanut <%= u.author %> <img src="<%= users[u.AuthorId-1].profile_picture %>" alt="Mountain View" width="30px" style=" padding-right: 5px; vertical-align: bottom">
 
                         </li>
                         <% } %>
                     </ul>
                 </div>
             </div>
-             <!-- Footer -->
-        <footer>
-            <div class="row">
-                <div class="col-lg-12">
-                    <p>Copyright &copy; Tamplr 2015</p>
+            <!-- Footer -->
+            <footer>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p>Copyright &copy; Tamplr 2015</p>
+                    </div>
                 </div>
-            </div>
-            <!-- /.row -->
-        </footer>
+                <!-- /.row -->
+            </footer>
         </div>
     </body>
 </html>
