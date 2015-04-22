@@ -57,6 +57,62 @@ $("#errormessage").show().delay(5000).fadeOut();
 });
 </script>
 -->
+        <script>
+            $(document).ready(function() {
+                // lataa blogin kirjoitukset
+                $.ajax({
+                    url: '/api/blog/<%=blogID%>/posts/all',
+                    type: 'GET',
+                    success: function (posts) {
+                        $.each(posts.reverse(), function(index, value) {
+                            var commentsUrl = '/api/post/' + posts[index].id + '/comments'
+                            $.ajax({
+                                url: commentsUrl,
+                                type: 'GET',
+                                success: function(comments) 
+                                {
+
+
+
+                                    var post = posts[index];
+                                    var i = index;
+                                    var authorUrl = '/api/user/' + post.author;
+                                    $.ajax({
+                                        url: authorUrl,
+                                        type: 'GET',
+                                        success: function(data) 
+                                        {   
+
+
+
+                                            $("#blogPost").append('<h1><a href="/blog/' + <%= blogID %>+'/'+ value.id + '">'+value.title+'</a></h1>'
+                                                                  + '<p class="lead"> ' + '<img src="'+ data.profile_picture
+                                                                  +'" alt="Profile picture" width="40px" '
+                                                                  +'style=" padding-right: 5px; vertical-align: bottom">'
+                                                                  +' kirjoittanut ' + post.author + '<hr>'
+                                                                  + '<p><span class="glyphicon glyphicon-time"></span> Kirjoitettu ' + value.createdAt 
+                                                                  + '</p><hr>' + '<p class="lead">' + value.text +'</p><hr>'
+                                                                  + '<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>' 
+                                                                  + value.likes 
+                                                                  + " "
+                                                                  + '<span class="glyphicon glyphicon-comment" aria-hidden="true"></span>' 
+                                                                  + comments.length + '<hr>'
+                                                                 );
+
+
+                                        }
+                                    });
+                                }
+                            });
+
+
+                        });
+                    }
+                });
+            });
+
+
+        </script>
     </head>
     <body>
 
@@ -88,28 +144,10 @@ $("#errormessage").show().delay(5000).fadeOut();
             <div class="row">
                 <!-- Blog Post Content Column -->
 
-                <h1 class="tamplr-logo"><a href="/blog/<%= post.InBlogId %>"><%= name %></a></h1>
+                <h1 class="tamplr-logo"><a href="/blog/<%= blogID %>"><%= name %></a></h1>
 
-                <% for (var i= posts.length -1; i >= 0; --i) { %>
-                <div class="well">
-                    <% var p = posts[i]; %>
-                    <h1><a href="/blog/<%= blogID %>/<%= p.id %>"><%= p.title %></a></h1> <!-- linkki postaukseen -->
-                    <!-- Author -->
-                    <p class="lead">
-                        kirjoittanut <%= p.author %><!-- linkki käyttäjään? -->
-                    </p>
-                    <hr>
+                <div class="well" id="blogPost"></div>
 
-                    <!-- Date/Time -->
-                    <p><span class="glyphicon glyphicon-time"></span> Kirjoitettu <%= p.created %></p>
-                    <hr>
-                    <p class="lead"><%= p.text %> <br /></p><hr>
-                    <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span><%= p.likes %>
-                    <span class="glyphicon glyphicon-comment" aria-hidden="true"></span><%= comments[i] %>
-
-                </div></p>
-            
-            <% } %>
         </div>
         <!-- Footer -->
         <footer>

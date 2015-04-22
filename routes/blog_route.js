@@ -19,7 +19,7 @@ router.get('/:id', function(req, res, next) {
             // models.User.findAll().then(function(users) {
             blog.getPosts().then(function(posts) {
                 var commentsArr = [];
-//------------ jos blogissa ei ole postauksia
+  //------------ jos blogissa ei ole postauksia
                 if (posts.length == 0) {
                     var now = new Date();
                     var jsonDate = now.toJSON();
@@ -27,12 +27,14 @@ router.get('/:id', function(req, res, next) {
                                    likes: 0, comments: 0, author: "admin", 
                                    created:jsonDate}];
                     commentsArr.push(0);
+                    
                     if(!req.user) {// if user isn't logged in
                         console.log("user isn't logged in -> render");
                         res.render('blog_unloggedin', {
                             posts: nposts,
                             name:  blog.get('name'),
-                            comments: commentsArr
+                            comments: commentsArr,
+                            blogID: blog.get('id')
                         });
                     } else {
                         models.User.findOne({where: {id: req.user}}).then(function(user) {
@@ -68,7 +70,7 @@ router.get('/:id', function(req, res, next) {
                         });
 
                     }
-//-------- jos blogissa on postauksia                    
+                    //-------- jos blogissa on postauksia                    
                 } else {
 
                     if(!req.user) {// if user isn't logged in
@@ -84,11 +86,12 @@ router.get('/:id', function(req, res, next) {
                             }) .then(function(commentsArr) {
                                 if( posts.length-1 == index) {
 
-                                    console.log("user isn't logged in -> render");
+                                    console.log("user isn't logged in -> render", blog.get('id'));
                                     res.render('blog_unloggedin', {
                                         posts: posts,
                                         name:  blog.get('name'),
-                                        comments: commentsArr
+                                        comments: commentsArr,
+                                        blogID: blog.get('id')
                                     });
                                 }
                             });
@@ -172,9 +175,10 @@ router.get('/:blogid/:postid', function(req, res, next){
                         if(!post) {
                             return res.status(404).json({error: "Post was not found"});
                         }
-                        
-                        console.log("post: ", post);
-                        if (req.user) {
+
+
+
+                        if (req.user) { // if user is logged in
                             models.User.findOne({where: {id: req.user}}).then(function(user){
                                 post.getComments().then(function(comments) {   
                                     // käyttäjä on kirjautunut sisään
@@ -188,11 +192,13 @@ router.get('/:blogid/:postid', function(req, res, next){
                                 });
                             });
 
-                        } else {
+                        } else { // user isn't logged in
                             post.getComments().then(function(comments) {   
                                 // käyttäjä on kirjautunut sisään
+                                console.log("post: ", post);
+
                                 res.render('post_unloggedin', {
-                                    post: posts[i],
+                                    post: post,
                                     name: blog.get('name'),
                                     blogID: blog.get('id'),
                                     comments: comments

@@ -552,6 +552,37 @@ router.get('/:id/followers', function(req, res, next) {
     });
 });
 
+
+// hae kaikki blogin postaukset
+// get blog's 10 blog writes
+router.get('/:id/posts/all', function(req, res, next) {
+
+
+    var id = req.params['id'];
+    var query = {where: {id: id}};
+    models.Blog.findOne(query).then(function(blog) {
+        if (blog)
+        {
+            blog.getPosts().then(function(posts) {
+ 
+                if (posts)
+                {
+                    return res.status(200).send(posts);
+                }
+                else
+                {
+                    return res.status(404).json({error: 'BlogPostNotFound'});
+                }
+            });
+        }
+        else
+        {
+            return res.status(404).json({error: 'BlogNotFound'});
+        }
+    });
+});
+
+
 function requiredAuthentication(req, res, next) {
 
 

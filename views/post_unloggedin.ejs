@@ -13,15 +13,8 @@
 
         <script>
 
-            // var update = new EJS({url: '/index.ejs'}).update('blogs');
-
             $(document).ready(function() {
                 $(".alert").hide();
-                $("#commentDiv").hide();
-
-                $("#newComment").click(function(){
-                    $("#commentDiv").toggle(500);
-                });
 
                 // lataa kommentit ja esitä ne
                 $.ajax({
@@ -47,55 +40,8 @@
                         });
                     }
                 });
-
-
-
-                $('#postComment').click(function(){
-                    console.log("klikattu", textField);
-                    var textField = $('#commenttext').val();
-
-                    $.ajax({
-                        url: '/api/post/<%= post.id %>/comments/',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        dataType: 'json',
-                        data: JSON.stringify({text: textField }),
-                        success: function(data)
-                        {
-                            $("#successalert").html("Kommentti lähetetty!");
-                            $("#successalert").show().delay(5000).fadeOut();
-                            location.reload();
-
-                        }
-                    });
-                });
-
-                // lähetä tykkäys
-                $('#sendLike').click(function() {
-                    $.ajax({
-                        url: '/api/user/<%= user.username%>/likes/<%=post.id%>',
-                        type: 'PUT',
-                        success: function(data)
-                        {
-                            $("#successalert").html("Tykkäät nyt tästä postauksesta");
-                            $("#successalert").show().delay(5000).fadeOut();
-                            location.reload();
-                        }
-                    }) 
-                });
-
-                $('#cancelLike').click(function() {
-                    $.ajax({
-                        url: '/api/user/<%= user.username%>/likes/<%=post.id%>',
-                        type: 'DELETE',
-                        success: function(data)
-                        {
-                            $("#successalert").html("Et enää tykkää tästä postauksesta.");
-                            $("#successalert").show().delay(5000).fadeOut();
-                            location.reload();
-                        }
-                    }) 
-                });
+                
+                
                 $.ajax({
                     url: '/api/user/<%= post.author %>',
                     type: 'GET',
@@ -132,14 +78,8 @@
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav navbar-right">
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%= user.username %> <span class="caret"></span></a>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="/settings"><span class="glyphicon glyphicon-wrench" aria-hidden="true"> Asetukset</a></li>
-                                <li class="divider"></li>
-                                <li><a href="/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Kirjaudu ulos</a></li>
-                            </ul>
-                        </li>
+                        <li><a href="/login">Kirjaudu sisään</a></li>
+                        <li><a href="/register">Luo uusi tili</a></li>
                     </ul>
 
                 </div><!-- /.navbar-collapse -->
@@ -153,8 +93,6 @@
                 <!-- Blog Post Content Column -->
 
                 <h1 class="tamplr-logo"><a href="/blog/<%= post.InBlogId %>"><%= name %></a></h1>
-                <button class="btn btn-default" id="sendLike" style="float: right;" title="Tykkää postauksesta"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></button><button class="btn btn-default" id="cancelLike" style="float: right;" title="Poista tykkäys"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span></button>
-
 
 
                 <!--style="background-color: #F8F8F8; padding: 5px; border-radius: 10px;">-->
@@ -162,7 +100,9 @@
 
                     <h1><%= post.title %></h1> <!-- linkki postaukseen -->
                     <!-- Author -->
-                    <p class="lead" id="authorInfo"></p>
+                    <p class="lead" id="authorInfo">
+                        <!-- linkki käyttäjään? -->
+                    </p>
                     <hr>
 
                     <!-- Date/Time -->
@@ -182,18 +122,7 @@
 
                 <div><button id="newComment" class="btn btn-default" title="Uusi blogipostaus" style="float: left;"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Kirjoita uusi kommentti</button></div></ br>
 
-            <div id="commentDiv" class="well">
-                <h2>Lähetä uusi kommentti</h2>
-                <form role="form" id="commentform">
-                    <div class="form-group">
-                        <div><label for="posttext">Kommenttisi:</label>
-                            <textarea class="form-control" rows="5" id="commenttext"></textarea></div><br />
-                        <div>
-                            <button id="postComment" onclick="this.disabled = true" class="btn btn-default" value="Lähetä kommentti">Lähetä kommentti</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+
         </div> <!-- row -->
         <!-- Footer -->
         <footer>

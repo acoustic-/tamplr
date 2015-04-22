@@ -40,7 +40,7 @@ router.post('/', function(req, res, next) {
                 name: name,
                 password: password,
                 defaultBlog: 0,
-                profile_picture: "profile_picture/default_pic.jpg" //default profile picture
+                profile_picture: "/profile_picture/default_pic.jpg" //default profile picture
             }).then(function(user) {
                 //add default blog to user
                 models.Blog.create({
