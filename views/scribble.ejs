@@ -1,58 +1,221 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tamplr - Luo uusi tili</title>
-    <div id="zwibbler" style="margin-left:auto;margin-right:auto;border:2px solid red;width:800px;height:600px;"></div>
-    <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script src="http://zwibbler.com/"></script>
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-     </head>    
-  <body>
-      <!-- navigointi palkki
-           <nav class="navbar navbar-default navbar-fixed-top">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-<nav class="navbar navbar-default navbar-fixed-top">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-      <a class="navbar-brand" href="/"><div class="tamplr-logo-small">tamplr</div></a>
-    </div>
+<html lang="en">
+<head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav navbar-right">
-          
-      </ul>
-        
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-    <script type="text/javascript">
-            var ctx = Zwibbler.create("zwibbler", {
-                showPropertyPanel: true,
-                showColourPanel: true,
-                debug: true
-            });
-            function addPhoto(ctx) {
-                // In this example, when the button is clicked we insert an image into
-                // the document. The image will not be resizable by the user.
-                ctx.createNode("ImageNode", {
-                //tahan sitten se image
-                url: "http://crazy-frankenstein.com/free-wallpapers-files/seasonal-wallpapers/beautiful-summer-wallpapers/paradise-beautiful-summer-wallpapers-1024x768.jpg",
-                lockSize: true
-            });
-            }
+    <title>Scribble</title>
+</head>
+<body>
+          <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/"><div class="tamplr-logo-small">tamplr</div></a>
+                </div>
 
-       addPhoto(ctx);
-    </script>   
-    
-    <!--HTML forms are used to collect user input.-->
+                <!-- Collect the nav links, forms, and other content for toggling -->
 
-    </div>
-  </body>
+            </div><!-- /.container-fluid -->
+        </nav>
+
+
+        <!--
+
+      -->
+              <script>
+              //https://fahadmustafa.wordpress.com/2011/06/20/scribble-app-with-html5/
+                    var doDraw = false;
+                    var mainCanvas, canvasContext;
+                    var xCoords = new Array();
+                    var yCoords = new Array();
+                    var colour = new Array();
+                    var isMouseDownEvent = new Array();
+                    var lineWidth = new Array();
+
+
+
+                    window.onload = function () {
+                    //Get canvas element
+                    mainCanvas = document.getElementById('mainCanvas');
+                    if (!mainCanvas) {
+                      alert('No canvas found !');
+                      return;
+                    }
+
+                    //Check for canvas support
+                    if (!mainCanvas.getContext) {
+                      alert('Sorry, your browser does not support the canvas element :(');
+                      return;
+                    }
+                    //Get canvas context
+                    canvasContext = mainCanvas.getContext('2d');
+
+
+                    var imageObj = new Image();
+                    imageObj.onload = function() {
+                    canvasContext.drawImage(imageObj, 0, 0,300,300);
+                    };
+                    imageObj.src = 'http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg';
+
+
+
+                    //Attach the event handlers
+                    mainCanvas.addEventListener('mousemove', mainCanvas_mouseMove, false);
+                    mainCanvas.addEventListener('mousedown', mainCanvas_mouseDown, false);
+                    mainCanvas.addEventListener('mouseup', mainCanvas_mouseUp, false);
+                    }
+                    /*
+                    function make_base()
+                    {
+
+                      alert("jou")
+                      base_image = new Image();
+                      base_image.src = "/profile_picture/default_pic.jpg";
+                      base_image.onload = function(){
+                      canvasContext.drawImage(base_image, 100, 100);
+                      }
+                    }
+                    */
+                    //Change the drawing colour
+                    function ddlColour_onChange() {
+
+                      var ddlColour = document.getElementById('ddlColour');
+                      canvasContext.strokeStyle = ddlColour.options[ddlColour.selectedIndex].value;
+                    }
+
+                    //Change the line width
+                    function ddlLineWidth_onChange() {
+
+                      var ddlLineWidth = document.getElementById('ddlLineWidth');
+                      canvasContext.lineWidth = ddlLineWidth.options[ddlLineWidth.selectedIndex].value;
+                    }
+
+                    //Start drawing when a mouse button is pressed
+                    function mainCanvas_mouseDown(args) {
+                      xCoords.push(args.layerX);
+                      yCoords.push(args.layerY);
+                      colour.push(canvasContext.strokeStyle);
+                      lineWidth.push(canvasContext.lineWidth);
+                      isMouseDownEvent.push(true);
+                      doDraw = true;
+                    }
+
+                    //The event handler that does the actual drawing
+                    function mainCanvas_mouseMove(args) {
+
+                      if (doDraw) {
+
+                      xCoords.push(args.layerX);
+                      yCoords.push(args.layerY);
+                      colour.push(canvasContext.strokeStyle);
+                      lineWidth.push(canvasContext.lineWidth);
+                      isMouseDownEvent.push(false);
+                      redraw();
+                      }
+                    }
+
+                    //Stop drawing when the mouse is released
+                    function mainCanvas_mouseUp(args) {
+                      doDraw = false;
+                    } 
+                    
+                    function save() {
+                      alert("tallennus")
+                     var canvas = document.getElementById("mainCanvas");
+                     var dataURL = canvas.toDataURL();
+
+                    }
+                
+                    //Do the actual drawing
+                    function redraw() {
+
+                    //Clear canvas ! jos ei kommentoituna kuva häviää samantien
+                    //mainCanvas.width = mainCanvas.width;
+
+                      for (i = 0; i < xCoords.length; i++) {
+
+                      canvasContext.beginPath();
+                      if (!i || isMouseDownEvent[i]) {
+                      canvasContext.moveTo(xCoords[i], yCoords[i]);
+                      }
+                      else {
+                      canvasContext.moveTo(xCoords[i - 1], yCoords[i - 1]);
+                      }
+
+                      canvasContext.lineTo(xCoords[i], yCoords[i]);
+
+                      canvasContext.closePath();
+
+                      //Stroke properties
+                      canvasContext.strokeStyle = colour[i];
+                      canvasContext.lineWidth = lineWidth[i];
+                      canvasContext.lineCap = 'round';
+                      canvasContext.lineJoin = 'round';
+                      canvasContext.stroke();
+                      }
+                    }
+             </script>
+
+    <table>
+        <tr>
+            <td>
+                Colour:
+            </td>
+            <td>
+                <select id="ddlColour" onchange="ddlColour_onChange();">
+                    <option value="#000000">Black</option>
+                    <option value="#FF0000">Red</option>
+                    <option value="#00FF00">Green</option>
+                    <option value="#0000FF">Blue</option>
+                </select>
+            </td>
+            <td>
+                Line Width:
+            </td>
+            <td>
+                <select id="ddlLineWidth" onchange="ddlLineWidth_onChange();">
+                    <option value="1">1</option>
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                </select>
+            </td>
+            <td>
+                <input id="btnClear" value="Clear" type="button" onclick="btnClear_onClick();" />
+            </td>
+            <td>
+                <input id="btnPicture" value="Picture" type="button" onclick="make_base();" />
+            </td>
+             <td>
+                <input id="btnPTallenna" value="Tallenna" type="button" onclick="save();" />
+            </td>
+
+
+        </tr>
+    </table>
+    <canvas id="mainCanvas" width="300" height="300" style="border: 1px solid #000;">
+    </canvas>
+
+            <img id="canvasImg" width="500" height="500" alt="Right click to save me!">
+            <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; Tamplr 2015</p>
+                </div>
+            </div>
+            <!-- /.row -->
+        </footer>
+</body>
 </html>
