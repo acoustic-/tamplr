@@ -1,63 +1,58 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-    <script src="http://zwibbler.com/zwibbler-demo.js"></script>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tamplr - Luo uusi tili</title>
     <div id="zwibbler" style="margin-left:auto;margin-right:auto;border:2px solid red;width:800px;height:600px;"></div>
-    <input type="button" onclick="onSave()" value="Save"/>
-    <input id="loadButton" type="button" onclick="onLoad()" disabled="disabled" value="Load"/>
-    <input type="button" onclick="onImage()" value="Open as image"/>
-    <input type="button" onclick="zwibbler.onResize()" value="Open as image"/>
-    <script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
-    <script src="zwibbler2.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="http://zwibbler.com/"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+     </head>    
+  <body>
+      <!-- navigointi palkki
+           <nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+      <a class="navbar-brand" href="/"><div class="tamplr-logo-small">tamplr</div></a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+          
+      </ul>
+        
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
     <script type="text/javascript">
+            var ctx = Zwibbler.create("zwibbler", {
+                showPropertyPanel: true,
+                showColourPanel: true,
+                debug: true
+            });
+            function addPhoto(ctx) {
+                // In this example, when the button is clicked we insert an image into
+                // the document. The image will not be resizable by the user.
+                ctx.createNode("ImageNode", {
+                //tahan sitten se image
+                url: "http://crazy-frankenstein.com/free-wallpapers-files/seasonal-wallpapers/beautiful-summer-wallpapers/paradise-beautiful-summer-wallpapers-1024x768.jpg",
+                lockSize: true
+            });
+            }
 
-        var zwibbler = Zwibbler.create("zwibbler", {
-            showPropertyPanel: true,
-            showColourPanel: true
-        });
-
-        var saved = null;
-        function onSave() {
-            saved = zwibbler.save("zwibbler3");
-            $("#loadButton").removeAttr("disabled");
-        }
-
-        function onLoad() {
-            zwibbler.load("zwibbler3", saved);
-        }
-
-        function onImage() {
-            var dataUrl = zwibbler.save("png");
-            window.open(dataUrl, "other");
-        }
-    </script>    
-    <script>
-        Zwibbler.addButton({
-    // The name of the button, for debugging purposes.
-    name: "kitty",
-
-    // The image to show on the toolbar. This should be 50 pixels in width.
-    // The URL will be used as-is, and the imageFolder configuration setting
-    // will not be used for this image.
-    //nappulan kuva!
-    image: "http://crazy-frankenstein.com/free-wallpapers-files/seasonal-wallpapers/beautiful-summer-wallpapers/paradise-beautiful-summer-wallpapers-1024x768.jpg",
-
-    // The function to be called when the button is clicked. The parameter is
-    // the ZwibblerContext that will allow you to manipulate the drawing.
-    onclick: function(ctx) {
-        // In this example, when the button is clicked we insert an image into
-        // the document. The image will not be resizable by the user.
-        ctx.createNode("ImageNode", {
-        	//tahan sitten se image
-            url: "http://crazy-frankenstein.com/free-wallpapers-files/seasonal-wallpapers/beautiful-summer-wallpapers/paradise-beautiful-summer-wallpapers-1024x768.jpg",
-            lockSize: true
-        });
-    }
-});
-
-
-
-
-       var ctx = Zwibbler.create("zwibbler", {});
+       addPhoto(ctx);
     </script>   
-</body>
+    
+    <!--HTML forms are used to collect user input.-->
+
+    </div>
+  </body>
 </html>
