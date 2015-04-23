@@ -49,7 +49,7 @@ router.post('/', function(req, res, next) {
                     blog.addAuthor(user.get('id')).then(function(blog) {
 
 
-                        console.log("User was added as author to default blog", user.id, blog.BlogId); 
+                        console.log("User was added as author to default blog", user.id, blog.BlogId);
                         user.updateAttributes({defaultBlog: blog.BlogId}).then(function(user_) {console.log("default blog changed")});
                         console.log("updated user: ", user);
                         models.User.findOne(query).then(function(user_){return res.status(201).json(user);});
@@ -96,6 +96,31 @@ router.get('/:username', function(req, res, next) {
     });
     // router.put
 });
+
+
+// vaihtaa kuvakkeen
+router.put('/change_pic', requiredAuthentication, function(req, res, next) {
+    var img = req.body.image;
+    console.log("lalalalaa: ");
+    console.log(registered_user);
+    var query = {where: {id: registered_user}};
+
+    models.User.findOne(query).then(function(user)
+    {
+        if(!user) { // user doesn't exist
+            return res.status(404).json({error:'UserNotFound'});
+        }
+        user.updateAttributes({profile_picture: img}).then(function(user_) {console.log("picture changed")});
+
+    });
+    return res.status(200).json({success: 'jebu'});;
+});
+
+
+
+
+
+
 
 //patch user's information
 router.put('/:username', requiredAuthentication, function(req, res, next) {
@@ -155,11 +180,11 @@ router.put('/:username', requiredAuthentication, function(req, res, next) {
             models.User.findOne(query).then(function(user_){res.status(200).json(user_.toJSON())});
         } else {
             res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
-            return res.status(403).json({error: 'InvalidAccessrights'}); 
+            return res.status(403).json({error: 'InvalidAccessrights'});
         }
     }, function(err) {
         console.log("MORHHE");
-        return res.status(500).json({error: 'ServerError'});   
+        return res.status(500).json({error: 'ServerError'});
     });
 
 });
@@ -218,17 +243,17 @@ router.put('/:username/likes/:id', requiredAuthentication, function(req, res, ne
         }
 
 
-        var query = {where: {id: blogpostid}}; 
-        models.BlogPost.findOne(query).then(function(blogpost) { 
+        var query = {where: {id: blogpostid}};
+        models.BlogPost.findOne(query).then(function(blogpost) {
             if (!blogpost)
             {
                 return res.status(404).json({error:'BlogPostNotFound'});
-            }        
-            blogpost.addLikers(user).then(function(){ 
+            }
+            blogpost.addLikers(user).then(function(){
                 console.log("User "+user.get('id')+" liked blogpost "+ blogpost.id);
                 console.log("Number of likes "+blogpost.get('likes'));
                 /*
-                numOfLikers = blogpost.getLikers().then(function(likers){ 
+                numOfLikers = blogpost.getLikers().then(function(likers){
                     console.log( "LIKE "+likers.length )
                 });
 
@@ -238,7 +263,7 @@ router.put('/:username/likes/:id', requiredAuthentication, function(req, res, ne
                 }).then(function() {});
                 return res.status(200).json({Success: 'LikeAdded'});*/
 
-                numOfLikers = blogpost.getLikers().then(function(likers){ 
+                numOfLikers = blogpost.getLikers().then(function(likers){
                     console.log( "LIKE "+likers.length )
                     blogpost.updateAttributes({
                         likes: likers.length
@@ -247,7 +272,7 @@ router.put('/:username/likes/:id', requiredAuthentication, function(req, res, ne
                 });
             }, function(err) {
                 return res.status(500).json({error: 'ServerError'});
-            });     
+            });
         }, function(err)
                                             {
             return res.status(500).json({error: 'ServerError'});
@@ -255,16 +280,16 @@ router.put('/:username/likes/:id', requiredAuthentication, function(req, res, ne
 
 
     }, function(err) {
-        return res.status(500).json({error: 'ServerError'});   
+        return res.status(500).json({error: 'ServerError'});
     });
 
 });
 /*
-                blogpost.getLikers().then(function(likers){ 
+                blogpost.getLikers().then(function(likers){
                     blogpost.updateAttributes({
                     likes: likers.length+1
                     }).then(function() {return res.status(200).json("Liker added");
-                }); 
+                });
 */
 
 // remove like
@@ -294,24 +319,24 @@ router.delete('/:username/likes/:id', requiredAuthentication,function(req, res, 
             return res.status(403).json({error: 'InvalidAccessrights'});
         }
 
-        var query = {where: {id: blogpostid}}; 
-        models.BlogPost.findOne(query).then(function(blogpost) { 
+        var query = {where: {id: blogpostid}};
+        models.BlogPost.findOne(query).then(function(blogpost) {
             if (!blogpost)
             {
                 return res.status(404).json({error:'BlogNotFound'});
             }
             /*
-            blogpost.getLikers().then(function(likers){ 
+            blogpost.getLikers().then(function(likers){
                     console.log( "LIKE 1 "+likers.length )
                 });
             */
-            blogpost.removeLikers([user]).then(function(){ 
+            blogpost.removeLikers([user]).then(function(){
                 /*
-                blogpost.getLikers().then(function(likers){ 
+                blogpost.getLikers().then(function(likers){
                     console.log( "LIKE 2 "+likers.length )
                 });
                 */
-                blogpost.getLikers().then(function(likers){ 
+                blogpost.getLikers().then(function(likers){
                     console.log( "LIKE 2 "+likers.length )
                     console.log("User "+user.get('id')+" does not like anymore of blogpost "+ blogpost.id);
                     blogpost.updateAttributes({
@@ -321,7 +346,7 @@ router.delete('/:username/likes/:id', requiredAuthentication,function(req, res, 
                 });
             }, function(err) {
                 return res.status(500).json({error: 'ServerError1'});
-            });     
+            });
         }, function(err)
                                             {
             return res.status(500).json({error: 'ServerError2'});
@@ -329,7 +354,7 @@ router.delete('/:username/likes/:id', requiredAuthentication,function(req, res, 
 
 
     }, function(err) {
-        return res.status(500).json({error: 'ServerError3'});   
+        return res.status(500).json({error: 'ServerError3'});
     });
 
 });
@@ -365,7 +390,7 @@ router.put('/:username/follows/:id', requiredAuthentication, function(req, res, 
             // seuraaminen voidaan lisätä tässä
             blog.addFollower(user.get('id'));
             return res.status(200).json({Success: 'FollowerAdded'});
-        }); 
+        });
 
     });
 });
@@ -418,7 +443,7 @@ router.delete('/:username/follows/:id', requiredAuthentication, function(req, re
             // seuraaminen voidaan lopettaa tässä
             blog.removeFollower(user.get('id'));
             return res.status(200).json({Success: 'FollowerRemoved'});
-        }); 
+        });
 
     });
 });
@@ -458,7 +483,7 @@ function requiredAuthentication(req, res, next) {
         registered_user = req.user;
         next();
     } else {
-        basicAuth(req, res, next);                                           
+        basicAuth(req, res, next);
     }
 }
 

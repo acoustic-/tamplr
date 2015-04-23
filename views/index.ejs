@@ -7,7 +7,7 @@
         <!--<% var author_len = authored.length; %>  -->
         <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
         <link rel='stylesheet' href='/stylesheets/style.css' />
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
@@ -76,7 +76,7 @@
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse" id="navbar">
-          
+
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%= user.username %> <span class="caret"></span></a>
@@ -134,13 +134,16 @@
                 </ul></div>
 
             <h2>Luo uusi blogi:</h2>
-            <div id="divCreateBlog"><form action="/api/blog/" method="post" id="createBlog">Uuden blogin nimi: 
+            <div id="divCreateBlog"><form action="/api/blog/" method="post" id="createBlog">Uuden blogin nimi:
                 <input id="blogname" type="text" name="name" class="form-control" placeholder="Kallen kissablogi..">
                 <input type="submit" class="btn btn-default" value="Luo uusi blogi"></form></div><br />
         </div>
         <div class="alert alert-success alert-dismissable message" role="alert" id="resCreateBlog"></div>
         <div class="alert alert-danger message" role="alert" id="errormessage"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">
             </span></div></div>
+            <form action="/scribble" method="get" id="tohri">
+                  <input type="submit" class="btn btn-default" value="Töhri"><br><br>
+              </form>
 
     </body>
 </html>

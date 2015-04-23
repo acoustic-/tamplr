@@ -4,7 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
         <link rel='stylesheet' href='/stylesheets/style.css' />
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
@@ -46,6 +46,8 @@
 
 
 
+
+
                     window.onload = function () {
                     //Get canvas element
                     mainCanvas = document.getElementById('mainCanvas');
@@ -62,12 +64,15 @@
                     //Get canvas context
                     canvasContext = mainCanvas.getContext('2d');
 
-
+                    // set own image to the canvas location
                     var imageObj = new Image();
+                    imageObj.src = 'profile_picture/default_pic.jpg';
+
                     imageObj.onload = function() {
                     canvasContext.drawImage(imageObj, 0, 0,300,300);
+                    canvasContext.restore();
                     };
-                    imageObj.src = 'http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg';
+
 
 
 
@@ -76,18 +81,7 @@
                     mainCanvas.addEventListener('mousedown', mainCanvas_mouseDown, false);
                     mainCanvas.addEventListener('mouseup', mainCanvas_mouseUp, false);
                     }
-                    /*
-                    function make_base()
-                    {
 
-                      alert("jou")
-                      base_image = new Image();
-                      base_image.src = "/profile_picture/default_pic.jpg";
-                      base_image.onload = function(){
-                      canvasContext.drawImage(base_image, 100, 100);
-                      }
-                    }
-                    */
                     //Change the drawing colour
                     function ddlColour_onChange() {
 
@@ -129,15 +123,57 @@
                     //Stop drawing when the mouse is released
                     function mainCanvas_mouseUp(args) {
                       doDraw = false;
-                    } 
-                    
-                    function save() {
-                      alert("tallennus")
-                     var canvas = document.getElementById("mainCanvas");
-                     var dataURL = canvas.toDataURL();
-
                     }
-                
+
+
+                    //send the canvas
+                    $(document).ready(function() {
+
+                      $(".alert").hide();
+
+                      $('#ajaxCreataUser').on('submit', function(e){
+                          //alert("taalla");
+                        //prevent normal submit
+                        e.preventDefault();
+                        e.returnValue = false;
+
+                        //canvas data
+                        var dataURL = document.getElementById('mainCanvas').toDataURL("image/jpeg");
+                        //var imgObj = new Image();
+                        //imgObj.src = dataURL;
+
+                        //show image
+                        //window.open(dataURL, "Canvas Image");
+
+                        //document.getElementById('graphics').appendChild(imgObj);
+                        console.log(dataURL);
+
+                        $.ajax({
+                            url: 'http://localhost:3000/api/user/change_pic',
+                            type: 'PUT',
+                            contentType: 'application/json',
+                            dataType: 'json',
+                            data: JSON.stringify({image: dataURL}),
+
+                            success: function(data)
+                            {
+                                console.log("data: ", data);
+                                // res
+                                 $("#resCreateUser").html("Onnistui!");
+                                 location.href = "/";
+
+                            },
+                            error: function(data)
+                            {
+                                console.log("error data: ", data);
+                                $("#errormessage").append('Ei onnistunut');
+                                //err
+                            }
+                        });
+                      });
+
+                    });
+
                     //Do the actual drawing
                     function redraw() {
 
@@ -198,17 +234,14 @@
             <td>
                 <input id="btnPicture" value="Picture" type="button" onclick="make_base();" />
             </td>
-             <td>
-                <input id="btnPTallenna" value="Tallenna" type="button" onclick="save();" />
-            </td>
+            <form name="ajaxCreataUser" id="ajaxCreataUser" action="http://localhost:3000/api/user" method="post">
+                <input type="submit" class="btn btn-default" value="Tallenna"><br><br>
+            </form>
 
 
         </tr>
     </table>
-    <canvas id="mainCanvas" width="300" height="300" style="border: 1px solid #000;">
-    </canvas>
-
-            <img id="canvasImg" width="500" height="500" alt="Right click to save me!">
+      <canvas id="mainCanvas" width="300" height="300" style="border: 1px solid #000;"></canvas>
             <footer>
             <div class="row">
                 <div class="col-lg-12">
