@@ -96,7 +96,7 @@ router.post('/scribble', function(req, res) {
     console.log("MOSMOSD");
     var authorName = req.body.authorname; //töhrittävä
     var authorPic = req.body.author_profile_pic
-    var userID = req.user;
+    var userID = req.user; //töhrijä
     console.log("tohrittava "+authorName);
     console.log("tohrijaID "+userID);
 

@@ -98,12 +98,12 @@ router.get('/:username', function(req, res, next) {
 });
 
 
-// vaihtaa kuvakkeen
+// vaihtaa käyttäjän kuvakkeen
 router.put('/change_pic', requiredAuthentication, function(req, res, next) {
-    var img = req.body.image;
-    console.log(registered_user);
-    var query = {where: {id: registered_user}};
 
+    var img = req.body.image;
+    console.log("Tohritaan "+req.body.userID);
+    var query = {where: {username: req.body.userID}};
     models.User.findOne(query).then(function(user)
     {
         if(!user) { // user doesn't exist
