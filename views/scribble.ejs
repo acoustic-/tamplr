@@ -66,7 +66,7 @@
 
                     // set own image to the canvas location
                     var imageObj = new Image();
-                    imageObj.src = 'profile_picture/default_pic.jpg';
+                    imageObj.src = '<%=author_pic%>';
 
                     imageObj.onload = function() {
                     canvasContext.drawImage(imageObj, 0, 0,300,300);

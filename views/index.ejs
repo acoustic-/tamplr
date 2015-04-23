@@ -23,7 +23,6 @@
                     //prevent normal submit
                     e.preventDefault();
                     e.returnValue = false;
-
                     //Read form
                     var nameField = $("#blogname").val();
 
@@ -55,9 +54,49 @@
                         }
                     });
                 });
+              });
+                </script>
 
-            });
-        </script>
+                <!--
+                $('#divScribble').on('submit', function(e){
+                    console.log("submit action");
+                    //prevent normal submit
+                    e.preventDefault();
+                    e.returnValue = false;
+
+                    var authorName = $("#author").val();
+
+                    $.ajax({
+                        url: '/scribble',
+                        type: 'post',
+                        contentType: 'application/json',
+                        //dataType: 'json',
+                        //data: JSON.stringify({author: authorName}),
+
+                        success: function(data)
+                        {
+                            console.log("data: ", data);
+                            //author_len+1;
+                            // res
+                            //var html = new EJS({url: 'authored_blogs.ejs'}).render(authored);
+                            $("#resCreateBlog").html("Blogin lisääminen onnistui!");
+                            //location.reload();
+
+                        },
+                        error: function(data)
+                        {
+                            console.log("error data: ", data);
+                            $("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Tarkista, että kirjoitit oikean bloginimen.');
+                            $("#errormessage").show().delay(5000).fadeOut();
+                            //err
+                        }
+                    });
+                });
+
+
+
+          -->
+
 
     </head>
     <body>
@@ -104,7 +143,13 @@
                 <li style="padding: 3px">
                     <a href="/blog/<%= u.InBlogId %>/<%= u.id %>">
                         <%= u.title %></a>,  blogissa: <a href="/blog/<%= u.InBlogId %>"><%= blogs[u.InBlogId-1].name %></a>, kirjoittanut <%= u.author %> <img src="<%= users[u.AuthorId-1].profile_picture %>" alt="Mountain View" width="30px" style=" padding-right: 5px; vertical-align: bottom">
-
+                        <div id="divScribble">
+                          <form action="/scribble" method="post" id="tohri">
+                                <input type="submit" class="btn btn-default" value="Töhri">
+                                <input id="author" type="hidden" name="authorname" value=<%=u.author%>>
+                                <input type="hidden" name="author_profile_pic" value=<%=users[u.AuthorId-1].profile_picture%>>
+                          </form>
+                      </div>
                 </li>
                 <% } %>
                 </ul></div><div class="col-md-6">
@@ -143,7 +188,7 @@
             </span></div></div>
             <form action="/scribble" method="get" id="tohri">
                   <input type="submit" class="btn btn-default" value="Töhri"><br><br>
-              </form>
+            </form>
 
     </body>
 </html>

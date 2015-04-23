@@ -101,7 +101,6 @@ router.get('/:username', function(req, res, next) {
 // vaihtaa kuvakkeen
 router.put('/change_pic', requiredAuthentication, function(req, res, next) {
     var img = req.body.image;
-    console.log("lalalalaa: ");
     console.log(registered_user);
     var query = {where: {id: registered_user}};
 

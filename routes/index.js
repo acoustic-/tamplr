@@ -89,16 +89,28 @@ router.get('/', function(req, res, next) {
 
 
 // töherrä
-router.get('/scribble', function(req, res) { 
+router.post('/scribble', function(req, res) {
 
-    res.render('scribble.ejs');
 
+    //mitä jos yrittää maalaa omaa kuvaa
+    console.log("MOSMOSD");
+    var authorName = req.body.authorname; //töhrittävä
+    var authorPic = req.body.author_profile_pic
+    var userID = req.user;
+    console.log("tohrittava "+authorName);
+    console.log("tohrijaID "+userID);
+
+    res.render('scribble.ejs', {
+        author: authorName,
+        user: userID,
+        author_pic: authorPic
+    });
 });
 
 
 
 // Luo tili -painike
-router.get('/register', function(req, res) { 
+router.get('/register', function(req, res) {
 
     res.render('register.ejs');
 
@@ -106,14 +118,13 @@ router.get('/register', function(req, res) {
 
 router.get('/settings', function(req, res) {
 
-    //if(req.user) {
     models.User.findOne({where: {id: req.user }}).then(function(user) {
 
         //console.log(user.get('username')+" moro");
         res.render('settings.ejs', {
             user: user
-        }); 
-    });    
+        });
+    });
 
 });
 
