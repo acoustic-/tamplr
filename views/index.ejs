@@ -54,48 +54,48 @@
                         }
                     });
                 });
-              });
-                </script>
+            });
+        </script>
 
-                <!--
-                $('#divScribble').on('submit', function(e){
-                    console.log("submit action");
-                    //prevent normal submit
-                    e.preventDefault();
-                    e.returnValue = false;
+        <!--
+$('#divScribble').on('submit', function(e){
+console.log("submit action");
+//prevent normal submit
+e.preventDefault();
+e.returnValue = false;
 
-                    var authorName = $("#author").val();
+var authorName = $("#author").val();
 
-                    $.ajax({
-                        url: '/scribble',
-                        type: 'post',
-                        contentType: 'application/json',
-                        //dataType: 'json',
-                        //data: JSON.stringify({author: authorName}),
+$.ajax({
+url: '/scribble',
+type: 'post',
+contentType: 'application/json',
+//dataType: 'json',
+//data: JSON.stringify({author: authorName}),
 
-                        success: function(data)
-                        {
-                            console.log("data: ", data);
-                            //author_len+1;
-                            // res
-                            //var html = new EJS({url: 'authored_blogs.ejs'}).render(authored);
-                            $("#resCreateBlog").html("Blogin lisääminen onnistui!");
-                            //location.reload();
+success: function(data)
+{
+console.log("data: ", data);
+//author_len+1;
+// res
+//var html = new EJS({url: 'authored_blogs.ejs'}).render(authored);
+$("#resCreateBlog").html("Blogin lisääminen onnistui!");
+//location.reload();
 
-                        },
-                        error: function(data)
-                        {
-                            console.log("error data: ", data);
-                            $("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Tarkista, että kirjoitit oikean bloginimen.');
-                            $("#errormessage").show().delay(5000).fadeOut();
-                            //err
-                        }
-                    });
-                });
+},
+error: function(data)
+{
+console.log("error data: ", data);
+$("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Tarkista, että kirjoitit oikean bloginimen.');
+$("#errormessage").show().delay(5000).fadeOut();
+//err
+}
+});
+});
 
 
 
-          -->
+-->
 
 
     </head>
@@ -134,61 +134,64 @@
         <div class="container">
             <h1 class="tamplr-logo">tamplr</h1>
             <h2 class="authored-blogs"> Tervetuloa takaisin <%= user.name %>! </h2>
+            <div class="col-md-6">
+                <img src="<%= user.profile_picture %>" alt="Profile picture" width="80%"></div>
 
             <div class="col-md-6"><p><h2>Uusimmat Tamplrin blogipostaukset:</h2>
 
-            <ul>
-                <% for(var i=0; i < posts.length; ++i) {%>
-                <% var u = posts[i]; %>
-                <li style="padding: 3px">
-                    <a href="/blog/<%= u.InBlogId %>/<%= u.id %>">
-                        <%= u.title %></a>,  blogissa: <a href="/blog/<%= u.InBlogId %>"><%= blogs[u.InBlogId-1].name %></a>, kirjoittanut <%= u.author %> <img src="<%= users[u.AuthorId-1].profile_picture %>" alt="Mountain View" width="30px" style=" padding-right: 5px; vertical-align: bottom">
+                <ul>
+                    <% for(var i=0; i < posts.length; ++i) {%>
+                    <% var u = posts[i]; %>
+                    <li style="padding: 3px">
+                        <a href="/blog/<%= u.InBlogId %>/<%= u.id %>">
+                            <%= u.title %></a>,  blogissa: <a href="/blog/<%= u.InBlogId %>"><%= blogs[u.InBlogId-1].name %></a>, kirjoittanut <%= u.author %> <img src="<%= users[u.AuthorId-1].profile_picture %>" alt="Mountain View" width="30px" style=" padding-right: 5px; vertical-align: bottom">
                         <div id="divScribble">
-                          <form action="/scribble" method="post" id="tohri">
+                            <form action="/scribble" method="post" id="tohri">
                                 <input type="submit" class="btn btn-default" value="Töhri">
                                 <input id="author" type="hidden" name="authorname" value=<%=u.author%>>
                                 <input type="hidden" name="author_profile_pic" value=<%=users[u.AuthorId-1].profile_picture%>>
-                          </form>
-                      </div>
-                </li>
-                <% } %>
-                </ul></div><div class="col-md-6">
-                <img src="<%= user.profile_picture %>" alt="Profile picture" width="80%"></div>
+                            </form>
+                        </div>
+                    </li>
+                    <% } %>
+                </ul></div>
             <div class="col-md-12">
-            <% author_len = authored.length; %>
-            <div style="heigth: 50px">
-                <h2 class="authored-blogs">Kirjoitat <%= author_len %> blogiin: </h2>
+                <% author_len = authored.length; %>
+                <div style="heigth: 50px">
+                    <h2 class="authored-blogs">Kirjoitat <%= author_len %> blogiin: </h2>
 
-                <ul id="authored" class="columnify">
-                    <% for(var i=0; i<authored.length; i++) {%>
-                    <% var b = authored[i].dataValues; %>
-                    <li>
-                        <a href="/blog/<%= b.id %>"><%= b.name %></a>
-                    </li>
-                    <% } %>
-                </ul></div>
-            <div style="heigth: 50px">
-                <h2 class="followed-blogs"> Seuraat <%= follows.length %> blogia: </h2>
-                <ul>
-                    <% for (var i=0; i <follows.length; i++) {%>
-                    <% var f = follows[i].dataValues; %>
-                    <li>
-                        <a href="/api/blog/<% f.id %>"><%= f.name %></a>
-                    </li>
-                    <% } %>
-                </ul></div>
+                    <ul id="authored" class="columnify">
+                        <% for(var i=0; i<authored.length; i++) {%>
+                        <% var b = authored[i].dataValues; %>
+                        <li>
+                            <a href="/blog/<%= b.id %>"><%= b.name %></a>
+                        </li>
+                        <% } %>
+                    </ul></div>
+                <div style="heigth: 50px">
+                    <h2 class="followed-blogs"> Seuraat <%= follows.length %> blogia: </h2>
+                    <ul>
+                        <% for (var i=0; i <follows.length; i++) {%>
+                        <% var f = follows[i].dataValues; %>
+                        <li>
+                            <a href="/api/blog/<% f.id %>"><%= f.name %></a>
+                        </li>
+                        <% } %>
+                    </ul></div>
 
-            <h2>Luo uusi blogi:</h2>
-            <div id="divCreateBlog"><form action="/api/blog/" method="post" id="createBlog">Uuden blogin nimi:
-                <input id="blogname" type="text" name="name" class="form-control" placeholder="Kallen kissablogi..">
-                <input type="submit" class="btn btn-default" value="Luo uusi blogi"></form></div><br />
+                <h2>Luo uusi blogi:</h2>
+                <div id="divCreateBlog"><form action="/api/blog/" method="post" id="createBlog">Uuden blogin nimi:
+                    <input id="blogname" type="text" name="name" class="form-control" placeholder="Kallen kissablogi..">
+                    <input type="submit" class="btn btn-default" value="Luo uusi blogi"></form></div><br />
+            </div>
+            <div class="alert alert-success alert-dismissable message" role="alert" id="resCreateBlog"></div>
+            <div class="alert alert-danger message" role="alert" id="errormessage">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">
+                </span></div>
         </div>
-        <div class="alert alert-success alert-dismissable message" role="alert" id="resCreateBlog"></div>
-        <div class="alert alert-danger message" role="alert" id="errormessage"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">
-            </span></div></div>
-            <form action="/scribble" method="get" id="tohri">
-                  <input type="submit" class="btn btn-default" value="Töhri"><br><br>
-            </form>
+        <form action="/scribble" method="get" id="tohri">
+            <input type="submit" class="btn btn-default" value="Töhri"><br><br>
+        </form>
 
     </body>
 </html>
