@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tamplr</title>
         <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
         <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
@@ -80,6 +81,10 @@
                     mainCanvas.addEventListener('mousemove', mainCanvas_mouseMove, false);
                     mainCanvas.addEventListener('mousedown', mainCanvas_mouseDown, false);
                     mainCanvas.addEventListener('mouseup', mainCanvas_mouseUp, false);
+
+                    mainCanvas.addEventListener('touchstart', mainCanvas_fingerDown, false);
+                    mainCanvas.addEventListener('touchmove', mainCanvas_fingerMove, false);
+                    mainCanvas.addEventListener('touchend', mainCanvas_mouseUp, false);
                     }
 
                     //Change the drawing colour
@@ -97,9 +102,27 @@
                     }
 
                     //Start drawing when a mouse button is pressed
+                    function mainCanvas_fingerDown(args) {
+
+                      /*if ( args.type == 'touchstart' )
+                      {
+                        alert("mor");
+                      }
+                      */
+                      //using first touch, multi-touch would be 1 2 .. index
+                      xCoords.push(args.touches[0].pageX-mainCanvas.offsetLeft);
+                      yCoords.push(args.touches[0].pageY-mainCanvas.offsetTop);
+                      colour.push(canvasContext.strokeStyle);
+                      lineWidth.push(canvasContext.lineWidth);
+                      isMouseDownEvent.push(true);
+                      doDraw = true;
+                    }
+
+                    //Start drawing when a mouse button is pressed
                     function mainCanvas_mouseDown(args) {
-                      xCoords.push(args.layerX);
-                      yCoords.push(args.layerY);
+
+                      xCoords.push(args.clientX-mainCanvas.offsetLeft);
+                      yCoords.push(args.clientY-mainCanvas.offsetTop);
                       colour.push(canvasContext.strokeStyle);
                       lineWidth.push(canvasContext.lineWidth);
                       isMouseDownEvent.push(true);
@@ -107,18 +130,39 @@
                     }
 
                     //The event handler that does the actual drawing
-                    function mainCanvas_mouseMove(args) {
+                    function mainCanvas_fingerMove(args) {
 
                       if (doDraw) {
-
-                      xCoords.push(args.layerX);
-                      yCoords.push(args.layerY);
+                      args.preventDefault();
+                      xCoords.push(args.touches[0].pageX-mainCanvas.offsetLeft);
+                      yCoords.push(args.touches[0].pageY-mainCanvas.offsetTop);
                       colour.push(canvasContext.strokeStyle);
                       lineWidth.push(canvasContext.lineWidth);
                       isMouseDownEvent.push(false);
                       redraw();
                       }
                     }
+
+                    //The event handler that does the actual drawing
+                    function mainCanvas_mouseMove(args) {
+                      if (doDraw) {
+                      args.preventDefault();
+                      xCoords.push(args.clientX-mainCanvas.offsetLeft);
+                      yCoords.push(args.clientY-mainCanvas.offsetTop);
+                      colour.push(canvasContext.strokeStyle);
+                      lineWidth.push(canvasContext.lineWidth);
+                      isMouseDownEvent.push(false);
+                      redraw();
+                      }
+                    }
+
+
+
+
+
+
+
+
 
                     //Stop drawing when the mouse is released
                     function mainCanvas_mouseUp(args) {
@@ -179,7 +223,7 @@
 
                     //Clear canvas ! jos ei kommentoituna kuva häviää samantien
                     //mainCanvas.width = mainCanvas.width;
-
+                    //alert("moro");
                       for (i = 0; i < xCoords.length; i++) {
 
                       canvasContext.beginPath();
@@ -230,9 +274,6 @@
             </td>
             <td>
                 <input id="btnClear" value="Clear" type="button" onclick="btnClear_onClick();" />
-            </td>
-            <td>
-                <input id="btnPicture" value="Picture" type="button" onclick="make_base();" />
             </td>
             <form name="ajaxCreataUser" id="ajaxCreataUser" action="http://localhost:3000/api/user" method="post">
                 <input type="submit" class="btn btn-default" value="Tallenna"><br><br>
