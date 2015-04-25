@@ -122,7 +122,7 @@ router.get('/:id/comments/all', function(req, res, next) {
  
   var id = req.params['id'];
   var query = {where: {id: id}};
-  models.BlogPost.findOne(query).then(function(post) {
+  models.BlogPost.findOne({where: {id: id}, order: 'createdAt DESC' }).then(function(post) {
     if (post) {
         post.getComments().then(function(comments) {
             return res.status(200).send(comments);
