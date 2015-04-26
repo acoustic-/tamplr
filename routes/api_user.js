@@ -448,7 +448,7 @@ router.delete('/:username/follows/:id', requiredAuthentication, function(req, re
 });
 
 // get all registered users
-router.get('/users/all', requiredAuthentication,function(req, res, next) {
+router.get('/users/all',function(req, res, next) {
     models.User.findAll().then(function(users) {
         return res.status(200).json(users);
     });

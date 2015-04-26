@@ -17,31 +17,96 @@
                 $(".alert").hide();
 
                 // lataa kommentit ja esitä ne
+               
+
+               // lataa kommentit ja esitä ne ensimmäisen kerran
                 $.ajax({
                     url: '/api/post/<%= post.id %>/comments/all',
                     type: 'GET',
                     success: function(data)
                     {
-                        $.each(data, function(index, value) {
-                            // lataa kommentoijan nimi
-                            var userUrl = '/api/user/byId/' + value.author;
-                            $.ajax({
-                                url: userUrl,
-                                type: 'GET',
-                                success: function(user) 
-                                {
+                        $.ajax({
+                            url: '/api/user/users/all',
+                            type: 'GET',
+                            success: function(users)
+                            {
+                                $.each(data, function(index, value) {
+
+                                    // etsi käyttäjän nimi id:llä
+
+                                    var whoCommented = "";
+                                    for(var i = 0; i < users.length; ++i) {
+
+                                        if (i == value.author-1 ) {
+                                            whoCommented = users[i].username;
+                                            break;
+                                        }
+                                    }
+
                                     // lisää latatut tiedot kommentti diviin
-                                    $("#commentsDiv").append('<img src="'+user.profile_picture +'" alt="Profile picture" width="50px" height="50px"'
+                                    $("#commentsDiv").append('<img src="'+ users[value.author-1].profile_picture 
+                                                             +'" alt="Profile picture" width="50px" height="50px"'
                                                              +' style="float: left; padding-right: 5px">' +value.text + '<br /><small>kirjoittanut ' 
-                                                             + user.username + '<hr>');
+                                                             + whoCommented + '<hr>');
+                                });
+                            }
+
+                        });
+
+                    }
+                });
+
+                // jos checkbox chekattu, pollaa kommentit 15s välein
+                $("#pollComments").change(function() {
+                    if(this.checked) {
+
+
+                        setInterval(function(){
+                            $.ajax({
+                                url: '/api/post/<%= post.id %>/comments/all',
+                                type: 'GET',
+                                success: function(data)
+                                {
+                                    $.ajax({
+                                        url: '/api/user/users/all',
+                                        type: 'GET',
+                                        success: function(users)
+                                        {
+                                            // tyhjennä array että kommenttit näytetään vain kerran
+                                            $("#commentsDiv").empty();
+                                            $.each(data, function(index, value) {
+
+                                                // etsi käyttäjän nimi id:llä
+
+                                                var whoCommented = "";
+                                                for(var i = 0; i < users.length; ++i) {
+
+                                                    if (i == value.author-1 ) {
+                                                        whoCommented = users[i].username;
+                                                        break;
+                                                    }
+                                                }
+
+                                                // lisää latatut tiedot kommentti diviin
+                                                $("#commentsDiv").append('<img src="'+ users[value.author-1].profile_picture 
+                                                                         +'" alt="Profile picture" width="50px" height="50px"'
+                                                                         +' style="float: left; padding-right: 5px">' +value.text + '<br /><small>kirjoittanut ' 
+                                                                         + whoCommented + '<hr>');
+                                            });
+                                        }
+
+                                    });
+
                                 }
                             });
 
-                        });
+                        }, 30000);
+
                     }
                 });
-                
-                
+
+
+
                 $.ajax({
                     url: '/api/user/<%= post.author %>',
                     type: 'GET',
@@ -117,7 +182,12 @@
 
 
 
-
+                <form role="form">
+                    <div class="checkbox">
+                        <label><input type="checkbox" id="pollComments" value="">Pidä kommentit päivitettyinä</label>
+                    </div>
+                </form>
+                
                 <div class="well" id="commentsDiv"></div>
 
                 <div><button id="newComment" class="btn btn-default" title="Uusi blogipostaus" style="float: left;"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Kirjoita uusi kommentti</button></div></ br>
