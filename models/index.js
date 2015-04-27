@@ -52,8 +52,7 @@ function connectToPostgres(url) {
     protocol: 'postgres',
     port:     m[4] || '5432', // Default port if no excpl. given
     host:     m[3],
-    logging:  false,
-    quoteIdentifiers: false
+    logging:  false
   });
 }
 
