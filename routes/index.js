@@ -18,7 +18,7 @@ router.get('/', function(req, res, next) {
     models.User.findAll().then(function(users) {
         if(req.user) { // käyttäjä kirjautunut sisään
 
-            models.BlogPost.findAll({order: 'createdAt DESC'}).then(function(posts) {
+            models.BlogPost.findAll({order: '"createdAt" DESC'}).then(function(posts) {
                 var postsMax = 0;
                 var postsArr = [];
 
@@ -58,7 +58,7 @@ router.get('/', function(req, res, next) {
 
             });
         } else {
-            models.BlogPost.findAll({order: 'createdAt DESC'}).then(function(posts) {
+            models.BlogPost.findAll({order: '"createdAt" DESC'}).then(function(posts) {
                 var postsMax = 0;
                 var postsArr = [];
 
