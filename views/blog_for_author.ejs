@@ -123,8 +123,8 @@
                 });
 
                 // lähetä blogipostaus
-                $('#postbutton').click( function(){
-
+                $('#postbutton').click( function(event){
+                    event.preventDefault();
 
                     //Read form
                     var nameField = $("#postname").val();
