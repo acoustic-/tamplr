@@ -99,20 +99,41 @@ router.get('/:username', function(req, res, next) {
 
 
 // vaihtaa käyttäjän kuvakkeen
+// HUOMHUOM mitä jos käyttäjällä on jo ennestään 
 router.put('/change_pic', requiredAuthentication, function(req, res, next) {
 
     var img = req.body.image;
+    var scribbler = registered_user;
     console.log("Tohritaan "+req.body.userID);
-    var query = {where: {username: req.body.userID}};
+    console.log("Tohrija "+scribbler);
+    //console.log(img);
+
+    var query = {where: {id: scribbler}};
     models.User.findOne(query).then(function(user)
     {
         if(!user) { // user doesn't exist
             return res.status(404).json({error:'UserNotFound'});
         }
-        user.updateAttributes({profile_picture: img}).then(function(user_) {console.log("picture changed")});
+        models.Scribbled_picture.create({
 
+          scribbled_id: req.body.userID, //tohrittava
+          scribbled_img: img
+        }).then(function( scribbled_pic )
+        {
+            user.addScribbledUser( scribbled_pic );
+            scribbled_pic.setScribbler( user );
+            console.log("Scribble added");
+            return res.status(200).json(scribbled_pic);
+        },
+        function(err) {
+            return res.status(500).json({error: 'ServerError'});
+        });
+
+    },
+    function(err) {
+        return res.status(500).json({error: 'ServerError'});
     });
-    return res.status(200).json({success: 'jebu'});;
+    //return res.status(200).json({success: 'jebu'});
 });
 
 
@@ -229,7 +250,6 @@ router.put('/:username/likes/:id', requiredAuthentication, function(req, res, ne
     //var namefield = req.body.name;
     //var password = req.body.password;
     //var id = req.user.dataValues.id;
-    console.log("TAAALLA");
     // check if user exists
     var query = {where: {username: username}};
     models.User.findOne(query).then(function(user) {

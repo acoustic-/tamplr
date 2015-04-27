@@ -40,6 +40,7 @@ router.get('/', function(req, res, next) {
 
                         //user.getAuthoredBlogs().then(function(blogs){
                         user.getFollowedBlogs().then(function(follows) {
+                          user.getScribbledUser().then(function(scribbledusers) {
                             models.Blog.findAll().then(function(blogs) {
 
                                 res.render('index', {
@@ -49,13 +50,14 @@ router.get('/', function(req, res, next) {
                                     authored: authored,
                                     blogs: blogs,
                                     posts: postsArr,
-                                    users: users
+                                    users: users,
+                                    scribbled: scribbledusers
                                 });
                             });
                         });
                     });
                 });
-
+              });
             });
         } else {
             models.BlogPost.findAll({order: '"createdAt" DESC'}).then(function(posts) {
@@ -94,14 +96,14 @@ router.post('/scribble', function(req, res) {
 
     //mitä jos yrittää maalaa omaa kuvaa
     console.log("MOSMOSD");
-    var authorName = req.body.authorname; //töhrittävä
-    var authorPic = req.body.author_profile_pic
+    var authorID = req.body.authorID; //töhrittävä
+    var authorPic = req.body.author_profile_pic //töhrittävän kuva
     var userID = req.user; //töhrijä
-    console.log("tohrittava "+authorName);
+    console.log("tohrittava "+authorID);
     console.log("tohrijaID "+userID);
 
     res.render('scribble.ejs', {
-        author: authorName,
+        author: authorID,
         user: userID,
         author_pic: authorPic
     });

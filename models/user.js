@@ -7,12 +7,12 @@ module.exports = function(sequelize, DataTypes) {
     username: {type:DataTypes.STRING, allowNull:false},
     name: {type:DataTypes.STRING, allowNull:false},
     profile_picture: {type:DataTypes.STRING, allowNull:false},
-    password: {type:DataTypes.STRING, 
-              // hash the password   
+    password: {type:DataTypes.STRING,
+              // hash the password
               set: function(secret) {
                 var salt = bcrypt.genSaltSync(10);
                 var hash = bcrypt.hashSync(secret, salt); //,salt
-              
+
                 this.setDataValue('password', hash);
                 }
               },
@@ -25,12 +25,13 @@ module.exports = function(sequelize, DataTypes) {
         //
         // Tyyliin
         // User.hasMany(models.BlogPost);
-          
+
           User.belongsToMany(models.Blog, {as: 'AuthoredBlogs', through: 'BlogAuthors'}); //user is defined to some blogs?
           User.hasMany(models.BlogPost, {as: 'AuthoredPosts'}); //user has many blogpost
+          User.hasMany(models.Scribbled_picture, {as: 'ScribbledUser'});
           User.belongsToMany(models.Blog, {as: 'FollowedBlogs', through: 'BlogFollowers'});
           User.belongsToMany(models.BlogPost, {as: 'LikedPosts', through: 'PostLikers'});
-          
+
       }
     },
     instanceMethods: { //This makes sure the returned JSON is

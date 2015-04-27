@@ -183,7 +183,7 @@
 
                         //canvas data
                         var dataURL = document.getElementById('mainCanvas').toDataURL("image/jpeg");
-                        //var user = '<%=author%>';
+
                         //var imgObj = new Image();
                         //imgObj.src = dataURL;
 
@@ -193,7 +193,7 @@
                         //document.getElementById('graphics').appendChild(imgObj);
 
                         $.ajax({
-                            url: 'http://localhost:3000/api/user/change_pic',
+                            url: '/api/user/change_pic',
                             type: 'PUT',
                             contentType: 'application/json',
                             dataType: 'json',
@@ -275,7 +275,7 @@
             <td>
                 <input id="btnClear" value="Clear" type="button" onclick="btnClear_onClick();" />
             </td>
-            <form name="ajaxCreataUser" id="ajaxCreataUser" action="http://localhost:3000/api/user" method="post">
+            <form name="ajaxCreataUser" id="ajaxCreataUser" action="/api/user" method="post">
                 <input type="submit" class="btn btn-default" value="Tallenna"><br><br>
                 <input type="hidden" name="userToBeChanged" value="<%=author%>"><br><br>
             </form>
