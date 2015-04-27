@@ -43,7 +43,8 @@
                 });
 
 
-                $('#follow').click(function(){
+                $('#follow').click( function(event){
+                    event.preventDefault();
                     console.log("klikattu");
                     var follows = false;
 

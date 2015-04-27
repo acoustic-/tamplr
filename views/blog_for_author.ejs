@@ -24,11 +24,13 @@
                 $("#newPostDiv").hide();
                 $("#authorsDiv").hide();
 
-                $("#newPost").click(function(){
+                $("#newPost").click( function(event){
+                    event.preventDefault();
                     $("#newPostDiv").toggle(500);
                 });
 
-                $("#getAuthors").click(function(){
+                $("#getAuthors").click( function(event){
+                    event.preventDefault();
                     $("#authorsDiv").toggle(500);
                 });
 
@@ -57,7 +59,9 @@
                 });
 
                 // muuta seuraamisstatusta
-                $('#follow').click(function(){
+                $('#follow').click( function(event){
+                    event.preventDefault();
+                    
                     console.log("klikattu");
                     var follows = false;
 
@@ -160,7 +164,8 @@
                 var blogAuthors = 0;
                 var load = true;
                 // nappia painaessa lataa kirjoitusoikeuksien haltijat
-                $("#getAuthors").click(function() {
+                $("#getAuthors").click(function(event) {
+                    event.preventDefault();
                     if(load) {
 
                         var authorsArr = [];
@@ -246,7 +251,8 @@
                                 });
 
                                 // lisää kirjoitusoikeus
-                                $('#addAuthor').click(function() {
+                                $('#addAuthor').click(function(event) {
+                                    event.preventDefault();
                                     console.log("userblog: ", <%= user.defaultBlog %>, <%= blogID %>)
                                     if(<%= user.defaultBlog %> != <%= blogID %>) {  
                                        console.log("add author");

@@ -19,7 +19,7 @@
                 $(".alert").hide();
                 $("#commentDiv").hide();
 
-                $("#newComment").click(function(){
+                $("#newComment").click( function(event){                     event.preventDefault();
                     $("#commentDiv").toggle(500);
                 });
 
@@ -112,7 +112,8 @@
 
 
 
-                $('#postComment').click(function(){
+                $('#postComment').click( function(event){
+                    event.preventDefault();
                     console.log("klikattu", textField);
                     var textField = $('#commenttext').val();
 
@@ -133,7 +134,8 @@
                 });
 
                 // lähetä tykkäys
-                $('#sendLike').click(function() {
+                $('#sendLike').click(function(event) {
+                    event.preventDefault();
                     $.ajax({
                         url: '/api/user/<%= user.username%>/likes/<%=post.id%>',
                         type: 'PUT',
@@ -146,7 +148,8 @@
                     }) 
                 });
 
-                $('#cancelLike').click(function() {
+                $('#cancelLike').click(function(event) {
+                    event.preventDefault();
                     $.ajax({
                         url: '/api/user/<%= user.username%>/likes/<%=post.id%>',
                         type: 'DELETE',
