@@ -145,6 +145,9 @@ $("#errormessage").show().delay(5000).fadeOut();
                     <li style="padding: 3px">
                         <a href="/blog/<%= u.InBlogId %>/<%= u.id %>">
                             <%= u.title %></a>,  blogissa: <a href="/blog/<%= u.InBlogId %>"><%= blogs[u.InBlogId-1].name %></a>,
+                            <% for(var i=0; i < scribbled.length; ++i) { %>
+                            <%= scribbled[i].scribbled_id %>
+                            <% } %>
                             kirjoittanut <%= u.author %> <img src="<%= users[u.AuthorId-1].profile_picture %>" alt="Mountain View" width="30px" style=" padding-right: 5px; vertical-align: bottom">
                         <div id="divScribble">
                             <form action="/scribble" method="post" id="tohri">

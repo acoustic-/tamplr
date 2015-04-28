@@ -99,7 +99,7 @@ router.get('/:username', function(req, res, next) {
 
 
 // vaihtaa käyttäjän kuvakkeen
-// HUOMHUOM mitä jos käyttäjällä on jo ennestään 
+// HUOMHUOM mitä jos käyttäjällä on jo ennestään
 router.put('/change_pic', requiredAuthentication, function(req, res, next) {
 
     var img = req.body.image;
@@ -114,28 +114,65 @@ router.put('/change_pic', requiredAuthentication, function(req, res, next) {
         if(!user) { // user doesn't exist
             return res.status(404).json({error:'UserNotFound'});
         }
-        models.Scribbled_picture.create({
 
-          scribbled_id: req.body.userID, //tohrittava
-          scribbled_img: img
-        }).then(function( scribbled_pic )
+        //do we already have scribbled the user picture?
+        user.getScribbledUser().then(function(scribbledusers)
         {
-            user.addScribbledUser( scribbled_pic );
-            scribbled_pic.setScribbler( user );
-            console.log("Scribble added");
-            return res.status(200).json(scribbled_pic);
-        },
-        function(err) {
-            return res.status(500).json({error: 'ServerError'});
-        });
+          console.log( scribbledusers.length );
+          if ( scribbledusers.length < 1 )
+          {
+            console.log("terve");
+            models.Scribbled_picture.create({
 
+              scribbled_id: req.body.userID, //tohrittava
+              scribbled_img: img
+            }).then(function( scribbled_pic )
+            {
+                user.addScribbledUser( scribbled_pic );
+                scribbled_pic.setScribbler( user );
+                console.log("Scribble added");
+                return res.status(200).json(scribbled_pic);
+            },
+            function(err) {
+                return res.status(500).json({error: 'ServerError'});
+            });
+          }
+          else{
+          scribbledusers.find({ where: {scribbled_id: req.body.userID} }).then(function(scribble) {
+            console.log("2");
+            if (!scribble)
+            {
+              console.log("3");
+                    models.Scribbled_picture.create({
+
+                      scribbled_id: req.body.userID, //tohrittava
+                      scribbled_img: img
+                    }).then(function( scribbled_pic )
+                    {
+                        user.addScribbledUser( scribbled_pic );
+                        scribbled_pic.setScribbler( user );
+                        console.log("Scribble added");
+                        return res.status(200).json(scribbled_pic);
+                    },
+                    function(err) {
+                        return res.status(500).json({error: 'ServerError'});
+                    });
+          }else{
+            console.log("4");
+            scribble.updateAttributes({scribbled_img: img}).then(function(ss) {console.log("Already found scribbled picture changed"); return res.status(200).json(ss);});
+          }
+      },
+      function(err) {
+          return res.status(500).json({error: 'ServerError'});
+      });
+    }
     },
     function(err) {
         return res.status(500).json({error: 'ServerError'});
     });
     //return res.status(200).json({success: 'jebu'});
 });
-
+});
 
 
 
