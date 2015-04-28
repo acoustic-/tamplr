@@ -147,6 +147,13 @@ router.put('/change_pic', requiredAuthentication, function(req, res, next) {
     console.log("Tohrija "+scribbler);
     //console.log(img);
 
+    /*
+    //töhrii omaa kuvaa
+    if ( scribbler == req.body.userID)
+    {
+      return res.status(404).json({error:'Torhii omaa kuvaa'});
+    }
+    */
     var query = {where: {id: scribbler}};
     models.User.findOne(query).then(function(user)
     {

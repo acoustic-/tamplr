@@ -170,7 +170,7 @@
                         $("#authorInfo").append('<img src="'+ data
                                                 +'" alt="Profile picture" width="40px" style=" padding-right: 5px; vertical-align: bottom">'
                                                 +'kirjoittanut <%= post.author %>');
-
+                        $("#authorPic").append(data);
                     }
                 });
 
@@ -230,8 +230,11 @@
                     <h1><%= post.title %></h1> <!-- linkki postaukseen -->
                     <!-- Author -->
                     <p class="lead" id="authorInfo"></p>
+                    <form action="/scribble" method="post" id="tohri">
+                        <input type="submit" class="btn btn-default" value="Töhri">
+                        <input type="hidden" name="authorID" value=<%= post.AuthorId %>>
+                    </form>
                     <hr>
-
                     <!-- Date/Time -->
                     <p><span class="glyphicon glyphicon-time"></span> Kirjoitettu <%= post.createdAt %></p>
                     <hr>
@@ -251,7 +254,6 @@
                 </form>
 
                 <div class="well" id="commentsDiv"></div>
-
                 <div><button id="newComment" class="btn btn-default" title="Uusi blogipostaus" style="float: left;"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Kirjoita uusi kommentti</button></div></ br>
 
             <div id="commentDiv" class="well">

@@ -104,11 +104,41 @@ router.post('/scribble', function(req, res) {
     console.log("tohrittava "+authorID);
     console.log("tohrijaID "+userID);
 
-    res.render('scribble.ejs', {
-        author: authorID,
-        user: userID,
-        author_pic: authorPic
+
+    var query1 = {where: {id: userID}};
+    var query2 = {where: {id: authorID}};
+    // console.log("lalalalaa: ", req.user.id);
+
+    models.User.findOne(query1).then(function(user) {
+
+      if(!user) { // user doesn't exist
+          return res.status(404).json({error:'UserNotFound'});
+      }
+      user.getScribbledUser({ where: {scribbled_id: userID }}).then(function(scribbledusers)
+      {
+          console.log( "pituus: "+scribbledusers.length)
+          if (scribbledusers.length > 0)
+          {
+            console.log(scribbledusers[0].scribbled_img);
+            res.render('scribble.ejs', {
+                author: authorID,
+                user: userID,
+                author_pic: scribbledusers[0].scribbled_img
+            });
+          }
+          else
+          {
+            models.User.findOne(query2).then(function(user2) {
+              res.render('scribble.ejs', {
+                  author: authorID,
+                  user: userID,
+                  author_pic: user2.profile_picture
+              });
+            });
+          }
+      });
     });
+
 });
 
 
