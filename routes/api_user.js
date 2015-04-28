@@ -97,6 +97,45 @@ router.get('/:username', function(req, res, next) {
     // router.put
 });
 
+router.get('/return_pic/:id', requiredAuthentication, function(req, res, next) {
+
+    var userID= req.params['id'];
+    console.log(registered_user);
+    console.log(userID);
+    var scribbler = registered_user;
+
+    var query1 = {where: {id: scribbler}};
+    var query2 = {where: {id: userID}};
+    // console.log("lalalalaa: ", req.user.id);
+
+    models.User.findOne(query1).then(function(user) {
+
+      if(!user) { // user doesn't exist
+          return res.status(404).json({error:'UserNotFound'});
+      }
+      user.getScribbledUser({ where: {scribbled_id: userID }}).then(function(scribbledusers)
+      {
+          console.log( "pituus: "+scribbledusers.length)
+          if (scribbledusers.length > 0)
+          {
+            console.log(scribbledusers[0].scribbled_img);
+            return res.status(200).json(scribbledusers[0].scribbled_img);
+          }
+          else
+          {
+            models.User.findOne(query2).then(function(user2) {
+              return res.status(200).json(user2.profile_picture);});
+          }
+      });
+    });
+});
+
+
+
+
+
+
+
 
 // vaihtaa käyttäjän kuvakkeen
 // HUOMHUOM mitä jos käyttäjällä on jo ennestään

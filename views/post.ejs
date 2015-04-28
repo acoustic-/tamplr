@@ -6,7 +6,7 @@
 
         <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
         <link rel='stylesheet' href='/stylesheets/style.css' />
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
@@ -48,9 +48,9 @@
                                     }
 
                                     // lisää latatut tiedot kommentti diviin
-                                    $("#commentsDiv").append('<img src="'+ users[value.author-1].profile_picture 
+                                    $("#commentsDiv").append('<img src="'+ users[value.author-1].profile_picture
                                                              +'" alt="Profile picture" width="50px" height="50px"'
-                                                             +' style="float: left; padding-right: 5px">' +value.text + '<br /><small>kirjoittanut ' 
+                                                             +' style="float: left; padding-right: 5px">' +value.text + '<br /><small>kirjoittanut '
                                                              + whoCommented + '<hr>');
                                 });
                             }
@@ -78,7 +78,7 @@
                                         {
                                             // tyhjennä array että kommenttit näytetään vain kerran
                                             $("#commentsDiv").empty();
-                                            
+
                                             $.each(data, function(index, value) {
 
                                                 // etsi käyttäjän nimi id:llä
@@ -93,9 +93,9 @@
                                                 }
 
                                                 // lisää latatut tiedot kommentti diviin
-                                                $("#commentsDiv").append('<img src="'+ users[value.author-1].profile_picture 
+                                                $("#commentsDiv").append('<img src="'+ users[value.author-1].profile_picture
                                                                          +'" alt="Profile picture" width="50px"'
-                                                                         +' style="float: left; padding-right: 5px">' +value.text + '<br /><small>kirjoittanut ' 
+                                                                         +' style="float: left; padding-right: 5px">' +value.text + '<br /><small>kirjoittanut '
                                                                          + whoCommented + '<hr>');
                                             });
                                         }
@@ -145,7 +145,7 @@
                             $("#successalert").show().delay(5000).fadeOut();
                             location.reload();
                         }
-                    }) 
+                    })
                 });
 
                 $('#cancelLike').click(function(event) {
@@ -159,15 +159,15 @@
                             $("#successalert").show().delay(5000).fadeOut();
                             location.reload();
                         }
-                    }) 
+                    })
                 });
                 $.ajax({
-                    url: '/api/user/<%= post.author %>',
+                    url: '/api/user/return_pic/<%= post.AuthorId %>',
                     type: 'GET',
-                    success: function(data) 
+                    success: function(data)
                     {
 
-                        $("#authorInfo").append('<img src="'+ data.profile_picture
+                        $("#authorInfo").append('<img src="'+ data
                                                 +'" alt="Profile picture" width="40px" style=" padding-right: 5px; vertical-align: bottom">'
                                                 +'kirjoittanut <%= post.author %>');
 
@@ -279,6 +279,4 @@
         </div><!-- container -->
 
     <div class="alert alert-success alert-dismissable message" role="alert" id="successalert"></div>
-    <div class="alert alert-danger message" role="alert" id="errormessage"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">
-        </body>
-        </html>
+    <div class="alert alert-danger message" role="alert" id="errormessage"><span class="glyphicon glyphicon-exclamation-sign" aria-hidd
