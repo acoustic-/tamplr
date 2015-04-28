@@ -142,18 +142,19 @@ $("#errormessage").show().delay(5000).fadeOut();
                 <ul>
                     <% for(var i=0; i < posts.length; ++i) {%>
                     <% var u = posts[i]; %>
+                    <% var pic = users[u.AuthorId-1].profile_picture; %>
                     <li style="padding: 3px">
                         <a href="/blog/<%= u.InBlogId %>/<%= u.id %>">
                             <%= u.title %></a>,  blogissa: <a href="/blog/<%= u.InBlogId %>"><%= blogs[u.InBlogId-1].name %></a>,
-                            <% for(var i=0; i < scribbled.length; ++i) { %>
-                            <%= scribbled[i].scribbled_id %>
+                            <% for(var ii=0; ii < scribbled.length; ++ii) { %>
+                              <%if ( scribbled[ii].scribbled_id == u.AuthorId ) { pic = scribbled[ii].scribbled_img;  }%>
                             <% } %>
-                            kirjoittanut <%= u.author %> <img src="<%= users[u.AuthorId-1].profile_picture %>" alt="Mountain View" width="30px" style=" padding-right: 5px; vertical-align: bottom">
+                            kirjoittanut <%= u.author %> <img src="<%= pic %>" alt="Mountain View" width="30px" style=" padding-right: 5px; vertical-align: bottom">
                         <div id="divScribble">
                             <form action="/scribble" method="post" id="tohri">
                                 <input type="submit" class="btn btn-default" value="Töhri">
                                 <input type="hidden" name="authorID" value=<%=u.AuthorId%>> <!-- id number of user which picture will be scribbled-->
-                                <input type="hidden" name="author_profile_pic" value=<%=users[u.AuthorId-1].profile_picture%>>
+                                <input type="hidden" name="author_profile_pic" value=<%=pic%>>
                             </form>
                         </div>
                     </li>

@@ -115,6 +115,40 @@ router.put('/change_pic', requiredAuthentication, function(req, res, next) {
             return res.status(404).json({error:'UserNotFound'});
         }
 
+        user.getScribbledUser({ where: {scribbled_id: req.body.userID }}).then(function(scribbledusers)
+        {
+          console.log(scribbledusers);
+          if (scribbledusers.length < 1)
+          {
+            console.log("3");
+            models.Scribbled_picture.create({
+              scribbled_id: req.body.userID, //tohrittava
+              scribbled_img: img
+            }).then(function( scribbled_pic )
+            {
+                user.addScribbledUser( scribbled_pic );
+                scribbled_pic.setScribbler( user );
+                console.log("Scribble added");
+                return res.status(200).json(scribbled_pic);
+            },
+            function(err) {
+                return res.status(500).json({error: 'ServerError'});
+            });
+
+
+          }
+          else
+          {
+            console.log("5");
+            scribbledusers[0].updateAttributes({scribbled_img: img}).then(function(ss) {
+              console.log("default blog changed");
+              return res.status(200).json(ss);
+              });
+          }
+        });
+});
+});
+/*
         //do we already have scribbled the user picture?
         user.getScribbledUser().then(function(scribbledusers)
         {
@@ -174,7 +208,7 @@ router.put('/change_pic', requiredAuthentication, function(req, res, next) {
 });
 });
 
-
+*/
 
 
 

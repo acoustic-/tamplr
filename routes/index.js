@@ -40,9 +40,11 @@ router.get('/', function(req, res, next) {
 
                         //user.getAuthoredBlogs().then(function(blogs){
                         user.getFollowedBlogs().then(function(follows) {
-                          user.getScribbledUser().then(function(scribbledusers) {
-                            models.Blog.findAll().then(function(blogs) {
 
+                          user.getScribbledUser().then(function(scribbledusers) {
+
+                            models.Blog.findAll().then(function(blogs) {
+                              console.log("mooror");
                                 res.render('index', {
                                     host: req.headers.host,
                                     user: user,
