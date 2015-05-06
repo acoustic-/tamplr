@@ -39,24 +39,34 @@
                                     // etsi käyttäjän nimi id:llä
 
                                     var whoCommented = "";
+                                    userIdValue = 0;
                                     for(var i = 0; i < users.length; ++i) {
 
                                         if (i == value.author-1 ) {
                                             whoCommented = users[i].username;
+                                            userIdValue = users[i].id;
                                             break;
                                         }
                                     }
+
+                                    //alert(userIdValue);
                                     //var r= $('<input type="button" value="Töhri"/>');
                                     //$("#commentsDiv").append(r);
                                     // lisää latatut tiedot kommentti diviin
-                                    $("#commentsDiv").append('<img src="'+ users[value.author-1].profile_picture
-                                                             +'" alt="Profile picture" width="50px" height="50px"'
-                                                             +' style="float: left; padding-right: 5px">' +value.text + '<br /><small>kirjoittanut '
-                                                             + whoCommented +"  "+ '<form action="/scribble" method="post" id="tohri">'
-                                                             +'<input type="submit" class="btn btn-default" value="Töhri">'
-                                                             +'<input type="hidden" name="authorID" value=<%= post.AuthorId %>>'
-                                                             +'</form>'+'<hr>');
-
+                                    //KORJAAAAAAAAAAAAAAA value=<%= post.AuthorId %> alempaa
+                                    $.ajax({
+                                        url: '/api/user/return_pic/'+userIdValue,
+                                        type: 'GET',
+                                        success: function(kuva)
+                                        {
+                                          $("#commentsDiv").append('<img src="'+ kuva
+                                                                   +'" alt="Profile picture" width="50px" height="50px"'
+                                                                   +' style="float: left; padding-right: 5px">' +value.text + '<br /><small>kirjoittanut '
+                                                                   + whoCommented +"  "+ '<form action="/scribble" method="post" id="tohri">'
+                                                                   +'<input type="submit" class="btn btn-default" value="Töhri">'
+                                                                   +'<input type="hidden" name="authorID" value='+userIdValue+'>'+'</form>'+'<hr>');
+                                        }
+                                      });
 
                                 });
                             }
@@ -64,11 +74,6 @@
                         });
 
                     }
-                });
-
-                $('body').on('click', '#newsubmit', function (event) {
-                  event.preventDefault();
-                  alert("moro");
                 });
 
                 // jos checkbox chekattu, pollaa kommentit 15s välein

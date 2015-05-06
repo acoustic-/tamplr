@@ -99,9 +99,10 @@ router.post('/scribble', function(req, res) {
     //mitä jos yrittää maalaa omaa kuvaa
     console.log("MOSMOSD");
     var authorID = req.body.authorID; //töhrittävä
-    var authorPic = req.body.author_profile_pic //töhrittävän kuva
-    var userID = req.user; //töhrijä
     console.log("tohrittava "+authorID);
+    //var authorPic = req.body.author_profile_pic //töhrittävän kuva
+    var userID = req.user; //töhrijä
+
     console.log("tohrijaID "+userID);
 
 

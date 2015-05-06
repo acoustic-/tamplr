@@ -102,6 +102,7 @@ router.get('/return_pic/:id', requiredAuthentication, function(req, res, next) {
     var userID= req.params['id'];
     console.log(registered_user);
     console.log(userID);
+    console.log("palautetaan kayttajan kuva");
     var scribbler = registered_user;
 
     var query1 = {where: {id: scribbler}};

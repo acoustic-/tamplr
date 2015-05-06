@@ -39,7 +39,7 @@ module.exports = function(sequelize, DataTypes) {
             var res = this.values;
             // fromat JSON response correctly
             delete res.password;
-            delete res.id;
+            //delete res.id;
             delete res.createdAt;
             delete res.updatedAt;
             return res;
