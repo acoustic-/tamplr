@@ -115,12 +115,12 @@ router.post('/scribble', function(req, res) {
       if(!user) { // user doesn't exist
           return res.status(404).json({error:'UserNotFound'});
       }
-      user.getScribbledUser({ where: {scribbled_id: userID }}).then(function(scribbledusers)
+      user.getScribbledUser({ where: {scribbled_id: authorID }}).then(function(scribbledusers)
       {
           console.log( "pituus: "+scribbledusers.length)
           if (scribbledusers.length > 0)
           {
-            console.log(scribbledusers[0].scribbled_img);
+            //console.log(scribbledusers[0].scribbled_img);
             res.render('scribble.ejs', {
                 author: authorID,
                 user: userID,

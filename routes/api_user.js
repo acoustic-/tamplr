@@ -100,10 +100,11 @@ router.get('/:username', function(req, res, next) {
 router.get('/return_pic/:id', requiredAuthentication, function(req, res, next) {
 
     var userID= req.params['id'];
-    console.log(registered_user);
-    console.log(userID);
-    console.log("palautetaan kayttajan kuva");
     var scribbler = registered_user;
+    console.log("return_pic Tohrija:" +registered_user);
+    console.log("return_pic Tohrittava:" +userID); //tohrittava
+    console.log("palautetaan kayttajan kuva");
+
 
     var query1 = {where: {id: scribbler}};
     var query2 = {where: {id: userID}};
