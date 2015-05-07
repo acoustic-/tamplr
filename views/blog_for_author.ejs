@@ -327,24 +327,32 @@
                                         type: 'GET',
                                         success: function(data) 
                                         {   
-
+                                        $.ajax({
+                                            url: '/api/user/return_pic/'+data.id,
+                                            type: 'GET',
+                                            success: function(kuva)
+                                            {
 
 
                                             $("#blogPost").append('<h1><a href="/blog/' + <%= blogID %>+'/'+ value.id + '">'+value.title+'</a></h1>'
-                                                                  + '<p class="lead"> ' + '<img src="'+ data.profile_picture
+                                                                  + '<p class="lead"> ' + '<img src="'+ kuva
                                                                   +'" alt="Profile picture" width="40px" '
                                                                   +'style=" padding-right: 5px; vertical-align: bottom">'
-                                                                  +' kirjoittanut ' + post.author + '<hr>'
+                                                                  +' kirjoittanut ' + post.author
+                                                                  + '<form action="/scribble" method="post" id="tohri">'
+                                                                  + '<input type="submit" class="btn btn-default" value="Töhri">'
+                                                                  + '<input type="hidden" name="authorID" value='+data.id +'>'+'</form>'
+                                                                  + '<hr>'
+                                                                  + '<span class="glyphicon glyphicon-comment" aria-hidden="true"></span>' 
                                                                   + '<p><span class="glyphicon glyphicon-time"></span> Kirjoitettu ' + value.createdAt 
                                                                   + '</p><hr>' + '<p class="lead">' + value.text +'</p><hr>'
                                                                   + '<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>' 
                                                                   + value.likes 
-                                                                  + " "
-                                                                  + '<span class="glyphicon glyphicon-comment" aria-hidden="true"></span>' 
+                                                                  + " "                                   
                                                                   + comments.length + '<hr>'
                                                                  );
-
-
+                                        }
+                                        });
                                         }
                                     });
                                 }
