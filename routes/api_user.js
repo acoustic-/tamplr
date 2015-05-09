@@ -19,9 +19,10 @@ router.post('/', function(req, res, next) {
     var username = req.body.username;
     var name = req.body.name;
     var password = req.body.password;
-    if (!username || !password || !name ) {
-        return res.status(400).json({error: 'InvalidUserName'});
+    if (!username || !password || !name || !/^[a-z]+[a-z0-9]*$/i.test(username)  ) { // regex to enforce username 
+        return res.status(400).json({error: 'InvalidUserName'});                     // to [a-z][a-z0-9_]*
     }
+    console.log("test regex: ", /^[a-z]+[a-z0-9]*$/i.test(username) );
     // check if user is logged in
     //console.log("pidempi: ", req.user.dataValues.id);
     //console.log("lyhyempi: ", req.user.id);

@@ -43,11 +43,13 @@
 
               },
               error: function(data)
-              {
+              { 
+                  $("#errormessage").empty();
                   console.log("error data: ", data);
                   $("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Käyttäjän lisääminen ei onnistunut.'+
-                                            ' Jos täytit kaikki kentät valitsemasi käyttäjä tunnus on jo varattu!');
-                  $("#errormessage").show().delay(5000).fadeOut();
+                                            ' Jos täytit kaikki kentät valitsemasi käyttäjätunnus on jo varattu! (HUOM: '+
+                                            'käyttäjätunnuksen pitää toteuttaa regex [a-z][a-z0-9_]*)');
+                  $("#errormessage").show().delay(10000).fadeOut();
                   //err
               }
           });
