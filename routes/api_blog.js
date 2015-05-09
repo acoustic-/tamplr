@@ -102,7 +102,7 @@ router.post('/:id/posts', requiredAuthentication, function(req, res, next) {
                             return res.status(500).json({error: 'ServerError'});
                         });
                     } else {
-                        if ( i == authors.length && authors[i].get('id') != userID && !sent) {
+                        if ( i == authors.length -1 && authors[i].get('id') != userID && !sent) {
                             console.log("Unauthorized user",authors.length, authors[i].get('id'), userID, sent);
                             res.setHeader('WWW-Authenticate', 'Basic realm="tamplr"');
                             return res.status(403).json({error: 'InvalidAccessrights'});
@@ -564,7 +564,7 @@ router.get('/:id/posts/all', function(req, res, next) {
         if (blog)
         {
             blog.getPosts().then(function(posts) {
- 
+
                 if (posts)
                 {
                     return res.status(200).send(posts);
