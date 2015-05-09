@@ -179,7 +179,7 @@ $("#errormessage").show().delay(5000).fadeOut();
                         <% for (var i=0; i <follows.length; i++) {%>
                         <% var f = follows[i].dataValues; %>
                         <li>
-                            <a href="/api/blog/<% f.id %>"><%= f.name %></a>
+                            <a href="/blog/<%= f.id %>"><%= f.name %></a>
                         </li>
                         <% } %>
                     </ul></div>
