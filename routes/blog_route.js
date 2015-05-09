@@ -13,12 +13,22 @@ router.get('/:id', function(req, res, next) {
     if (/^[a-z]+[a-z0-9]*$/i.test(id)) { // jos id totetuttaa käyttäjänimen regexin
         models.User.findAll().then(function(users) {
             models.User.findOne({where: {username: id}}).then(function(user) {
+                if(!user) {
+                    res.render('error', {
+                        message: "Kyseistä käyttäjää ei löytynyt",
+                        error: "invalidUserName"
+                    }); 
+
+                }
                 // käyttäjä löytyi
                 console.log(user);
                 var defaultBlog = user.get('defaultBlog');
                 models.Blog.findOne({where: {id: defaultBlog}}).then(function(blog) {
                     if(!blog) {
-                        return res.status(404).json({error: "Blog was not found!"});
+                        res.render('error', {
+                            message: "Kyseistä blogia ei löytynyt",
+                            error: "invalidBlogName"
+                        }); 
                     }
                     // models.User.findAll().then(function(users) {
                     blog.getPosts().then(function(posts) {
@@ -171,13 +181,14 @@ router.get('/:id', function(req, res, next) {
         });
     } else {
 
-
-
         console.log("registered_user: ", req.user);
         models.User.findAll().then(function(users) {
             models.Blog.findOne(query).then(function(blog) {
                 if(!blog) {
-                    return res.status(404).json({error: "Blog was not found!"});
+                    res.render('error', {
+                        message: "Kyseistä blogia ei löytynyt",
+                        error: "invalidBlogId"
+                    }); 
                 }
                 // models.User.findAll().then(function(users) {
                 blog.getPosts().then(function(posts) {
@@ -326,55 +337,128 @@ router.get('/:blogid/:postid', function(req, res, next){
     var blogid = req.params['blogid'];
     var postid = req.params['postid'];
 
-    models.Blog.findOne({where: {id: blogid}}).then(function(blog){
-        if(!blog) {
-            return res.status(404).json({error: "Blog was not found"});
-        }
-        console.log("found blog");
-        blog.getPosts().then(function(posts) {
-            console.log("found postst?", posts)
-            for(var i = 0; i < posts.length; ++i) {
-                if(posts[i].get('id') == postid) {
-                    models.BlogPost.findOne({where: {id: postid}}).then(function(post) {
-                        if(!post) {
-                            return res.status(404).json({error: "Post was not found"});
+    // jos id = käyttäjänimi, lataa oletusblogi
+    if (/^[a-z]+[a-z0-9]*$/i.test(blogid)) { // jos id totetuttaa käyttäjänimen regexin
+        models.User.findAll().then(function(users) {
+            models.User.findOne({where: {username: blogid}}).then(function(user) {
+                // käyttäjä löytyi
+                console.log(user);
+                var defaultBlog = user.get('defaultBlog');
+                models.Blog.findOne({where: {id: defaultBlog}}).then(function(blog) {
+                    if(!blog) {
+                        res.render('error', {
+                            message: "Kyseistä blogia ei löytynyt",
+                            error: "invalidBlogId"
+                        }); 
+                    }
+                    console.log("found blog");
+                    blog.getPosts().then(function(posts) {
+
+                        console.log("found postst?", posts)
+                        for(var i = 0; i < posts.length; ++i) {
+                            if(posts[i].get('id') == postid) {
+                                models.BlogPost.findOne({where: {id: postid}}).then(function(post) {
+                                    if(!post) {
+                                        res.render('error', {
+                                            message: "Kyseistä postausta ei löytynyt",
+                                            error: "invalidPostId"
+                                        }); 
+                                    }
+
+                                    if (req.user) { // if user is logged in
+                                        models.User.findOne({where: {id: req.user}}).then(function(user){
+                                            post.getComments().then(function(comments) {   
+                                                // käyttäjä on kirjautunut sisään
+                                                res.render('post', {
+                                                    post: post,
+                                                    name: blog.get('name'),
+                                                    blogID: blog.get('id'),
+                                                    comments: comments,
+                                                    user: user
+                                                });
+                                            });
+                                        });
+
+                                    } else { // user isn't logged in
+                                        post.getComments().then(function(comments) {   
+                                            // käyttäjä on kirjautunut sisään
+                                            console.log("post: ", post);
+
+                                            res.render('post_unloggedin', {
+                                                post: post,
+                                                name: blog.get('name'),
+                                                blogID: blog.get('id'),
+                                                comments: comments
+                                            });
+                                        });
+
+                                    }
+                                });
+                            }
                         }
+                    });
+
+                });
+            });
+        });
+    } else {
+
+        models.Blog.findOne({where: {id: blogid}}).then(function(blog){
+            if(!blog) {
+                res.render('error', {
+                    message: "Kyseistä blogia ei löytynyt",
+                    error: "invalidBlogId"
+                }); 
+            }
+            console.log("found blog");
+            blog.getPosts().then(function(posts) {
+                console.log("found postst?", posts)
+                for(var i = 0; i < posts.length; ++i) {
+                    if(posts[i].get('id') == postid) {
+                        models.BlogPost.findOne({where: {id: postid}}).then(function(post) {
+                            if(!post) {
+                                res.render('error', {
+                                    message: "Kyseistä postausta ei löytynyt",
+                                    error: "invalidPostId"
+                                }); 
+                            }
 
 
 
-                        if (req.user) { // if user is logged in
-                            models.User.findOne({where: {id: req.user}}).then(function(user){
+                            if (req.user) { // if user is logged in
+                                models.User.findOne({where: {id: req.user}}).then(function(user){
+                                    post.getComments().then(function(comments) {   
+                                        // käyttäjä on kirjautunut sisään
+                                        res.render('post', {
+                                            post: post,
+                                            name: blog.get('name'),
+                                            blogID: blog.get('id'),
+                                            comments: comments,
+                                            user: user
+                                        });
+                                    });
+                                });
+
+                            } else { // user isn't logged in
                                 post.getComments().then(function(comments) {   
                                     // käyttäjä on kirjautunut sisään
-                                    res.render('post', {
+                                    console.log("post: ", post);
+
+                                    res.render('post_unloggedin', {
                                         post: post,
                                         name: blog.get('name'),
                                         blogID: blog.get('id'),
-                                        comments: comments,
-                                        user: user
+                                        comments: comments
                                     });
                                 });
-                            });
 
-                        } else { // user isn't logged in
-                            post.getComments().then(function(comments) {   
-                                // käyttäjä on kirjautunut sisään
-                                console.log("post: ", post);
-
-                                res.render('post_unloggedin', {
-                                    post: post,
-                                    name: blog.get('name'),
-                                    blogID: blog.get('id'),
-                                    comments: comments
-                                });
-                            });
-
-                        }
-                    });
+                            }
+                        });
+                    }
                 }
-            }
+            });
         });
-    });
+    }
 });
 
 /*router.get('/:id', function(req, res, next) {
