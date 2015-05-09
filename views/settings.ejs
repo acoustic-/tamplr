@@ -32,7 +32,7 @@
 
                     //alert('moro');
                     $.ajax({
-                        url: 'http://localhost:3000/api/user/<%=user.username %>',
+                        url: '/api/user/<%=user.username %>',
                         type: 'PUT',
                         contentType: 'application/json',
                         dataType: 'json',
@@ -50,6 +50,7 @@
                         error: function(data)
                         {
                             console.log("error data: ", data);
+                            $("#errormessage").empty();
                             $("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Käyttäjän tietojen päivitys ei onnistunut!');
                             $("#errormessage").show().delay(5000).fadeOut();
                             //err
@@ -100,7 +101,7 @@
 
             <h2>Syötä muutokset</h2>
             <!--HTML forms are used to collect user input.-->
-            <form name="ajaxSettings" id="ajaxSettings" action="http://localhost:3000/api/user" method="put">
+            <form name="ajaxSettings" id="ajaxSettings" action="/api/user" method="put">
                 Nimi: <input id="name" type="name" class="form-control" name="name" placeholder="Etunimi Sukunimi"><br>
                 Salasana: <input id="password" type="password" name="password" class="form-control" placeholder="Salasana"><br>
                 Profiilikuva: <input id="profile_pic" type="text" name="profile_pic" class="form-control" placeholder="Esim: http://kuvasi.jpg (ole hyvä ja käytä neliön mallista kuvaa!)"><br>
