@@ -1,0 +1,57 @@
+h1.tamplr-logo {
+  font-family: 'Bree Serif', serif;
+  color: violet ;
+}
+
+
+div.tamplr-logo-small {
+    font-family: 'Bree Serif', serif;
+    color: violet ;
+    position: relative;
+    left: 0.1em;
+}
+
+
+div.banner {
+    background-color: aqua;
+    position:fixed;
+    top:0px;
+    left: 0px;
+    z-index:100000;
+    width:100%;
+    box-shadow: 0px 2px 5px #888888;
+}
+
+div.message {
+    position:fixed;
+    top:20px;
+    right: 20px;
+    z-index:100000;
+}
+
+
+body {
+    padding-top: 50px; 
+    font-family: 'Open Sans', sans-seri;
+}
+
+.row-centered {
+    text-align:center;
+}
+.col-centered {
+    display:inline-block;
+    float:none;
+    /* reset the text-align */
+    text-align:left;
+    /* inline-block space fix */
+    margin-right:-4px;
+}
+
+.columnify {
+    -moz-column-count: 3;
+    -moz-column-gap: 20px;
+    -webkit-column-count: 3;
+    -webkit-column-gap: 20px;
+    column-count: 3;
+    column-gap: 20px;
+}

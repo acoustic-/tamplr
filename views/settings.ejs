@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+    <!DOCTYPE html>
+
+    <head>
+    
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Tamplr</title>
+        <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+        <script>
+            $(document).ready(function() {
+
+                $(".alert").hide();    
+
+                $('#ajaxSettings').on('submit', function(e){
+                    //prevent normal submit
+                    e.preventDefault();
+                    e.returnValue = false;
+                    //Read form
+                    var realName = $("#name").val();
+                    var pswrd = $("#password").val();
+                    var urlProfilePic = $("#profile_pic").val();
+
+                    //alert('moro');
+                    $.ajax({
+                        url: '/api/user/<%=user.username %>',
+                        type: 'PUT',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        data: JSON.stringify({name: realName, password: pswrd, profile_pic: urlProfilePic }),
+
+                        success: function(data)
+                        {
+                            console.log("data: ", data);
+                            // res
+                            $("#resUserSettings").html("Käyttäjän tietojen päivitys onnnistui!");
+                            $("#resUserSettings").show().delay(5000).fadeOut();
+                            location.href = "/"; 
+
+                        },
+                        error: function(data)
+                        {
+                            console.log("error data: ", data);
+                            $("#errormessage").empty();
+                            $("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Käyttäjän tietojen päivitys ei onnistunut!');
+                            $("#errormessage").show().delay(5000).fadeOut();
+                            //err
+                        }
+                    });
+                });
+
+            });
+        </script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/"><div class="tamplr-logo-small">tamplr</div></a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%= user.username %> <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="/settings"><span class="glyphicon glyphicon-wrench" aria-hidden="true"> Asetukset</a></li>
+                                <li class="divider"></li>
+                                <li><a href="/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Kirjaudu ulos</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+        <div class="container">  
+            <h1 class="tamplr-logo">tamplr</h1>
+            <h2>Tämän hetkiset tietosi:</h2>
+            <strong>Käyttäjänimi: </strong><%= user.username %><br/>
+            <strong>Oikea nimesi: </strong><%= user.name %><br/>
+            <strong>Profiilikuvasi: </strong><br />
+            <img src="<%= user.profile_picture %>" style="width: 100px" />
+
+            <h2>Syötä muutokset</h2>
+            <!--HTML forms are used to collect user input.-->
+            <form name="ajaxSettings" id="ajaxSettings" action="/api/user" method="put">
+                Nimi: <input id="name" type="name" class="form-control" name="name" placeholder="Etunimi Sukunimi"><br>
+                Salasana: <input id="password" type="password" name="password" class="form-control" placeholder="Salasana"><br>
+                Profiilikuva: <input id="profile_pic" type="text" name="profile_pic" class="form-control" placeholder="Esim: http://kuvasi.jpg (ole hyvä ja käytä neliön mallista kuvaa!)"><br>
+                <input type="submit" class="btn btn-default" value="Muuta tiedot!"><br><br>
+            </form>
+            <div class="alert alert-success alert-dismissable message" role="alert" id="resUserSettings"></div>
+            <div class="alert alert-danger message" role="alert" id="errormessage"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">
+                </span></div>
+
+        </div>
+    </body>
+</html>

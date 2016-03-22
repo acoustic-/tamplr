@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><%= name %></title>
+
+        <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/cupertino/jquery-ui.css">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>  
+
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+        <script>
+
+            // var update = new EJS({url: '/index.ejs'}).update('blogs');
+
+
+            $(document).ready(function() {
+                $(".alert").hide();
+                $("#newPostDiv").hide();
+                $("#authorsDiv").hide();
+
+                $("#newPost").click( function(event){
+                    event.preventDefault();
+                    $("#newPostDiv").toggle(500);
+                });
+
+                $("#getAuthors").click( function(event){
+                    event.preventDefault();
+                    $("#authorsDiv").toggle(500);
+                });
+
+                var follows = false;
+                $.ajax({
+                    url: '/api/user/<%= user.username %>/follows/',
+                    type: 'GET',
+                    success: function(data)
+                    {
+                        for(var i = 0; i < data.length; ++i) {
+                            if (data[i].id == <%= blogID %>) {
+                                follows = true;
+                                }
+                                if(i == data.length -1 && data[i].id != <%= blogID %>) {
+                                follows = false;
+                            }
+                        }
+                        console.log("follows: ", follows);
+
+                        if(follows) {
+                            $("#follow").html("Lopeta seuraaminen");
+                        } else {
+                            $("#follow").html("Seuraa");
+                        }
+                    }
+                });
+
+                // muuta seuraamisstatusta
+                $('#follow').click( function(event){
+                    event.preventDefault();
+                    
+                    console.log("klikattu");
+                    var follows = false;
+
+                    $.ajax({
+                        url: '/api/user/<%= user.username %>/follows/',
+                        type: 'GET',
+                        success: function(data)
+                        {
+                            console.log("!data: ", data);
+                            for(var i = 0; i < data.length; ++i) {
+                                console.log("i :", i, data[i], <%= user.id %>);
+                                            if (data[i].id == <%= blogID %>) {
+                                    follows = true;
+                                }
+                            }
+
+
+
+
+                            console.log("follows: ", follows);
+                            if(follows) {
+                                $.ajax({
+                                    url: '/api/user/<%= user.username %>/follows/<%= blogID %>',
+                                    type: 'DELETE',
+
+                                    success: function(data)
+                                    {
+
+                                        console.log("data: ", data);
+                                        $("#alertSuccess").html("Et enää seuraa tätä blogia!");
+                                        $("#alertSuccess").show().delay(3000).fadeOut();
+                                        $("#follow").html("Seuraa");
+
+                                    }
+
+
+                                });
+
+                            } else {
+                                $.ajax({
+                                    url: '/api/user/<%= user.username %>/follows/<%= blogID %>',
+                                    type: 'PUT',
+
+                                    success: function(data)
+                                    {
+
+                                        console.log("data: ", data);
+                                        $("#alertSuccess").html("Seuraat nyt tätä blogia!");
+                                        $("#alertSuccess").show().delay(3000).fadeOut();
+                                        $("#follow").html("Lopeta seuraaminen");
+
+                                    }
+
+
+                                });
+
+                            }
+                            console.log("submit action");
+                        }
+
+                    });
+
+                });
+
+                // lähetä blogipostaus
+                $('#postbutton').click( function(event){
+                    event.preventDefault();
+
+                    //Read form
+                    var nameField = $("#postname").val();
+                    var textField = $("#posttext").val();
+
+                    $.ajax({
+                        url: '/api/blog/<%= blogID %>/posts',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        data: JSON.stringify({title: nameField, text: textField }),
+
+                        success: function(data)
+                        {
+                            console.log("data: ", data);
+
+                            $("#alertSuccess").html("Uuden postauksen lisääminen onnistui.");
+                            $("#alertSuccess").show().delay(10000).fadeOut();
+                            location.reload();
+
+                        },
+                        error: function(data)
+                        {
+                            console.log("error data: ", data);
+                            $("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Tarkista, että täytit kaikki kentät');
+                            $("#errormessage").show().delay(5000).fadeOut();
+                            //err
+                        }
+                    });
+                });
+
+
+                var blogAuthors = 0;
+                var load = true;
+                // nappia painaessa lataa kirjoitusoikeuksien haltijat
+                $("#getAuthors").click(function(event) {
+                    event.preventDefault();
+                    if(load) {
+
+                        var authorsArr = [];
+                        // lataa blogin kirjoittajat
+                        $.ajax({
+                            url: '/api/blog/<%= blogID %>/authors',
+                            type: 'GET',
+                            success: function(data) 
+                            {
+                                blogAuthors = data.length;
+
+                                $("#authorsDiv").append('<div class="form-group">'
+                                                        +'<label>Anna käyttäjälle kirjoitusoikeus:</label>'
+                                                        +'<input class="form-control" rows="1" id="addAuthorByName" />'
+                                                        +'<button id="addAuthor">Lisää kirjoitusoikeus</button></div>');
+                                //$("authorsDiv").append('tyhmä teksti');
+
+                                console.log("--- lisää uusi -----");
+                                for(var i = 0; i < data.length; ++i) {
+                                    if(data[i].username == "<%= user.username %>") {
+                                        $("#authorsDiv").append('<div class="alert alert-info author-name" role="alert" id="author'+i+ '">'
+                                                                +'Sinulla on kirjoitusoikeus tähän blogiin.');
+
+                                    } else {
+                                        $("#authorsDiv").append('<div class="alert alert-info alert-dismissible author-name" role="alert" id="author'+i+ '">'
+                                                                +'<button data-toggle="tooltip" data-placement="top" title="Poista kirjoitusoikeus" '
+                                                                +'type="button" class="close" data-dismiss="alert">'
+                                                                +'Poista kirjoitusoikeus</button>Käyttäjällä <strong>'
+                                                                +data[i].username +'</strong> on kirjoitusoikeus tähän blogiin.</div>');
+                                    };
+                                    authorsArr.push(data[i].username);
+
+                                }
+
+                                //linkitä jokaisen kirjoitta-ilmoituksen sulkemiseen kirjoitusoikeden poisto -toiminto
+                                $.each(authorsArr, function(index, value) {
+
+                                    $('#author' +index).on('closed.bs.alert', function(){
+                                        console.log("vertailu: ", value, "<%= user.username %>");
+                                        if(value != "<%= user.username %>") {
+                                            var toUrl = "/api/blog/<%= blogID%>/author/" + value;
+
+                                            $.ajax({
+                                                url : toUrl,
+                                                type: 'DELETE',
+                                                success: function(data) 
+                                                {
+                                                    $("#alertSuccess").html("Poistaminen onnistui!");
+                                                    $("#alertSuccess").show().delay(5000).fadeOut();
+                                                    console.log("deleted", value);
+                                                }, error: function (data) {
+                                                    console.log("error data: ", data);
+                                                    $("#errormessage").html('<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">'
+                                                                            +'</span><span class="sr-only">Virhe:</span>'+' Käyttäjän poistaminen ei'
+                                                                            +' onnistunut.');
+                                                    $("#errormessage").show().delay(5000).fadeOut();
+                                                }
+                                            });
+
+                                        } else {
+                                            $("#errormessage").html('<span class="sr-only">Virhe:</span>'+' Et voi poistaa itseäsi!');
+                                            $("#errormessage").show().delay(5000).fadeOut();
+
+                                        }
+                                    });
+                                });
+
+                                // lataa kaikki palvelun käyttäjät ja linkitä autocomplete metodilla input form siihen
+                                $.ajax({
+                                    url: '/api/user/users/all',
+                                    type: 'GET',
+                                    success: function (data) {
+                                        users = data;
+
+                                        for (var i = 0; i < users.length; ++i) {
+                                            users[i] = users[i].username;
+                                        }
+
+                                        $("#addAuthorByName").autocomplete({
+                                            source: users
+                                        });
+                                    }
+                                });
+
+                                // lisää kirjoitusoikeus
+                                $('#addAuthor').click(function(event) {
+                                    event.preventDefault();
+                                    console.log("userblog: ", <%= user.defaultBlog %>, <%= blogID %>)
+                                    if(<%= user.defaultBlog %> != <%= blogID %>) {  
+                                       console.log("add author");
+
+                                    var usernameToAdd = $('#addAuthorByName').val();
+
+                                    var addUrl = '/api/blog/<%= blogID%>/author/' + usernameToAdd;
+                                    $.ajax({
+                                        url: addUrl,
+                                        type: 'PUT',
+                                        success: function (data) {
+                                            $("#alertSuccess").html("Kirjoittajan lisääminen onnistui!");
+                                            $("#alertSuccess").show().delay(5000).fadeOut();
+                                            location.reload();
+
+                                        }, error: function (data) {
+                                            console.log("error data: ", data);
+                                            $("#errormessage").append('<span class="sr-only">Virhe:</span>'+' Tarkista, että käyttäjänimi on '
+                                                                      +'oikein ja että kyseessä ei ole käyttäjän oletusblogi.');
+                                            $("#errormessage").show().delay(5000).fadeOut();
+                                        }
+
+                                    })
+                                    console.log("auhorsarr length: ", authorsArr.length);
+
+
+                                    //$("#authorsDiv").show();
+
+
+
+
+                                } else {
+                                                      $("#alertSuccess").html('<strong>Huomaa </strong>, että tämä on oletusblogisi,'
+                                                                              +' joten sen kirjoittajia ei saa muokattua.');
+                                $("#alertSuccess").show().delay(5000).fadeOut();
+
+                            }
+
+                        });
+                        load = false;
+                    } //--------------alkuperäisen ajax-pyynnön loppu (joka lataa kirjoittajat)
+                });
+
+            } else {
+                              //$("#authorsDiv").hide();
+                              $("#authorsDiv").empty();
+            load = true;
+            }
+
+            });
+            
+            // lataa blogin kirjoitukset
+                $.ajax({
+                    url: '/api/blog/<%=blogID%>/posts/all',
+                    type: 'GET',
+                    success: function (posts) {
+                        $.each(posts.reverse(), function(index, value) {
+                            var commentsUrl = '/api/post/' + posts[index].id + '/comments'
+                            $.ajax({
+                                url: commentsUrl,
+                                type: 'GET',
+                                success: function(comments) 
+                                {
+
+
+
+                                    var post = posts[index];
+                                    var i = index;
+                                    var authorUrl = '/api/user/' + post.author;
+                                    $.ajax({
+                                        url: authorUrl,
+                                        type: 'GET',
+                                        success: function(data) 
+                                        {   
+                                        $.ajax({
+                                            url: '/api/user/return_pic/'+data.id,
+                                            type: 'GET',
+                                            success: function(kuva)
+                                            {
+
+
+                                            $("#blogPost").append('<h1><a href="/blog/' + <%= blogID %>+'/'+ value.id + '">'+value.title+'</a></h1>'
+                                                                  + '<p class="lead"> ' + '<img src="'+ kuva
+                                                                  +'" alt="Profile picture" width="40px" '
+                                                                  +'style=" padding-right: 5px; vertical-align: bottom">'
+                                                                  +' kirjoittanut ' + post.author
+                                                                  + '<form action="/scribble" method="post" id="tohri">'
+                                                                  + '<input type="submit" class="btn btn-default" value="Töhri">'
+                                                                  + '<input type="hidden" name="authorID" value='+data.id +'>'+'</form>'
+                                                                  + '<hr>'
+                                                                  
+                                                                  + '<p><span class="glyphicon glyphicon-time"></span> Kirjoitettu ' + value.createdAt 
+                                                                  + '</p><hr>' + '<p class="lead">' + value.text +'</p><hr>'
+                                                                  + '<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>' 
+                                                                  + value.likes 
+                                                                  + " "
+                                                                  + '<span class="glyphicon glyphicon-comment" aria-hidden="true"></span>' 
+                                                                  + comments.length + '<hr>'
+                                                                 );
+                                        }
+                                        });
+                                        }
+                                    });
+                                }
+                            });
+
+
+                        });
+                    }
+                });
+            
+            
+            
+            });
+
+
+            // author alert-info:n ruksin painaminen linkitetty
+            // kirjoitusoikeusden poistoon 
+            /*$(".author-name").each(function() {
+                    var id = this.attr('id');
+                    console.log("tapahtuuko täällä edes mitään", id);
+                    this.bind('closed.bs.alert', function(){
+                        alert("Alert has been " + id );
+                    });
+
+
+                });*/
+
+
+            /*
+                $("#myAlert").bind('closed.bs.alert', function(){
+                    alert("Alert message box has been closed.");
+                });
+
+                for(var i = 0; i < blogAuthors; ++i) {
+                    $('#author' +i).bind('closed.bs.alert', function(){
+                        console.log("something happens", i);
+                        alert("Alert has been " + id );
+                    });
+                }*/
+
+
+
+
+        </script>
+
+    </head>
+    <body>
+
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/"><div class="tamplr-logo-small">tamplr</div></a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%= user.username %> <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="/settings"><span class="glyphicon glyphicon-wrench" aria-hidden="true"> Asetukset</a></li>
+                                <li class="divider"></li>
+                                <li><a href="/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Kirjaudu ulos</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+
+        <div class ="container">
+            <div class="row">
+
+
+                <!-- Blog Post Content Column -->
+
+                <table width="100%"><tr><td><h1 class="tamplr-logo"><a href="/blog/<%= blogID %>"><%= name %></a></h1></td>
+                    <td><button id="follow" class="btn btn-default" title="Seuraa/Lopeta seuraaminen" style="float: right;">Seuraa blogia</button><button id="newPost" class="btn btn-default" title="Uusi blogipostaus" style="float: right;"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+                    </td></tr>
+                </table>
+                <div id="newPostDiv">
+                    <h2>Luo uusi blogipostaus</h2>
+                    <form role="form" id="postform">
+                        <div class="form-group">
+                            <div><label for="postname">Postauksen nimi:</label>
+                                <input id="postname" class="form-control" name="post" placeholder="Postauksen nimi"/></div>
+                            <div><label for="posttext">Postauksen sisältö:</label>
+                                <textarea class="form-control" rows="5" id="posttext"></textarea></div><br />
+                            <div>
+                                <button id="postbutton" class="btn btn-default" value="Lähetä postaus">Lähetä postaus</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- glyphicon glyphicon-pencil -->
+
+                
+                <div class="well" id="blogPost">
+
+                <button id="getAuthors" class="btn btn-default" title="Blogin seuraajat" style="float: right;"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>
+                <div id="authorsDiv" class="well"></div>
+
+            </div> <!-- row -->
+            <!-- Footer -->
+            <footer>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p>Copyright &copy; Tamplr 2015</p>
+                    </div>
+                </div>
+                <!-- /.row -->
+            </footer>
+        </div><!-- container -->
+
+        <div class="alert alert-success alert-dismissable message" role="alert" id="alertSuccess"></div>
+        <div class="alert alert-danger message" role="alert" id="errormessage"></div>
+    </body>
+</html>

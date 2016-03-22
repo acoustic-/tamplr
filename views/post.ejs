@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><%= name %></title>
+
+        <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+        <script>
+
+            // var update = new EJS({url: '/index.ejs'}).update('blogs');
+
+            $(document).ready(function() {
+                $(".alert").hide();
+                $("#commentDiv").hide();
+
+                $("#newComment").click( function(event){                     event.preventDefault();
+                    $("#commentDiv").toggle(500);
+                });
+
+                // lataa kommentit ja esitä ne ensimmäisen kerran
+                $.ajax({
+                    url: '/api/post/<%= post.id %>/comments/all',
+                    type: 'GET',
+                    success: function(data)
+                    {
+                        $.ajax({
+                            url: '/api/user/users/all',
+                            type: 'GET',
+                            success: function(users)
+                            {
+                                $.each(data, function(index, value) {
+
+                                    // etsi käyttäjän nimi id:llä
+
+                                    var whoCommented = "";
+                                    var userIdValue = 0;
+                                    for(var i = 0; i < users.length; ++i) {
+
+                                        if (i == value.author-1 ) {
+                                            whoCommented = users[i].username;
+                                            userIdValue = users[i].id;
+                                            break;
+                                        }
+                                    }
+
+                                    //alert("ei sisalla"+userIdValue);
+                                    //var r= $('<input type="button" value="Töhri"/>');
+                                    //$("#commentsDiv").append(r);
+                                    // lisää latatut tiedot kommentti diviin
+                                    //KORJAAAAAAAAAAAAAAA value=<%= post.AuthorId %> alempaa
+                                    $.ajax({
+                                        url: '/api/user/return_pic/'+userIdValue,
+                                        type: 'GET',
+                                        success: function(kuva)
+                                        {
+                                          //alert("sisalla"+userIdValue);
+                                          $("#commentsDiv").append('<img src="'+ kuva
+                                                                   +'" alt="Profile picture" width="50px" height="50px"'
+                                                                   +' style="float: left; padding-right: 5px">' +value.text + '<br /><small>kirjoittanut '
+                                                                   + whoCommented +"  "+ '<form action="/scribble" method="post" id="tohri">'
+                                                                   +'<input type="submit" class="btn btn-default" value="Töhri">'
+                                                                   +'<input type="hidden" name="authorID" value='+userIdValue+'>'+'</form>'+'<hr>');
+                                        }
+                                      });
+
+                                });
+                            }
+
+                        });
+
+                    }
+                });
+
+                // jos checkbox chekattu, pollaa kommentit 15s välein
+                $("#pollComments").change(function() {
+                    if(this.checked) {
+
+
+                        setInterval(function(){
+                            $.ajax({
+                                url: '/api/post/<%= post.id %>/comments/all',
+                                type: 'GET',
+                                success: function(data)
+                                {
+                                    $.ajax({
+                                        url: '/api/user/users/all',
+                                        type: 'GET',
+                                        success: function(users)
+                                        {
+                                            // tyhjennä array että kommenttit näytetään vain kerran
+                                            $("#commentsDiv").empty();
+
+                                            $.each(data, function(index, value) {
+
+                                                // etsi käyttäjän nimi id:llä
+
+                                                var whoCommented = "";
+                                                for(var i = 0; i < users.length; ++i) {
+
+                                                    if (i == value.author-1 ) {
+                                                        whoCommented = users[i].username;
+                                                        break;
+                                                    }
+                                                }
+
+                                                // lisää latatut tiedot kommentti diviin
+                                                $("#commentsDiv").append('<img src="'+ users[value.author-1].profile_picture
+                                                                         +'" alt="Profile picture" width="50px"'
+                                                                         +' style="float: left; padding-right: 5px">' +value.text + '<br /><small>kirjoittanut '
+                                                                         + whoCommented + '<hr>');
+                                            });
+                                        }
+
+                                    });
+
+                                }
+                            });
+
+                        }, 30000);
+
+                    }
+                });
+
+
+
+                $('#postComment').click( function(event){
+                    event.preventDefault();
+                    console.log("klikattu", textField);
+                    var textField = $('#commenttext').val();
+
+                    $.ajax({
+                        url: '/api/post/<%= post.id %>/comments/',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        data: JSON.stringify({text: textField }),
+                        success: function(data)
+                        {
+                            $("#successalert").html("Kommentti lähetetty!");
+                            $("#successalert").show().delay(5000).fadeOut();
+                            location.reload();
+
+                        }
+                    });
+                });
+
+                // lähetä tykkäys
+                $('#sendLike').click(function(event) {
+                    event.preventDefault();
+                    $.ajax({
+                        url: '/api/user/<%= user.username%>/likes/<%=post.id%>',
+                        type: 'PUT',
+                        success: function(data)
+                        {
+                            $("#successalert").html("Tykkäät nyt tästä postauksesta");
+                            $("#successalert").show().delay(5000).fadeOut();
+                            location.reload();
+                        }
+                    })
+                });
+
+                $('#cancelLike').click(function(event) {
+                    event.preventDefault();
+                    $.ajax({
+                        url: '/api/user/<%= user.username%>/likes/<%=post.id%>',
+                        type: 'DELETE',
+                        success: function(data)
+                        {
+                            $("#successalert").html("Et enää tykkää tästä postauksesta.");
+                            $("#successalert").show().delay(5000).fadeOut();
+                            location.reload();
+                        }
+                    })
+                });
+                $.ajax({
+                    url: '/api/user/return_pic/<%= post.AuthorId %>',
+                    type: 'GET',
+                    success: function(data)
+                    {
+
+                        $("#authorInfo").append('<img src="'+ data
+                                                +'" alt="Profile picture" width="40px" style=" padding-right: 5px; vertical-align: bottom">'
+                                                +'kirjoittanut <%= post.author %>');
+                        $("#authorPic").append(data);
+                    }
+                });
+
+
+            });
+
+
+        </script>
+
+    </head>
+    <body>
+
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/"><div class="tamplr-logo-small">tamplr</div></a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%= user.username %> <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="/settings"><span class="glyphicon glyphicon-wrench" aria-hidden="true"> Asetukset</a></li>
+                                <li class="divider"></li>
+                                <li><a href="/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Kirjaudu ulos</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+
+        <div class ="container">
+            <div class="row">
+
+
+                <!-- Blog Post Content Column -->
+
+                <h1 class="tamplr-logo"><a href="/blog/<%= post.InBlogId %>"><%= name %></a></h1>
+                <button class="btn btn-default" id="sendLike" style="float: right;" title="Tykkää postauksesta"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></button><button class="btn btn-default" id="cancelLike" style="float: right;" title="Poista tykkäys"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span></button>
+
+
+
+                <!--style="background-color: #F8F8F8; padding: 5px; border-radius: 10px;">-->
+                <div class="well">
+
+                    <h1><%= post.title %></h1> <!-- linkki postaukseen -->
+                    <!-- Author -->
+                    <p class="lead" id="authorInfo"></p>
+                    <form action="/scribble" method="post" id="tohri">
+                        <input type="submit" class="btn btn-default" value="Töhri">
+                        <input type="hidden" name="authorID" value=<%= post.AuthorId %>>
+                    </form>
+                    <hr>
+                    <!-- Date/Time -->
+                    <p><span class="glyphicon glyphicon-time"></span> Kirjoitettu <%= post.createdAt %></p>
+                    <hr>
+                    <p class="lead"><%= post.text %> <br /></p><hr>
+                    <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span><%= post.likes %>
+                    <span class="glyphicon glyphicon-comment" aria-hidden="true"></span><%= comments.length %>
+
+                </div>
+
+
+
+
+                <form role="form">
+                    <div class="checkbox">
+                        <label><input type="checkbox" id="pollComments" value="">Pidä kommentit päivitettyinä</label>
+                    </div>
+                </form>
+
+                <div class="well" id="commentsDiv"           ></div>
+                <div><button id="newComment" class="btn btn-default" title="Uusi blogipostaus" style="float: left;"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Kirjoita uusi kommentti</button></div></ br>
+
+            <div id="commentDiv" class="well">
+                <h2>Lähetä uusi kommentti</h2>
+                <form role="form" id="commentform">
+                    <div class="form-group">
+                        <div><label for="posttext">Kommenttisi:</label>
+                            <textarea class="form-control" rows="5" id="commenttext"></textarea></div><br />
+                        <div>
+                            <button id="postComment" onclick="this.disabled = true" class="btn btn-default" value="Lähetä kommentti">Lähetä kommentti</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div> <!-- row -->
+        <!-- Footer -->
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; Tamplr 2015</p>
+                </div>
+            </div>
+            <!-- /.row -->
+        </footer>
+        </div><!-- container -->
+
+    <div class="alert alert-success alert-dismissable message" role="alert" id="successalert"></div>
+    <div class="alert alert-danger message" role="alert" id="errormessage"><span class="glyphicon glyphicon-exclamation-sign" aria-hidd

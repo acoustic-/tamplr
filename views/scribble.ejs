@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tamplr</title>
+        <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+    <title>Scribble</title>
+</head>
+<body>
+          <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/"><div class="tamplr-logo-small">tamplr</div></a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+
+            </div><!-- /.container-fluid -->
+        </nav>
+              <script>
+              //https://fahadmustafa.wordpress.com/2011/06/20/scribble-app-with-html5/
+                    var doDraw = false;
+                    var mainCanvas, canvasContext;
+                    var xCoords = new Array();
+                    var yCoords = new Array();
+                    var colour = new Array();
+                    var isMouseDownEvent = new Array();
+                    var lineWidth = new Array();
+
+
+
+
+
+                    window.onload = function () {
+                    //Get canvas element
+                    mainCanvas = document.getElementById('mainCanvas');
+                    if (!mainCanvas) {
+                      alert('No canvas found !');
+                      return;
+                    }
+
+                    //Check for canvas support
+                    if (!mainCanvas.getContext) {
+                      alert('Sorry, your browser does not support the canvas element :(');
+                      return;
+                    }
+                    //Get canvas context
+                    canvasContext = mainCanvas.getContext('2d');
+
+                    // set own image to the canvas location
+                    var imageObj = new Image();
+                    imageObj.src = '<%=author_pic%>';
+
+                    imageObj.onload = function() {
+                    canvasContext.drawImage(imageObj, 0, 0,300,300);
+                    canvasContext.restore();
+                    };
+
+
+
+
+                    //Attach the event handlers
+                    mainCanvas.addEventListener('mousemove', mainCanvas_mouseMove, false);
+                    mainCanvas.addEventListener('mousedown', mainCanvas_mouseDown, false);
+                    mainCanvas.addEventListener('mouseup', mainCanvas_mouseUp, false);
+
+                    mainCanvas.addEventListener('touchstart', mainCanvas_fingerDown, false);
+                    mainCanvas.addEventListener('touchmove', mainCanvas_fingerMove, false);
+                    mainCanvas.addEventListener('touchend', mainCanvas_mouseUp, false);
+                    }
+
+                    //Change the drawing colour
+                    function ddlColour_onChange() {
+
+                      var ddlColour = document.getElementById('ddlColour');
+                      canvasContext.strokeStyle = ddlColour.options[ddlColour.selectedIndex].value;
+                    }
+
+                    //Change the line width
+                    function ddlLineWidth_onChange() {
+
+                      var ddlLineWidth = document.getElementById('ddlLineWidth');
+                      canvasContext.lineWidth = ddlLineWidth.options[ddlLineWidth.selectedIndex].value;
+                    }
+
+                    //Start drawing when a mouse button is pressed
+                    function mainCanvas_fingerDown(args) {
+
+                      /*if ( args.type == 'touchstart' )
+                      {
+                        alert("mor");
+                      }
+                      */
+                      //using first touch, multi-touch would be 1 2 .. index
+                      xCoords.push(args.touches[0].pageX-mainCanvas.offsetLeft);
+                      yCoords.push(args.touches[0].pageY-mainCanvas.offsetTop);
+                      colour.push(canvasContext.strokeStyle);
+                      lineWidth.push(canvasContext.lineWidth);
+                      isMouseDownEvent.push(true);
+                      doDraw = true;
+                    }
+
+                    //Start drawing when a mouse button is pressed
+                    function mainCanvas_mouseDown(args) {
+
+                      xCoords.push(args.clientX-mainCanvas.offsetLeft);
+                      yCoords.push(args.clientY-mainCanvas.offsetTop);
+                      colour.push(canvasContext.strokeStyle);
+                      lineWidth.push(canvasContext.lineWidth);
+                      isMouseDownEvent.push(true);
+                      doDraw = true;
+                    }
+
+                    //The event handler that does the actual drawing
+                    function mainCanvas_fingerMove(args) {
+
+                      if (doDraw) {
+                      args.preventDefault();
+                      xCoords.push(args.touches[0].pageX-mainCanvas.offsetLeft);
+                      yCoords.push(args.touches[0].pageY-mainCanvas.offsetTop);
+                      colour.push(canvasContext.strokeStyle);
+                      lineWidth.push(canvasContext.lineWidth);
+                      isMouseDownEvent.push(false);
+                      redraw();
+                      }
+                    }
+
+                    //The event handler that does the actual drawing
+                    function mainCanvas_mouseMove(args) {
+                      if (doDraw) {
+                      args.preventDefault();
+                      xCoords.push(args.clientX-mainCanvas.offsetLeft);
+                      yCoords.push(args.clientY-mainCanvas.offsetTop);
+                      colour.push(canvasContext.strokeStyle);
+                      lineWidth.push(canvasContext.lineWidth);
+                      isMouseDownEvent.push(false);
+                      redraw();
+                      }
+                    }
+
+
+                    //Stop drawing when the mouse is released
+                    function mainCanvas_mouseUp(args) {
+                      doDraw = false;
+                    }
+
+
+                    //send the canvas
+                    $(document).ready(function() {
+
+                      $(".alert").hide();
+
+                      $('#ajaxCreataUser').on('submit', function(e){
+                          //alert("taalla");
+                        //prevent normal submit
+                        e.preventDefault();
+                        e.returnValue = false;
+
+                        //canvas data
+                        var dataURL = document.getElementById('mainCanvas').toDataURL("image/jpeg");
+
+                        //var imgObj = new Image();
+                        //imgObj.src = dataURL;
+
+                        //show image
+                        //window.open(dataURL, "Canvas Image");
+
+                        //document.getElementById('graphics').appendChild(imgObj);
+
+                        $.ajax({
+                            url: '/api/user/change_pic',
+                            type: 'PUT',
+                            contentType: 'application/json',
+                            dataType: 'json',
+                            data: JSON.stringify({image: dataURL, userID: '<%=author%>'}),
+
+                            success: function(data)
+                            {
+                                //console.log("data: ", data);
+                                // res
+                                 $("#resCreateUser").html("Onnistui!");
+                                 location.href = "/";
+
+                            },
+                            error: function(data)
+                            {
+                                console.log("error data: ", data);
+                                $("#errormessage").append('Yritätkö töhriä omaa kuvaasi? ;-)');
+                                //err
+                            }
+                        });
+                      });
+
+                    });
+
+                    //Do the actual drawing
+                    function redraw() {
+
+                    //Clear canvas ! jos ei kommentoituna kuva häviää samantien
+                    //mainCanvas.width = mainCanvas.width;
+                    //alert("moro");
+                      for (i = 0; i < xCoords.length; i++) {
+
+                      canvasContext.beginPath();
+                      if (!i || isMouseDownEvent[i]) {
+                      canvasContext.moveTo(xCoords[i], yCoords[i]);
+                      }
+                      else {
+                      canvasContext.moveTo(xCoords[i - 1], yCoords[i - 1]);
+                      }
+
+                      canvasContext.lineTo(xCoords[i], yCoords[i]);
+
+                      canvasContext.closePath();
+
+                      //Stroke properties
+                      canvasContext.strokeStyle = colour[i];
+                      canvasContext.lineWidth = lineWidth[i];
+                      canvasContext.lineCap = 'round';
+                      canvasContext.lineJoin = 'round';
+                      canvasContext.stroke();
+                      }
+                    }
+
+
+                    function btnClear_onClick() {
+
+                      var imageObj = new Image();
+                      imageObj.src = '<%=author_pic%>';
+
+                      imageObj.onload = function() {
+                      canvasContext.drawImage(imageObj, 0, 0,300,300);
+                      canvasContext.restore();
+                      };
+                      xCoords = [];
+                      yCoords = [];
+
+                    }
+
+
+
+             </script>
+
+    <table>
+        <tr>
+            <td>
+                Colour:
+            </td>
+            <td>
+                <select id="ddlColour" onchange="ddlColour_onChange();">
+                    <option value="#000000">Black</option>
+                    <option value="#FF0000">Red</option>
+                    <option value="#00FF00">Green</option>
+                    <option value="#0000FF">Blue</option>
+                </select>
+            </td>
+            <td>
+                Line Width:
+            </td>
+            <td>
+                <select id="ddlLineWidth" onchange="ddlLineWidth_onChange();">
+                    <option value="1">1</option>
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                </select>
+            </td>
+            <input id="btnClear" class="btn btn-default" value="Poista muutokset" type="button" onclick="btnClear_onClick();" />
+            <form name="ajaxCreataUser" id="ajaxCreataUser" action="/api/user" method="post">
+                <input type="submit" class="btn btn-default" value="Tallenna">
+                <input type="hidden" name="userToBeChanged" value="<%=author%>"><br><br>
+            </form>
+
+
+        </tr>
+    </table>
+      <canvas id="mainCanvas" width="300" height="300" style="border: 1px solid #000;"></canvas>
+            <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; Tamplr 2015</p>
+                </div>
+            </div>
+            <!-- /.row -->
+        </footer>
+</body>
+</html>
